@@ -7,4 +7,4 @@ app = FastAPI(
 
 @app.get("/")
 def root():
-    return {"message": "API funcionando correctamente"}
+    return {"message": "API funcionando correctamente! Bienvenido a la Plataforma de Seguimiento."}
