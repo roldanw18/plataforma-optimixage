@@ -1,8 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = "postgresql://user:password@localhost:5432/plataforma_db"
 
+DATABASE_URL = "postgresql://postgres:1@localhost:5432/optimixagedb"
 engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(
@@ -12,3 +12,6 @@ SessionLocal = sessionmaker(
 )
 
 Base = declarative_base()
+
+from app.models.usuario import Usuario
+from app.models.rol import Rol
