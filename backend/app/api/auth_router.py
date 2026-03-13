@@ -24,8 +24,7 @@ def register(user: UsuarioCreate, db: Session = Depends(get_db)):
         db,
         user.nombre,
         user.email,
-        user.password,
-        rol_id=None
+        user.password
     )
 
     return {
