@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models.usuario import Usuario
+from app.models.rol import Rol
 from app.core.security import hash_password, verify_password
 from jose import jwt
 from datetime import datetime, timedelta
@@ -9,15 +10,18 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 
-def crear_usuario(db: Session, nombre: str, email: str, password: str, rol_id):
+def crear_usuario(db: Session, nombre: str, email: str, password: str):
 
-    hashed_password = hash_password(password)
+    rol_cliente = db.query(Rol).filter(Rol.nombre == "Cliente").first()
+
+    if not rol_cliente:
+        raise Exception("Rol Cliente no encontrado")
 
     usuario = Usuario(
         nombre=nombre,
         email=email,
-        password_hash=hashed_password,
-        rol_id=rol_id
+        password_hash=hash_password(password),
+        rol_id=rol_cliente.id
     )
 
     db.add(usuario)

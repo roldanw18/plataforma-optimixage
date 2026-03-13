@@ -42,3 +42,17 @@ def get_current_user(
         raise HTTPException(status_code=401, detail="Usuario no encontrado")
 
     return usuario
+
+def require_role(rol_nombre: str):
+
+    def role_checker(usuario = Depends(get_current_user)):
+
+        if usuario.rol.nombre != rol_nombre:
+            raise HTTPException(
+                status_code=403,
+                detail="No tienes permisos para acceder a este recurso"
+            )
+
+        return usuario
+
+    return role_checker
