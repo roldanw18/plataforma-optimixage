@@ -1,0 +1,53 @@
+from sqlalchemy.orm import Session
+from app.models.usuario import Usuario
+from app.core.security import hash_password, verify_password
+from jose import jwt
+from datetime import datetime, timedelta
+
+SECRET_KEY = "supersecretkey"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
+
+def crear_usuario(db: Session, nombre: str, email: str, password: str, rol_id):
+
+    hashed_password = hash_password(password)
+
+    usuario = Usuario(
+        nombre=nombre,
+        email=email,
+        password_hash=hashed_password,
+        rol_id=rol_id
+    )
+
+    db.add(usuario)
+    db.commit()
+    db.refresh(usuario)
+
+    return usuario
+
+
+def autenticar_usuario(db: Session, email: str, password: str):
+
+    usuario = db.query(Usuario).filter(Usuario.email == email).first()
+
+    if not usuario:
+        return None
+
+    if not verify_password(password, usuario.password_hash):
+        return None
+
+    return usuario
+
+
+def crear_token(usuario: Usuario):
+
+    payload = {
+        "sub": str(usuario.id),
+        "email": usuario.email,
+        "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    }
+
+    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+    return token
