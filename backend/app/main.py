@@ -3,6 +3,8 @@ from app.core.database import engine, Base
 from app.models.usuario import Usuario
 from app.models.rol import Rol
 from app.api import auth_router
+from app.api import proyectos_router
+
 
 
 app = FastAPI(
@@ -12,6 +14,8 @@ app = FastAPI(
 
 Base.metadata.create_all(bind=engine)
 app.include_router(auth_router.router)
+app.include_router(proyectos_router.router)
+
 
 @app.get("/")
 def root():
