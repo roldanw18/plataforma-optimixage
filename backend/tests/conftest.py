@@ -10,12 +10,13 @@ def client():
 
 
 @pytest.fixture
-def test_user(client):
+def auth_token(client):
 
     email = f"test_{uuid.uuid4()}@test.com"
     password = "123456"
 
-    response = client.post(
+    # register
+    client.post(
         "/auth/register",
         json={
             "nombre": "Test User",
@@ -24,9 +25,44 @@ def test_user(client):
         }
     )
 
-    assert response.status_code == 200
+    # login
+    response = client.post(
+        "/auth/login",
+        data={
+            "username": email,
+            "password": password
+        }
+    )
 
-    return {
-        "email": email,
-        "password": password
-    }
+    token = response.json()["access_token"]
+
+    return token
+
+
+@pytest.fixture
+def admin_token(client):
+
+    email = f"admin_{uuid.uuid4()}@test.com"
+    password = "123456"
+
+    client.post(
+        "/auth/register",
+        json={
+            "nombre": "Admin User",
+            "email": email,
+            "password": password
+        }
+    )
+
+    # login
+    response = client.post(
+        "/auth/login",
+        data={
+            "username": email,
+            "password": password
+        }
+    )
+
+    token = response.json()["access_token"]
+
+    return token

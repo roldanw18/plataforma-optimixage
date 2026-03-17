@@ -18,13 +18,24 @@ def test_register(client):
     assert "id" in response.json()
 
 
-def test_login(client, test_user):
+def test_login(client):
+
+    email = f"test_{uuid.uuid4()}@test.com"
+
+    client.post(
+        "/auth/register",
+        json={
+            "nombre": "Test User",
+            "email": email,
+            "password": "123456"
+        }
+    )
 
     response = client.post(
         "/auth/login",
         data={
-            "username": test_user["email"],
-            "password": test_user["password"]
+            "username": email,
+            "password": "123456"
         }
     )
 
