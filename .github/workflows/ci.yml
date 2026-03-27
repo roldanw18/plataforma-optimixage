@@ -2,11 +2,9 @@ name: CI Pipeline
 
 on:
   push:
-<<<<<<< HEAD
-    branches: ["main, develop"]
-=======
-    branches: ["develop"]
->>>>>>> e870ef706712bec920b9fd9b281266e4eeb2a923
+    branches:
+      - main
+      - develop
   pull_request:
 
 jobs:
@@ -14,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clonar repo
+      - name: Clonar repositorio
         uses: actions/checkout@v3
 
       - name: Configurar Python
