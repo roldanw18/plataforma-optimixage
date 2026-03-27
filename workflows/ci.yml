@@ -2,7 +2,11 @@ name: CI Pipeline
 
 on:
   push:
+<<<<<<< HEAD
     branches: ["main, develop"]
+=======
+    branches: ["develop"]
+>>>>>>> e870ef706712bec920b9fd9b281266e4eeb2a923
   pull_request:
 
 jobs:
