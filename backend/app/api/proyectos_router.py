@@ -1,21 +1,46 @@
-from fastapi import APIRouter, Depends
-from app.core.dependencies import get_current_user, require_role
-from app.models.usuario import Usuario
+from fastapi import HTTPException, APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.core.database import SessionLocal
+from app.core.dependencies import get_current_user
+from app.schemas.proyecto_schema import ProyectoCreate
+from app.models.proyecto import Proyecto
 
-router = APIRouter(prefix="/proyectos", tags=["Proyectos"])
+router = APIRouter(tags=["Proyectos"])
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 
 @router.post("/")
-def crear_proyecto(usuario = Depends(require_role("Admin"))):
+def crear_proyecto(
+    data: ProyectoCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    if current_user.rol.nombre != "admin":
+        raise HTTPException(status_code=403, detail="No autorizado")
 
-    return {
-        "message": "Proyecto creado",
-        "admin": usuario.email
-    }
-    
+    proyecto = Proyecto(
+        nombre=data.nombre,
+        descripcion=data.descripcion
+    )
+
+    db.add(proyecto)
+    db.commit()
+    db.refresh(proyecto)
+
+    return proyecto
+
+
 @router.get("/mis-proyectos")
-def ver_proyectos(usuario = Depends(require_role("Cliente"))):
-
-    return {
-        "message": "Proyectos del cliente",
-        "usuario": usuario.email
-    }
+def listar_proyectos(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    proyectos = db.query(Proyecto).all()
+    return proyectos
