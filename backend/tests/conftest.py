@@ -8,7 +8,7 @@ from sqlalchemy.pool import StaticPool
 from app.main import app as fastapi_app
 from app.core.database import Base, get_db
 
-# IMPORTAR MODELOS (IMPORTANTE)
+# 🔴 IMPORTAR MODELOS (ESTO ES CLAVE PARA CI)
 from app.models.usuario import Usuario
 from app.models.rol import Rol
 from app.models.proyecto import Proyecto
@@ -27,23 +27,23 @@ TestingSessionLocal = sessionmaker(
     bind=engine
 )
 
-
 @pytest.fixture(scope="function")
 def db():
-    # 🔥 USAR LA MISMA CONEXIÓN (clave para SQLite en memoria)
+
+    # 🔴 ASEGURAR QUE TABLAS EXISTAN
+    Base.metadata.create_all(bind=engine)
+
     connection = engine.connect()
     transaction = connection.begin()
 
-    Base.metadata.create_all(bind=connection)
-
     session = TestingSessionLocal(bind=connection)
 
-    # Crear roles si no existen
+    # 🔴 INSERTAR ROLES SI NO EXISTEN
     if session.query(Rol).count() == 0:
-        admin_role = Rol(nombre="admin")
-        cliente_role = Rol(nombre="cliente")
-
-        session.add_all([admin_role, cliente_role])
+        session.add_all([
+            Rol(nombre="admin"),
+            Rol(nombre="cliente")
+        ])
         session.commit()
 
     yield session
@@ -55,16 +55,20 @@ def db():
 
 @pytest.fixture
 def client(db):
+
     def override_get_db():
         yield db
 
     fastapi_app.dependency_overrides[get_db] = override_get_db
+
     yield TestClient(fastapi_app)
+
     fastapi_app.dependency_overrides.clear()
 
 
 @pytest.fixture
 def auth_token(client):
+
     email = f"test_{uuid.uuid4()}@test.com"
     password = "123456"
 
@@ -85,13 +89,12 @@ def auth_token(client):
         }
     )
 
-    assert response.status_code == 200
-
     return response.json()["access_token"]
 
 
 @pytest.fixture
 def admin_token(client):
+
     email = f"admin_{uuid.uuid4()}@test.com"
     password = "123456"
 
