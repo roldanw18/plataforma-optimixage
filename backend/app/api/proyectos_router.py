@@ -8,6 +8,7 @@ from app.models.proyecto import Proyecto
 from app.models.usuario import Usuario
 from app.schemas.proyecto_schema import ProyectoCreate, ProyectoResponse
 router = APIRouter(tags=["Proyectos"])
+from app.schemas.proyecto_schema import ProyectoCreate, ProyectoResponse
 
 @router.post("/", response_model=ProyectoResponse)
 def crear_proyecto(
@@ -22,9 +23,7 @@ def crear_proyecto(
             detail="No autorizado"
         )
 
-    proyecto = Proyecto(
-        nombre=data.nombre
-    )
+    proyecto = Proyecto(nombre=data.nombre)
 
     db.add(proyecto)
     db.commit()
