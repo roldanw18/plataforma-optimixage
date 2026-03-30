@@ -41,8 +41,8 @@ def db():
     # 🔴 INSERTAR ROLES SI NO EXISTEN
     if session.query(Rol).count() == 0:
         session.add_all([
-            Rol(nombre="admin"),
-            Rol(nombre="cliente")
+            Rol(nombre="Admin"),
+            Rol(nombre="Cliente")
         ])
         session.commit()
 

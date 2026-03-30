@@ -17,7 +17,7 @@ def crear_proyecto(
     current_user: Usuario = Depends(get_current_user)
 ):
     # Validar rol
-    if current_user.rol.nombre != "admin":
+    if current_user.rol.nombre != "Admin":
         raise HTTPException(
             status_code=403,
             detail="No autorizado"
