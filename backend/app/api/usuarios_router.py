@@ -1,19 +1,11 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.core.database import SessionLocal
+from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_role
 from app.models.usuario import Usuario
 
 router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.get("/me")

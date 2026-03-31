@@ -10,5 +10,4 @@ def test_admin_crear_proyecto(client, admin_token):
         }
     )
 
-    # aún no existe rol admin real
-    assert response.status_code == 403
+    assert response.status_code == 200

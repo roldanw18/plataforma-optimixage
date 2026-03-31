@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/USUARIO/Desktop/d -type d -not -path */.* -not -path */venv/* -not -path */__pycache__/*)"
+    ]
+  }
+}
