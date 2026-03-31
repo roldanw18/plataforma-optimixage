@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - feature/sprint2
   pull_request:
 
 jobs:
