@@ -1,11 +1,12 @@
+import os
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from app.models.usuario import Usuario
 from app.models.rol import Rol
 from app.core.security import hash_password, verify_password
 from jose import jwt
-from datetime import datetime, timedelta
 
-SECRET_KEY = "supersecretkey"
+SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
@@ -49,7 +50,7 @@ def crear_token(usuario: Usuario):
     payload = {
         "sub": str(usuario.id),
         "email": usuario.email,
-        "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     }
 
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
