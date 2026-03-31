@@ -1,7 +1,7 @@
 from typing import Optional
-
-from pydantic import BaseModel, EmailStr
 from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class UsuarioCreate(BaseModel):
@@ -22,5 +22,4 @@ class UsuarioResponse(BaseModel):
     email: EmailStr
     rol_id: UUID
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

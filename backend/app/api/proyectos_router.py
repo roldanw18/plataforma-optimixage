@@ -24,7 +24,8 @@ def crear_proyecto(
         )
 
     proyecto = Proyecto(
-        nombre=data.nombre
+        nombre=data.nombre,
+        cliente_id=current_user.id
     )
 
     db.add(proyecto)

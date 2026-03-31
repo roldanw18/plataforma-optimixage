@@ -12,6 +12,7 @@ jobs:
 
     env:
       DATABASE_URL: "sqlite:///:memory:"
+      SECRET_KEY: "ci-test-secret-key"
 
     steps:
       - name: Clonar repositorio
