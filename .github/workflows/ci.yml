@@ -3,7 +3,6 @@ name: CI Pipeline
 on:
   push:
     branches:
-      - main
       - develop
   pull_request:
 
@@ -30,3 +29,4 @@ jobs:
       - name: Ejecutar tests
         run: |
           pytest -v
+        working-directory: ./backend

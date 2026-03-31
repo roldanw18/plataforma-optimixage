@@ -1,3 +1,4 @@
+from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 
 
@@ -6,7 +7,7 @@ class ProyectoCreate(BaseModel):
 
 
 class ProyectoResponse(BaseModel):
-    id: str
+    id: UUID
     nombre: str
 
     model_config = ConfigDict(from_attributes=True)

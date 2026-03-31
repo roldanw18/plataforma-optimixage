@@ -1,19 +1,15 @@
-import uuid
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.main import app as fastapi_app
+from app.main import app
 from app.core.database import Base, get_db
-
-# 🔴 IMPORTAR MODELOS (ESTO ES CLAVE PARA CI)
-from app.models.usuario import Usuario
 from app.models.rol import Rol
-from app.models.proyecto import Proyecto
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
+# 🔹 Base de datos de testing (SQLite en memoria o archivo)
+SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"  # Para tests rápidos en memoria
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
@@ -21,98 +17,87 @@ engine = create_engine(
     poolclass=StaticPool
 )
 
-TestingSessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-@pytest.fixture(scope="function")
-def db():
 
-    # 🔴 ASEGURAR QUE TABLAS EXISTAN
+# 🔹 Crear tablas antes de correr tests
+@pytest.fixture(scope="session", autouse=True)
+def setup_database():
     Base.metadata.create_all(bind=engine)
 
-    connection = engine.connect()
-    transaction = connection.begin()
+    # 🔹 Seed de roles
+    db = TestingSessionLocal()
 
-    session = TestingSessionLocal(bind=connection)
+    if not db.query(Rol).filter_by(nombre="Cliente").first():
+        db.add(Rol(nombre="Cliente"))
 
-    # 🔴 INSERTAR ROLES SI NO EXISTEN
-    if session.query(Rol).count() == 0:
-        session.add_all([
-            Rol(nombre="Admin"),
-            Rol(nombre="Cliente")
-        ])
-        session.commit()
+    if not db.query(Rol).filter_by(nombre="Admin").first():
+        db.add(Rol(nombre="Admin"))
 
-    yield session
+    db.commit()
+    db.close()
 
-    session.close()
-    transaction.rollback()
-    connection.close()
+    yield
+
+    Base.metadata.drop_all(bind=engine)
 
 
-@pytest.fixture
-def client(db):
-
-    def override_get_db():
+# 🔹 Override de la DB para FastAPI
+def override_get_db():
+    db = TestingSessionLocal()
+    try:
         yield db
-
-    fastapi_app.dependency_overrides[get_db] = override_get_db
-
-    yield TestClient(fastapi_app)
-
-    fastapi_app.dependency_overrides.clear()
+    finally:
+        db.close()
 
 
+app.dependency_overrides[get_db] = override_get_db
+
+
+# 🔹 Cliente de pruebas
+@pytest.fixture
+def client():
+    with TestClient(app) as c:
+        yield c
+
+
+# 🔹 Token de usuario Cliente
 @pytest.fixture
 def auth_token(client):
-
-    email = f"test_{uuid.uuid4()}@test.com"
-    password = "123456"
-
-    client.post(
-        "/auth/register",
-        json={
-            "nombre": "Test User",
-            "email": email,
-            "password": password
-        }
-    )
-
-    response = client.post(
-        "/auth/login",
-        data={
-            "username": email,
-            "password": password
-        }
-    )
-
+    import uuid
+    email = f"cliente_{uuid.uuid4()}@test.com"
+    client.post("/auth/register", json={
+        "nombre": "Cliente Test",
+        "email": email,
+        "password": "123456"
+    })
+    response = client.post("/auth/login", data={
+        "username": email,
+        "password": "123456"
+    })
     return response.json()["access_token"]
 
 
+# 🔹 Token de usuario Admin
 @pytest.fixture
 def admin_token(client):
-
+    import uuid
+    from app.models.usuario import Usuario
     email = f"admin_{uuid.uuid4()}@test.com"
-    password = "123456"
-
-    client.post(
-        "/auth/register",
-        json={
-            "nombre": "Admin User",
-            "email": email,
-            "password": password
-        }
-    )
-
-    response = client.post(
-        "/auth/login",
-        data={
-            "username": email,
-            "password": password
-        }
-    )
-
+    reg = client.post("/auth/register", json={
+        "nombre": "Admin Test",
+        "email": email,
+        "password": "123456"
+    })
+    user_id = reg.json()["id"]
+    db = TestingSessionLocal()
+    admin_rol = db.query(Rol).filter_by(nombre="Admin").first()
+    user = db.query(Usuario).filter_by(id=uuid.UUID(user_id)).first()
+    user.rol_id = admin_rol.id
+    db.commit()
+    db.close()
+    response = client.post("/auth/login", data={
+        "username": email,
+        "password": "123456"
+    })
     return response.json()["access_token"]
