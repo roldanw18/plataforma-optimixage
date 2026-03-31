@@ -25,3 +25,6 @@ def get_db():
 # importar modelos para que SQLAlchemy los registre
 from app.models.usuario import Usuario
 from app.models.rol import Rol
+from app.models.proyecto import Proyecto  # noqa: F401
+from app.models.documento import Documento  # noqa: F401
+from app.models.mensaje import Mensaje  # noqa: F401
