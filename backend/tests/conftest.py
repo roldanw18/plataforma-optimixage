@@ -3,12 +3,11 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-
 from app.main import app
 from app.core.database import Base, get_db
 from app.models.rol import Rol
 
-# 🔹 Base de datos de testing (SQLite en memoria o archivo)
+# Base de datos de testing (SQLite en memoria o archivo)
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"  # Para tests rápidos en memoria
 
 engine = create_engine(
@@ -20,12 +19,12 @@ engine = create_engine(
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-# 🔹 Crear tablas antes de correr tests
+# Crear tablas antes de correr tests
 @pytest.fixture(scope="session", autouse=True)
 def setup_database():
     Base.metadata.create_all(bind=engine)
 
-    # 🔹 Seed de roles
+    # Seed de roles
     db = TestingSessionLocal()
 
     if not db.query(Rol).filter_by(nombre="Cliente").first():
@@ -42,7 +41,7 @@ def setup_database():
     Base.metadata.drop_all(bind=engine)
 
 
-# 🔹 Override de la DB para FastAPI
+# Override de la DB para FastAPI
 def override_get_db():
     db = TestingSessionLocal()
     try:
@@ -54,14 +53,14 @@ def override_get_db():
 app.dependency_overrides[get_db] = override_get_db
 
 
-# 🔹 Cliente de pruebas
+# Cliente de pruebas
 @pytest.fixture
 def client():
     with TestClient(app) as c:
         yield c
 
 
-# 🔹 Token de usuario Cliente
+# Token de usuario Cliente
 @pytest.fixture
 def auth_token(client):
     import uuid
@@ -78,7 +77,7 @@ def auth_token(client):
     return response.json()["access_token"]
 
 
-# 🔹 Token de usuario Admin
+# Token de usuario Admin
 @pytest.fixture
 def admin_token(client):
     import uuid
@@ -101,3 +100,14 @@ def admin_token(client):
         "password": "123456"
     })
     return response.json()["access_token"]
+
+
+# Proyecto creado por admin (devuelve el id como string)
+@pytest.fixture
+def proyecto_id(client, admin_token):
+    response = client.post(
+        "/proyectos/",
+        json={"nombre": "Proyecto Fixture"},
+        headers={"Authorization": f"Bearer {admin_token}"}
+    )
+    return response.json()["id"]
