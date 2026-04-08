@@ -13,6 +13,7 @@ class Proyecto(Base):
     nombre = Column(String, nullable=False)
     descripcion = Column(String, nullable=True)
     estado = Column(String, nullable=False, default="activo")  # activo | en_progreso | completado | pausado | cancelado
+    etapa_actual = Column(String, nullable=False, default="primer_contacto")  # primer_contacto | diagnostico | capacitacion | desarrollo | entrega
     fecha_inicio = Column(Date, nullable=True)
     fecha_fin = Column(Date, nullable=True)
     cliente_id = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=True)

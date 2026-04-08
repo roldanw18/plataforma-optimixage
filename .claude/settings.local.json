@@ -24,7 +24,8 @@
       "Bash(taskkill /PID 9252 /F)",
       "Bash(cmd /c \"taskkill /PID 12376 /F & taskkill /PID 9252 /F\" 2>&1)",
       "Bash(cmd /c \"taskkill /PID 12376 /F\")",
-      "Bash(cmd /c \"taskkill /PID 9252 /F\")"
+      "Bash(cmd /c \"taskkill /PID 9252 /F\")",
+      "Bash(../venv/Scripts/pytest -v --tb=short)"
     ]
   },
   "enabledMcpjsonServers": [

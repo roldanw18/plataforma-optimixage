@@ -9,6 +9,7 @@ from app.api.hitos_router import router as hitos_router
 from app.api.tareas_router import router as tareas_router
 from app.api.reuniones_router import router as reuniones_router
 from app.api.notificaciones_router import router as notificaciones_router
+from app.api.proceso_router import router as proceso_router
 
 app = FastAPI(
     title="Plataforma de Seguimiento",
@@ -26,6 +27,7 @@ app.include_router(hitos_router)
 app.include_router(tareas_router)
 app.include_router(reuniones_router)
 app.include_router(notificaciones_router)
+app.include_router(proceso_router)
 
 @app.get("/")
 def root():

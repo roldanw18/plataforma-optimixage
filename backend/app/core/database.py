@@ -46,3 +46,5 @@ from app.models.mensaje import Mensaje  # noqa: F401
 from app.models.reunion import Reunion  # noqa: F401
 from app.models.notificacion import Notificacion  # noqa: F401
 from app.models.proyecto_miembro import ProyectoMiembro  # noqa: F401
+from app.models.etapa_historial import EtapaHistorial  # noqa: F401
+from app.models.audit_log import AuditLog  # noqa: F401

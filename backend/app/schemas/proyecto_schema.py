@@ -28,6 +28,7 @@ class ProyectoResponse(BaseModel):
     nombre: str
     descripcion: Optional[str] = None
     estado: str = "activo"
+    etapa_actual: str = "primer_contacto"
     fecha_inicio: Optional[date] = None
     fecha_fin: Optional[date] = None
     cliente_id: Optional[UUID] = None
