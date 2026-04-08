@@ -11,7 +11,20 @@
       "Bash(python -c \":*)",
       "Bash(nslookup:*)",
       "Bash(python:*)",
-      "Bash(curl -s http://localhost:8000/)"
+      "Bash(curl -s http://localhost:8000/)",
+      "Bash(npm run:*)",
+      "Bash(curl:*)",
+      "Bash(venv/Scripts/python -c \":*)",
+      "Bash(venv/Scripts/pip install:*)",
+      "Bash(venv/Scripts/pip show:*)",
+      "Bash(\"C:/Users/USUARIO/Desktop/d/requirements.txt\")",
+      "Bash(netstat -ano)",
+      "Bash(findstr \":8000\")",
+      "Bash(taskkill /PID 12376 /F)",
+      "Bash(taskkill /PID 9252 /F)",
+      "Bash(cmd /c \"taskkill /PID 12376 /F & taskkill /PID 9252 /F\" 2>&1)",
+      "Bash(cmd /c \"taskkill /PID 12376 /F\")",
+      "Bash(cmd /c \"taskkill /PID 9252 /F\")"
     ]
   },
   "enabledMcpjsonServers": [
