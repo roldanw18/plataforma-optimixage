@@ -16,7 +16,7 @@ export default function AdminLayout() {
   return (
     <div className="app-container">
       <AdminSidebar />
-      <main className="main-content" style={{ backgroundColor: '#F5F7FA' }}>
+      <main className="main-content" style={{ backgroundColor: '#f5f5f5' }}>
         <Outlet />
       </main>
     </div>

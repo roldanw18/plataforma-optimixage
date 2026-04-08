@@ -1,6 +1,41 @@
 import { useEffect, useState } from 'react'
-import { FileText } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 import api from '../../services/api'
+
+function DocIcon() {
+  return (
+    <div
+      style={{
+        width: '64px',
+        height: '80px',
+        background: 'linear-gradient(180deg, #4A9BD9 0%, #2E7AB8 100%)',
+        borderRadius: '8px',
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+        overflow: 'hidden',
+      }}
+    >
+      {/* Folded corner */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          width: '16px',
+          height: '16px',
+          backgroundColor: '#3D8AC7',
+          clipPath: 'polygon(100% 0, 0 0, 100% 100%)',
+        }}
+      />
+      <span style={{ color: 'white', fontWeight: '700', fontSize: '11px', letterSpacing: '0.05em' }}>
+        DOC
+      </span>
+    </div>
+  )
+}
 
 export default function Documentos() {
   const [documentos, setDocumentos] = useState([])
@@ -29,11 +64,23 @@ export default function Documentos() {
 
   if (loading) {
     return (
-      <div className="p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Documentos</h1>
-        <div className="flex flex-col gap-3">
+      <div style={{ padding: '2rem' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1.5rem' }}>
+          Documentos
+        </h1>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 animate-pulse h-16" />
+            <div
+              key={i}
+              style={{
+                backgroundColor: 'white',
+                borderRadius: '12px',
+                border: '1px solid #f3f4f6',
+                padding: '1rem',
+                height: '80px',
+                animation: 'pulse 1.5s infinite',
+              }}
+            />
           ))}
         </div>
       </div>
@@ -41,45 +88,60 @@ export default function Documentos() {
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Documentos</h1>
+    <div style={{ padding: '2rem' }}>
+      <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1.5rem' }}>
+        Documentos
+      </h1>
 
-      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-
-      {documentos.length === 0 && !error && (
-        <p className="text-gray-400 text-sm">No hay documentos disponibles.</p>
+      {error && (
+        <p style={{ color: '#EF4444', fontSize: '0.875rem', marginBottom: '1rem' }}>{error}</p>
       )}
 
-      <div className="flex flex-col gap-0">
-        {documentos.map((doc, idx) => (
-          <div key={doc.id}>
-            <div className="bg-white flex items-center gap-4 px-4 py-4 hover:bg-gray-50 transition-colors cursor-pointer">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <FileText size={20} className="text-blue-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-800">
-                  {doc.nombre || doc.titulo || 'Documento'}
+      {documentos.length === 0 && !error && (
+        <p style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>No hay documentos disponibles.</p>
+      )}
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {documentos.map((doc) => (
+          <div
+            key={doc.id}
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              border: '1px solid #f3f4f6',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '1.5rem',
+              padding: '1.5rem',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+              cursor: 'pointer',
+            }}
+          >
+            <DocIcon />
+
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '0.5rem' }}>
+                {doc.nombre || doc.titulo || 'Documento'}
+              </h3>
+              {doc.descripcion && (
+                <p style={{ color: '#9CA3AF', fontSize: '0.8rem', lineHeight: '1.6' }}>
+                  {doc.descripcion}
                 </p>
-                {doc.descripcion && (
-                  <p className="text-xs text-gray-500 mt-0.5 truncate">{doc.descripcion}</p>
-                )}
-              </div>
-              {doc.url && (
-                <a
-                  href={doc.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-blue-600 hover:underline flex-shrink-0"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  Ver
-                </a>
               )}
             </div>
-            {idx < documentos.length - 1 && (
-              <div className="h-px bg-gray-100 mx-4" />
-            )}
+
+            <button
+              style={{
+                color: '#9CA3AF',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                flexShrink: 0,
+                padding: '4px',
+              }}
+            >
+              <MoreHorizontal size={20} />
+            </button>
           </div>
         ))}
       </div>

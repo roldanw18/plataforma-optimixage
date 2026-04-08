@@ -1,22 +1,86 @@
 import { useEffect, useState } from 'react'
-import { MoreVertical } from 'lucide-react'
+import { AlignJustify } from 'lucide-react'
 import api from '../../services/api'
 
-function InitialsAvatar({ nombre }) {
-  const initials = nombre
-    ? nombre
-        .split(' ')
-        .map((n) => n[0])
-        .slice(0, 2)
-        .join('')
-        .toUpperCase()
-    : '?'
+function ClienteCard({ cliente }) {
   return (
     <div
-      className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg"
-      style={{ backgroundColor: '#1865F2' }}
+      style={{
+        backgroundColor: 'white',
+        borderRadius: '16px',
+        padding: '1rem 0.75rem',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        position: 'relative',
+        border: '1px solid #f3f4f6',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+        cursor: 'pointer',
+        transition: 'box-shadow 0.2s',
+        minHeight: '120px',
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)')}
+      onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)')}
     >
-      {initials}
+      {/* Menu icon */}
+      <button
+        style={{
+          position: 'absolute',
+          top: '8px',
+          right: '8px',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          color: '#9CA3AF',
+          padding: '2px',
+        }}
+      >
+        <AlignJustify size={14} />
+      </button>
+
+      {/* Logo / avatar */}
+      <div style={{ marginTop: '1rem', marginBottom: '0.75rem' }}>
+        {cliente.avatar_url ? (
+          <img
+            src={cliente.avatar_url}
+            alt={cliente.nombre || cliente.email}
+            style={{
+              width: '60px',
+              height: '60px',
+              objectFit: 'contain',
+              borderRadius: '8px',
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              width: '60px',
+              height: '60px',
+              backgroundColor: '#E5E7EB',
+              borderRadius: '8px',
+            }}
+          />
+        )}
+      </div>
+
+      {/* Name */}
+      <p
+        style={{
+          fontSize: '0.8rem',
+          fontWeight: '600',
+          color: '#1a1a4e',
+          textAlign: 'center',
+          lineHeight: '1.3',
+          maxWidth: '100%',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          width: '100%',
+          paddingInline: '4px',
+        }}
+      >
+        {cliente.nombre || cliente.empresa || cliente.email}
+      </p>
     </div>
   )
 }
@@ -45,11 +109,21 @@ export default function AdminClientes() {
 
   if (loading) {
     return (
-      <div className="p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Nuestros clientes</h1>
-        <div className="grid grid-cols-5 gap-4">
+      <div style={{ padding: '2rem' }}>
+        <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1.5rem' }}>
+          Nuestros clientes
+        </h1>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem' }}>
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="bg-white rounded-xl border border-gray-100 h-32 animate-pulse" />
+            <div
+              key={i}
+              style={{
+                backgroundColor: 'white',
+                borderRadius: '16px',
+                border: '1px solid #f3f4f6',
+                height: '120px',
+              }}
+            />
           ))}
         </div>
       </div>
@@ -57,44 +131,28 @@ export default function AdminClientes() {
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Nuestros clientes</h1>
+    <div style={{ padding: '2rem' }}>
+      <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1.5rem' }}>
+        Nuestros clientes
+      </h1>
 
-      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-
-      {clientes.length === 0 && !error && (
-        <p className="text-gray-400 text-sm">No hay clientes registrados.</p>
+      {error && (
+        <p style={{ color: '#EF4444', fontSize: '0.875rem', marginBottom: '1rem' }}>{error}</p>
       )}
 
-      <div className="grid grid-cols-5 gap-4">
+      {clientes.length === 0 && !error && (
+        <p style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>No hay clientes registrados.</p>
+      )}
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(5, 1fr)',
+          gap: '1rem',
+        }}
+      >
         {clientes.map((cliente) => (
-          <div
-            key={cliente.id}
-            className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col items-center relative hover:shadow-md transition-shadow cursor-pointer"
-          >
-            <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
-              <MoreVertical size={16} />
-            </button>
-
-            <div className="mt-3 mb-3">
-              {cliente.avatar_url ? (
-                <img
-                  src={cliente.avatar_url}
-                  alt={cliente.nombre}
-                  className="w-14 h-14 rounded-full object-cover"
-                />
-              ) : (
-                <InitialsAvatar nombre={cliente.nombre} />
-              )}
-            </div>
-
-            <p className="text-sm font-semibold text-gray-800 text-center leading-tight">
-              {cliente.nombre || cliente.email}
-            </p>
-            {cliente.empresa && (
-              <p className="text-xs text-gray-400 text-center mt-0.5">{cliente.empresa}</p>
-            )}
-          </div>
+          <ClienteCard key={cliente.id} cliente={cliente} />
         ))}
       </div>
     </div>

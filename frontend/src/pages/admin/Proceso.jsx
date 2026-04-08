@@ -1,16 +1,84 @@
 import { useEffect, useState } from 'react'
+import { AlignJustify } from 'lucide-react'
 import api from '../../services/api'
 
-function InitialsAvatar({ nombre, size = 10 }) {
-  const initials = nombre
-    ? nombre.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
-    : '?'
+function ClienteCard({ nombre, avatarUrl }) {
   return (
     <div
-      className={`w-${size} h-${size} rounded-full flex items-center justify-center text-white font-bold text-sm`}
-      style={{ backgroundColor: '#1865F2' }}
+      style={{
+        backgroundColor: 'white',
+        borderRadius: '16px',
+        padding: '1rem 0.75rem',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        position: 'relative',
+        border: '1px solid #f3f4f6',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+        cursor: 'pointer',
+        width: '120px',
+        minHeight: '110px',
+        transition: 'box-shadow 0.2s',
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)')}
+      onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)')}
     >
-      {initials}
+      <button
+        style={{
+          position: 'absolute',
+          top: '8px',
+          right: '8px',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          color: '#9CA3AF',
+          padding: '2px',
+        }}
+      >
+        <AlignJustify size={13} />
+      </button>
+
+      <div style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt={nombre}
+            style={{
+              width: '56px',
+              height: '56px',
+              objectFit: 'contain',
+              borderRadius: '8px',
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              width: '56px',
+              height: '56px',
+              backgroundColor: '#E5E7EB',
+              borderRadius: '8px',
+            }}
+          />
+        )}
+      </div>
+
+      <p
+        style={{
+          fontSize: '0.75rem',
+          fontWeight: '600',
+          color: '#1a1a4e',
+          textAlign: 'center',
+          lineHeight: '1.3',
+          maxWidth: '100%',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          width: '100%',
+          paddingInline: '4px',
+        }}
+      >
+        {nombre}
+      </p>
     </div>
   )
 }
@@ -26,7 +94,6 @@ export default function AdminProceso() {
     async function fetchData() {
       try {
         const { data } = await api.get('/proyectos/mis-proyectos')
-        // For each project, try to get its hitos
         const proyectosConHitos = await Promise.all(
           data.map(async (p) => {
             try {
@@ -48,67 +115,59 @@ export default function AdminProceso() {
     fetchData()
   }, [])
 
-  // Group projects by stage
   const grouped = ETAPAS.reduce((acc, etapa) => {
     const filtered = proyectos.filter((p) => {
       const ea = (p.etapaActual || '').toLowerCase()
       return ea.includes(etapa.toLowerCase().split(' ')[0])
     })
-    if (filtered.length > 0) {
-      acc[etapa] = filtered
-    }
+    if (filtered.length > 0) acc[etapa] = filtered
     return acc
   }, {})
 
   if (loading) {
     return (
-      <div className="p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Proceso</h1>
-        <div className="animate-pulse bg-white rounded-xl h-40 border border-gray-100" />
+      <div style={{ padding: '2rem' }}>
+        <div
+          style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            height: '160px',
+            border: '1px solid #f3f4f6',
+          }}
+        />
       </div>
     )
   }
 
   return (
-    <div className="p-8 flex flex-col gap-8">
-      <h1 className="text-2xl font-bold text-gray-900">Proceso</h1>
-
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+    <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      {error && (
+        <p style={{ color: '#EF4444', fontSize: '0.875rem' }}>{error}</p>
+      )}
 
       {Object.keys(grouped).length === 0 && !error && (
-        <div>
-          {ETAPAS.map((etapa) => (
-            <div key={etapa} className="mb-8">
-              <h2 className="text-base font-semibold text-gray-700 mb-3">{etapa}</h2>
-              <p className="text-sm text-gray-400">Sin proyectos en esta etapa.</p>
-            </div>
-          ))}
-        </div>
+        <p style={{ fontSize: '0.875rem', color: '#9CA3AF' }}>No hay proyectos en proceso.</p>
       )}
 
       {Object.entries(grouped).map(([etapa, items]) => (
         <section key={etapa}>
-          <h2 className="text-base font-semibold text-gray-700 mb-3">{etapa}</h2>
-          <div className="flex flex-wrap gap-4">
+          <h2
+            style={{
+              fontSize: '1rem',
+              fontWeight: '700',
+              color: '#0a0a4e',
+              marginBottom: '1rem',
+            }}
+          >
+            {etapa}
+          </h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
             {items.map((proyecto) => (
-              <div
+              <ClienteCard
                 key={proyecto.id}
-                className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col items-center gap-2 cursor-pointer hover:shadow-md transition-shadow"
-                style={{ width: '120px' }}
-              >
-                {proyecto.cliente?.avatar_url ? (
-                  <img
-                    src={proyecto.cliente.avatar_url}
-                    alt={proyecto.nombre}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                ) : (
-                  <InitialsAvatar nombre={proyecto.nombre || proyecto.cliente?.nombre} size={12} />
-                )}
-                <p className="text-xs font-medium text-gray-700 text-center leading-tight">
-                  {proyecto.nombre || proyecto.cliente?.nombre || 'Proyecto'}
-                </p>
-              </div>
+                nombre={proyecto.nombre || proyecto.cliente?.nombre || 'Proyecto'}
+                avatarUrl={proyecto.cliente?.avatar_url}
+              />
             ))}
           </div>
         </section>

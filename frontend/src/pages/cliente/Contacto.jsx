@@ -60,43 +60,120 @@ export default function Contacto() {
   }
 
   return (
-    <div className="p-8 h-full flex flex-col">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Contacto</h1>
+    <div
+      style={{
+        padding: '2rem',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1.5rem' }}>
+        Contacto
+      </h1>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+      <div
+        style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+          border: '1px solid #f3f4f6',
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          overflow: 'hidden',
+          minHeight: 0,
+        }}
+      >
         {/* Messages area */}
-        <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-3">
+        <div
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '1.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.75rem',
+          }}
+        >
           {loading && (
-            <p className="text-xs text-gray-400 text-center mt-4">Cargando mensajes...</p>
+            <p style={{ color: '#9CA3AF', fontSize: '0.75rem', textAlign: 'center', marginTop: '1rem' }}>
+              Cargando mensajes...
+            </p>
           )}
           {!loading && mensajes.length === 0 && (
-            <p className="text-xs text-gray-400 text-center mt-4">No hay mensajes aún. ¡Inicia la conversación!</p>
+            <p style={{ color: '#9CA3AF', fontSize: '0.75rem', textAlign: 'center', marginTop: '1rem' }}>
+              No hay mensajes aún. ¡Inicia la conversación!
+            </p>
           )}
+
           {mensajes.map((msg) => {
             const mine = isMe(msg)
             return (
               <div
                 key={msg.id}
-                className={`flex ${mine ? 'justify-end' : 'justify-start'}`}
+                style={{
+                  display: 'flex',
+                  justifyContent: mine ? 'flex-end' : 'flex-start',
+                }}
               >
-                <div
-                  className={`max-w-xs px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                    mine
-                      ? 'text-white rounded-br-sm'
-                      : 'bg-gray-100 text-gray-800 rounded-bl-sm'
-                  }`}
-                  style={mine ? { backgroundColor: '#000033' } : {}}
-                >
-                  {!mine && msg.usuario?.nombre && (
-                    <p className="text-xs font-semibold text-blue-600 mb-0.5">{msg.usuario.nombre}</p>
-                  )}
-                  <p>{msg.contenido}</p>
-                  {msg.created_at && (
-                    <p className={`text-xs mt-1 ${mine ? 'text-gray-300' : 'text-gray-400'} text-right`}>
-                      {new Date(msg.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                  )}
-                </div>
+                {/* Received message - with logo avatar */}
+                {!mine && (
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem' }}>
+                    <img
+                      src="/logo3.png"
+                      alt="Optimixage"
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '9999px',
+                        objectFit: 'contain',
+                        flexShrink: 0,
+                      }}
+                    />
+                    <div
+                      style={{
+                        backgroundColor: '#E5E7EB',
+                        borderRadius: '18px',
+                        borderBottomLeftRadius: '4px',
+                        padding: '0.75rem 1rem',
+                        maxWidth: '360px',
+                      }}
+                    >
+                      {msg.usuario?.nombre && (
+                        <p style={{ fontSize: '0.7rem', fontWeight: '600', color: '#0099cc', marginBottom: '2px' }}>
+                          {msg.usuario.nombre}
+                        </p>
+                      )}
+                      <p style={{ color: '#374151', fontSize: '0.875rem' }}>{msg.contenido}</p>
+                      {msg.created_at && (
+                        <p style={{ fontSize: '0.7rem', color: '#9CA3AF', marginTop: '4px', textAlign: 'right' }}>
+                          {new Date(msg.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Sent message */}
+                {mine && (
+                  <div
+                    style={{
+                      backgroundColor: '#4a4a4a',
+                      borderRadius: '18px',
+                      borderBottomRightRadius: '4px',
+                      padding: '0.75rem 1rem',
+                      maxWidth: '360px',
+                    }}
+                  >
+                    <p style={{ color: 'white', fontSize: '0.875rem' }}>{msg.contenido}</p>
+                    {msg.created_at && (
+                      <p style={{ fontSize: '0.7rem', color: '#D1D5DB', marginTop: '4px', textAlign: 'right' }}>
+                        {new Date(msg.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             )
           })}
@@ -104,22 +181,52 @@ export default function Contacto() {
         </div>
 
         {/* Input area */}
-        <div className="border-t border-gray-100 px-4 py-3">
-          <form onSubmit={handleSend} className="flex items-center gap-3">
+        <div style={{ borderTop: '1px solid #f3f4f6', padding: '1rem' }}>
+          <form
+            onSubmit={handleSend}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              backgroundColor: '#F3F4F6',
+              borderRadius: '9999px',
+              padding: '0.5rem 1rem',
+            }}
+          >
             <input
               type="text"
               value={texto}
               onChange={(e) => setTexto(e.target.value)}
               placeholder="Escribe un mensaje..."
-              className="flex-1 bg-gray-100 border-none outline-none rounded-full px-5 py-2.5 text-sm text-gray-800 placeholder-gray-400"
               disabled={sending || !proyectoId}
+              style={{
+                flex: 1,
+                backgroundColor: 'transparent',
+                border: 'none',
+                outline: 'none',
+                fontSize: '0.875rem',
+                color: '#374151',
+              }}
             />
             <button
               type="submit"
               disabled={sending || !texto.trim() || !proyectoId}
-              className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors disabled:opacity-40"
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '9999px',
+                backgroundColor: '#D1D5DB',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: sending || !texto.trim() || !proyectoId ? 'not-allowed' : 'pointer',
+                opacity: sending || !texto.trim() || !proyectoId ? 0.5 : 1,
+                transition: 'background-color 0.2s',
+                flexShrink: 0,
+              }}
             >
-              <Send size={15} />
+              <Send size={16} color="#4B5563" />
             </button>
           </form>
         </div>

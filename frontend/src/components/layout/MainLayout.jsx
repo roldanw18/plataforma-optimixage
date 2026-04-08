@@ -12,7 +12,7 @@ export default function MainLayout() {
   return (
     <div className="app-container">
       <Sidebar />
-      <main className="main-content" style={{ backgroundColor: '#F5F7FA' }}>
+      <main className="main-content" style={{ backgroundColor: '#f5f5f5' }}>
         <Outlet />
       </main>
     </div>
