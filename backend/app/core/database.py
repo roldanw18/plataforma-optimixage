@@ -1,6 +1,19 @@
 import os
+from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+
+# Cargar .env desde el directorio del proyecto (sube hasta encontrarlo)
+try:
+    from dotenv import load_dotenv
+    _base = Path(__file__).resolve()
+    for _parent in _base.parents:
+        _env = _parent / ".env"
+        if _env.exists():
+            load_dotenv(_env)
+            break
+except ImportError:
+    pass
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:1@localhost:5432/optimixagedb")
 

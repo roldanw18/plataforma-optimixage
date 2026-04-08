@@ -1,25 +1,25 @@
 import { NavLink } from 'react-router-dom'
 import {
-  Home,
-  FileText,
+  Users,
   BarChart2,
+  Bell,
   Play,
-  MessageCircle,
+  Users2,
   Settings,
   LogOut,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
 const navItems = [
-  { icon: Home, label: 'Inicio', path: '/inicio' },
-  { icon: FileText, label: 'Documentos', path: '/documentos' },
-  { icon: BarChart2, label: 'Proceso', path: '/proceso' },
-  { icon: Play, label: 'Contenido', path: '/contenido' },
-  { icon: MessageCircle, label: 'Contacto', path: '/contacto' },
-  { icon: Settings, label: 'Configuración', path: '/configuracion' },
+  { icon: Users, label: 'Clientes', path: '/admin/clientes' },
+  { icon: BarChart2, label: 'Proceso', path: '/admin/proceso' },
+  { icon: Bell, label: 'Notificaciones', path: '/admin/notificaciones' },
+  { icon: Play, label: 'Contenido', path: '/admin/contenido' },
+  { icon: Users2, label: 'Equipo', path: '/admin/equipo' },
+  { icon: Settings, label: 'Configuración', path: '/admin/configuracion' },
 ]
 
-export default function Sidebar() {
+export default function AdminSidebar() {
   const { user, logout } = useAuth()
 
   return (
