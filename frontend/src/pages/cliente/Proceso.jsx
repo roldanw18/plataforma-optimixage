@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { User, Search, Clipboard, Users, CheckCircle, BarChart2, Calendar, Clock } from 'lucide-react'
+import { User, Search, Clipboard, Users, CheckCircle, Clock, MoreHorizontal } from 'lucide-react'
 import api from '../../services/api'
 
 const ETAPA_ICONS = {
@@ -42,9 +42,18 @@ export default function Proceso() {
 
   if (loading) {
     return (
-      <div className="p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Proceso</h1>
-        <div className="animate-pulse bg-white rounded-xl h-48 border border-gray-100" />
+      <div style={{ padding: '2rem' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1.5rem' }}>
+          Proceso
+        </h1>
+        <div
+          style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            height: '200px',
+            border: '1px solid #f3f4f6',
+          }}
+        />
       </div>
     )
   }
@@ -54,81 +63,164 @@ export default function Proceso() {
   const etapaLabel = proceso?.etapa_label || 'Primer contacto'
 
   return (
-    <div className="p-8 flex flex-col gap-6">
-      <h1 className="text-2xl font-bold text-gray-900">Proceso</h1>
+    <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0a0a4e' }}>Proceso</h1>
 
-      {/* Tarjeta principal de proceso */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <div className="flex items-center justify-between mb-1">
-          <p className="text-sm text-gray-500">Proceso</p>
-          <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
-            {progreso}%
-          </span>
+      {/* Main process card */}
+      <div
+        style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          padding: '1.5rem',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+          border: '1px solid #f3f4f6',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+          <div>
+            <h2 style={{ fontSize: '1rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '4px' }}>
+              Proceso
+            </h2>
+            <p style={{ color: '#6B7280', fontSize: '0.875rem' }}>
+              Tu empresa está en la 2da etapa de digitalización.
+            </p>
+          </div>
+          <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}>
+            <MoreHorizontal size={22} />
+          </button>
         </div>
-        <p className="text-sm font-semibold text-gray-800 mb-5">
-          Tu empresa está en la etapa de{' '}
-          <span className="text-blue-600">{etapaLabel}</span>.
-        </p>
 
-        {/* Barra de progreso */}
-        <div className="relative w-full bg-gray-100 rounded-full h-2 mb-8">
-          <div
-            className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-            style={{ width: `${progreso}%` }}
-          />
-        </div>
+        {/* Timeline stepper */}
+        <div style={{ marginTop: '2.5rem', paddingBottom: '0.5rem' }}>
+          <div style={{ position: 'relative' }}>
+            {/* Background track */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '5px',
+                left: 0,
+                right: 0,
+                height: '12px',
+                backgroundColor: '#E5E7EB',
+                borderRadius: '9999px',
+                zIndex: 0,
+              }}
+            />
+            {/* Progress fill */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '5px',
+                left: 0,
+                height: '12px',
+                backgroundColor: '#0099cc',
+                borderRadius: '9999px',
+                zIndex: 0,
+                width: `${progreso}%`,
+                transition: 'width 0.5s ease',
+              }}
+            />
 
-        {/* Etapas */}
-        <div className="flex justify-between">
-          {etapas.map((etapa, idx) => {
-            const Icon = ETAPA_ICONS[etapa.key] || CheckCircle
-            const isCompleted = etapa.estado === 'completado'
-            const isCurrent = etapa.estado === 'activo'
+            {/* Etapa dots */}
+            <div
+              style={{
+                position: 'relative',
+                display: 'flex',
+                justifyContent: 'space-between',
+                zIndex: 1,
+              }}
+            >
+              {etapas.map((etapa) => {
+                const Icon = ETAPA_ICONS[etapa.key] || CheckCircle
+                const isCompleted = etapa.estado === 'completado'
+                const isCurrent = etapa.estado === 'activo'
+                const isActive = isCompleted || isCurrent
 
-            return (
-              <div key={etapa.key} className="flex flex-col items-center gap-2 flex-1">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-                    isCompleted
-                      ? 'bg-blue-600 text-white'
-                      : isCurrent
-                      ? 'bg-blue-600 text-white ring-4 ring-blue-100'
-                      : 'bg-gray-100 text-gray-400'
-                  }`}
-                >
-                  {isCompleted ? <CheckCircle size={18} /> : <Icon size={18} />}
-                </div>
-                <span
-                  className={`text-xs font-medium text-center leading-tight ${
-                    isCurrent ? 'text-blue-600' : isCompleted ? 'text-gray-700' : 'text-gray-400'
-                  }`}
-                >
-                  {etapa.label}
-                </span>
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    isCompleted || isCurrent ? 'bg-blue-600' : 'bg-gray-200'
-                  }`}
-                />
-              </div>
-            )
-          })}
+                return (
+                  <div
+                    key={etapa.key}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                    }}
+                  >
+                    {/* Dot on the line */}
+                    <div
+                      style={{
+                        width: '22px',
+                        height: '22px',
+                        borderRadius: '9999px',
+                        border: `2px solid ${isActive ? '#0099cc' : '#D1D5DB'}`,
+                        backgroundColor: isActive ? '#0099cc' : 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {isCompleted && <CheckCircle size={12} color="white" />}
+                      {isCurrent && (
+                        <div style={{ width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: 'white' }} />
+                      )}
+                    </div>
+
+                    {/* Label */}
+                    <span
+                      style={{
+                        fontSize: '0.75rem',
+                        color: isActive ? '#374151' : '#9CA3AF',
+                        fontWeight: isActive ? '500' : '400',
+                        textAlign: 'center',
+                        maxWidth: '64px',
+                        lineHeight: '1.3',
+                      }}
+                    >
+                      {etapa.label}
+                    </span>
+
+                    {/* Icon */}
+                    <Icon size={16} color={isActive ? '#6B7280' : '#D1D5DB'} />
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Historial de cambios */}
+      {/* History */}
       {proceso?.historial?.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <p className="text-sm font-semibold text-gray-700 mb-4">Historial de cambios</p>
-          <div className="flex flex-col gap-3">
+        <div
+          style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '1.5rem',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            border: '1px solid #f3f4f6',
+          }}
+        >
+          <p style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '1rem' }}>
+            Historial de cambios
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {proceso.historial.slice(0, 5).map((h) => (
-              <div key={h.id} className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-blue-600 mt-1.5 flex-shrink-0" />
+              <div key={h.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                <div
+                  style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '9999px',
+                    backgroundColor: '#0099cc',
+                    marginTop: '6px',
+                    flexShrink: 0,
+                  }}
+                />
                 <div>
-                  <p className="text-sm font-medium text-gray-700">
+                  <p style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151' }}>
                     {h.etapa_label || h.etapa}
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>
                     {new Date(h.fecha_inicio).toLocaleDateString('es-ES', {
                       day: 'numeric', month: 'long', year: 'numeric',
                     })}
@@ -141,58 +233,113 @@ export default function Proceso() {
         </div>
       )}
 
-      {/* Tarjetas inferiores */}
-      <div className="flex gap-4">
+      {/* Bottom cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
         {/* Reuniones */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1">
-          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-4">
+        <div
+          style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '1.5rem',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            border: '1px solid #f3f4f6',
+          }}
+        >
+          <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1rem' }}>
             Reuniones
-          </p>
+          </h3>
+
           {proximaReunion ? (
-            <div className="flex items-center gap-5">
-              <div className="flex flex-col items-center min-w-[48px]">
-                <span className="text-4xl font-bold text-gray-900 leading-none">
-                  {new Date(proximaReunion.fecha).getDate()}
-                </span>
-                <span className="text-sm text-gray-500 capitalize mt-1">
-                  {new Date(proximaReunion.fecha).toLocaleString('es-ES', { month: 'short' })}
-                </span>
-              </div>
-              <div className="border-l border-gray-100 pl-5">
-                <p className="text-sm font-semibold text-gray-800">
-                  {proximaReunion.titulo || 'Próxima reunión'}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <p style={{ color: '#4B5563', fontSize: '0.875rem', marginBottom: '4px' }}>
+                  Próxima reunión
                 </p>
                 {proximaReunion.fecha && (
-                  <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                    <Clock size={11} />
-                    {new Date(proximaReunion.fecha).toLocaleTimeString('es-ES', {
-                      hour: '2-digit', minute: '2-digit',
-                    })}
+                  <p style={{ color: '#4B5563', fontSize: '0.875rem' }}>
+                    Hora:{' '}
+                    <strong>
+                      {new Date(proximaReunion.fecha).toLocaleTimeString('es-ES', {
+                        hour: '2-digit', minute: '2-digit',
+                      })}
+                    </strong>
                   </p>
                 )}
-                {proximaReunion.enlace && (
-                  <a
-                    href={proximaReunion.enlace}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-blue-500 mt-1 hover:underline block"
-                  >
-                    Unirse a la reunión
-                  </a>
+                {proximaReunion.lugar && (
+                  <p style={{ color: '#4B5563', fontSize: '0.875rem' }}>
+                    Lugar: <strong>{proximaReunion.lugar}</strong>
+                  </p>
                 )}
-                <p className="text-xs text-gray-400 mt-2">Recordar: Llegar 15 min antes</p>
+                <p style={{ color: '#0a0a4e', fontWeight: '700', marginTop: '1rem', fontSize: '0.875rem' }}>
+                  Recordar
+                </p>
+                <p style={{ color: '#9CA3AF', fontSize: '0.8rem' }}>Llegar 15 min antes.</p>
+              </div>
+
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: '3.5rem', fontWeight: '300', color: '#0a0a4e', lineHeight: '1' }}>
+                  {new Date(proximaReunion.fecha).getDate()}
+                </span>
+                <p style={{ fontSize: '1.25rem', fontWeight: '300', color: '#0a0a4e' }}>
+                  {new Date(proximaReunion.fecha)
+                    .toLocaleString('es-ES', { month: 'short' })
+                    .toUpperCase()}
+                </p>
               </div>
             </div>
           ) : (
-            <p className="text-sm text-gray-400">Sin reuniones próximas.</p>
+            <p style={{ fontSize: '0.875rem', color: '#9CA3AF' }}>Sin reuniones próximas.</p>
           )}
         </div>
 
         {/* Cotización */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex flex-col items-center justify-center gap-3">
-          <BarChart2 size={36} className="text-gray-200" />
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Cotización</p>
-          <p className="text-xs text-gray-400">Próximamente disponible</p>
+        <div
+          style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '1.5rem',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            border: '1px solid #f3f4f6',
+          }}
+        >
+          <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1rem' }}>
+            Cotización
+          </h3>
+
+          {/* Bar chart visualization */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'center',
+              gap: '1rem',
+              height: '140px',
+              paddingBottom: '4px',
+            }}
+          >
+            {[80, 112, 96].map((h, i) => (
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <div
+                  style={{
+                    width: '48px',
+                    height: `${h}px`,
+                    border: '2px solid #4ADE80',
+                    borderRadius: '4px',
+                    backgroundColor: '#F0FDF4',
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+          <div
+            style={{
+              width: '100%',
+              height: '4px',
+              backgroundColor: '#4ADE80',
+              borderRadius: '9999px',
+              marginTop: '4px',
+            }}
+          />
         </div>
       </div>
     </div>

@@ -31,24 +31,44 @@ export default function Login() {
   }
 
   return (
-    <div className="flex h-screen w-screen">
-      {/* LEFT PANEL */}
-      <div
-        className="flex items-center justify-center"
-        style={{ width: '45%', backgroundColor: '#000033' }}
-      >
-        <img src="/logo2.png" alt="Optimixage" style={{ width: '200px' }} />
+    <div className="flex min-h-screen" style={{ backgroundColor: '#0a0a4e' }}>
+      {/* Left side - Brand (hidden on mobile) */}
+      <div className="hidden lg:flex lg:w-1/2 items-center justify-center">
+        <img
+          src="/logo2.png"
+          alt="Optimixage"
+          style={{ width: '280px', height: 'auto' }}
+        />
       </div>
 
-      {/* RIGHT PANEL */}
+      {/* Right side - Login form */}
       <div
-        className="flex items-center justify-center bg-white"
-        style={{ width: '55%' }}
+        className="w-full lg:w-1/2 flex items-center justify-center px-8 min-h-screen"
+        style={{
+          backgroundColor: '#f5f5f5',
+          borderRadius: '60px 0 0 60px',
+        }}
       >
-        <div className="w-full max-w-sm px-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">Bienvenido</h1>
-          <p className="text-sm text-gray-500 mb-8">Inicia sesión para continuar</p>
+        <div className="w-full" style={{ maxWidth: '400px' }}>
+          {/* Mobile logo */}
+          <div className="lg:hidden flex justify-center mb-8">
+            <img src="/logo2.png" alt="Optimixage" style={{ width: '80px' }} />
+          </div>
 
+          {/* Welcome text */}
+          <div className="text-center mb-8">
+            <h2
+              className="font-bold mb-2"
+              style={{ fontSize: '1.875rem', color: '#1a1a4e' }}
+            >
+              Bienvenido
+            </h2>
+            <p style={{ color: '#6B7280', fontSize: '0.875rem' }}>
+              Inicia sesión para continuar
+            </p>
+          </div>
+
+          {/* Login form */}
           <form onSubmit={(e) => handleSubmit(e, false)} className="flex flex-col gap-4">
             <input
               type="text"
@@ -56,7 +76,17 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-gray-100 border-none outline-none rounded-full px-5 py-3 text-sm text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
+              className="w-full focus:ring-2"
+              style={{
+                padding: '0.75rem 1.5rem',
+                backgroundColor: '#d9d9d9',
+                border: 'none',
+                borderRadius: '9999px',
+                textAlign: 'center',
+                color: '#4B5563',
+                outline: 'none',
+                fontSize: '0.875rem',
+              }}
             />
             <input
               type="password"
@@ -64,22 +94,51 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-gray-100 border-none outline-none rounded-full px-5 py-3 text-sm text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
+              className="w-full focus:ring-2"
+              style={{
+                padding: '0.75rem 1.5rem',
+                backgroundColor: '#d9d9d9',
+                border: 'none',
+                borderRadius: '9999px',
+                textAlign: 'center',
+                color: '#4B5563',
+                outline: 'none',
+                fontSize: '0.875rem',
+              }}
             />
 
             {error && (
-              <p className="text-red-500 text-xs text-center">{error}</p>
+              <p style={{ color: '#EF4444', fontSize: '0.75rem', textAlign: 'center' }}>
+                {error}
+              </p>
             )}
 
-            <p className="text-center text-xs text-gray-400 cursor-pointer hover:text-blue-600">
-              ¿Olvidaste tu contraseña?
-            </p>
+            {/* Forgot password */}
+            <div style={{ textAlign: 'center', padding: '0.5rem 0' }}>
+              <a href="#" style={{ color: '#6B7280', fontSize: '0.875rem' }}>
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
 
-            <div className="flex gap-3 mt-2">
+            {/* Buttons */}
+            <div className="flex justify-center gap-4" style={{ paddingTop: '0.5rem' }}>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-blue-600 text-white rounded-full py-3 text-sm font-semibold hover:bg-blue-700 transition disabled:opacity-60"
+                style={{
+                  padding: '0.5rem 2rem',
+                  backgroundColor: '#0099cc',
+                  color: 'white',
+                  borderRadius: '0.375rem',
+                  fontWeight: '500',
+                  border: 'none',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.6 : 1,
+                  fontSize: '0.875rem',
+                  transition: 'background-color 0.2s',
+                }}
+                onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#007aa3')}
+                onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = '#0099cc')}
               >
                 {loading ? 'Cargando...' : 'Iniciar sesión'}
               </button>
@@ -87,7 +146,20 @@ export default function Login() {
                 type="button"
                 disabled={loading}
                 onClick={(e) => handleSubmit(e, true)}
-                className="flex-1 bg-blue-600 text-white rounded-full py-3 text-sm font-semibold hover:bg-blue-700 transition disabled:opacity-60"
+                style={{
+                  padding: '0.5rem 2rem',
+                  backgroundColor: '#0099cc',
+                  color: 'white',
+                  borderRadius: '0.375rem',
+                  fontWeight: '500',
+                  border: 'none',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.6 : 1,
+                  fontSize: '0.875rem',
+                  transition: 'background-color 0.2s',
+                }}
+                onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#007aa3')}
+                onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = '#0099cc')}
               >
                 Administrador
               </button>

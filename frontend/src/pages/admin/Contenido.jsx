@@ -1,39 +1,87 @@
 import { Play } from 'lucide-react'
 
 const videos = [
-  { id: 1, title: 'Introducción al proceso de digitalización', time: '20:30', desc: 'Conoce los primeros pasos para digitalizar tu empresa.' },
-  { id: 2, title: 'Diagnóstico empresarial', time: '20:30', desc: 'Cómo evaluamos el estado actual de tu negocio.' },
-  { id: 3, title: 'Herramientas digitales clave', time: '20:30', desc: 'Las herramientas que usarás durante el proceso.' },
-  { id: 4, title: 'Capacitación del equipo', time: '20:30', desc: 'Cómo preparar a tu equipo para el cambio.' },
-  { id: 5, title: 'Desarrollo e implementación', time: '20:30', desc: 'La fase de desarrollo de tu solución digital.' },
-  { id: 6, title: 'Entrega y seguimiento', time: '20:30', desc: 'Cómo recibir y mantener tu solución.' },
+  { id: 1, title: 'Digitalización', time: '20:30', desc: 'Lorem ipsum dolor sit amet consectetur.', featured: true },
+  { id: 2, title: 'Digitalización', time: '20:30', desc: 'Lorem ipsum dolor sit amet consectetur.', featured: false },
+  { id: 3, title: 'Digitalización', time: '20:30', desc: 'Lorem ipsum dolor sit amet consectetur.', featured: false },
+  { id: 4, title: 'Digitalización', time: '20:30', desc: 'Lorem ipsum dolor sit amet consectetur.', featured: false },
+  { id: 5, title: 'Digitalización', time: '20:30', desc: 'Lorem ipsum dolor sit amet consectetur.', featured: false },
+  { id: 6, title: 'Digitalización', time: '20:30', desc: 'Lorem ipsum dolor sit amet consectetur.', featured: false },
 ]
 
 export default function AdminContenido() {
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Contenido</h1>
+    <div style={{ padding: '2rem' }}>
+      <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1.5rem' }}>
+        Contenido
+      </h1>
 
-      <div className="grid grid-cols-3 gap-5">
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '1.5rem',
+        }}
+      >
         {videos.map((video) => (
-          <div
-            key={video.id}
-            className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
-          >
+          <div key={video.id} style={{ cursor: 'pointer' }}>
+            {/* Thumbnail */}
             <div
-              className="relative flex items-center justify-center bg-gray-800"
-              style={{ height: '150px' }}
+              style={{
+                position: 'relative',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                aspectRatio: '16/9',
+                backgroundColor: video.featured ? '#0a0a4e' : '#9CA3AF',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
             >
-              <div className="w-12 h-12 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
-                <Play size={22} className="text-white ml-1" />
-              </div>
-              <span className="absolute bottom-2 right-3 text-xs text-white font-medium">
+              <button
+                style={{
+                  width: '52px',
+                  height: '52px',
+                  borderRadius: '9999px',
+                  border: '3px solid white',
+                  backgroundColor: 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+              >
+                <Play size={22} color="white" fill="white" style={{ marginLeft: '3px' }} />
+              </button>
+
+              <span
+                style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  right: '10px',
+                  fontSize: '0.75rem',
+                  color: 'white',
+                  fontWeight: '500',
+                }}
+              >
                 {video.time}
               </span>
             </div>
-            <div className="p-4">
-              <p className="text-sm font-semibold text-gray-800 mb-1">{video.title}</p>
-              <p className="text-xs text-gray-500">{video.desc}</p>
+
+            {/* Info */}
+            <div style={{ marginTop: '0.75rem' }}>
+              <h3
+                style={{
+                  fontWeight: '600',
+                  color: '#0a0a4e',
+                  fontSize: '0.875rem',
+                  marginBottom: '2px',
+                }}
+              >
+                {video.title}
+              </h3>
+              <p style={{ fontWeight: '700', color: '#0a0a4e', fontSize: '0.875rem' }}>{video.time}</p>
+              <p style={{ color: '#9CA3AF', fontSize: '0.8rem', marginTop: '4px' }}>{video.desc}</p>
             </div>
           </div>
         ))}

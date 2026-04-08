@@ -7,6 +7,7 @@ import {
   Users2,
   Settings,
   LogOut,
+  Info,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
@@ -20,21 +21,28 @@ const navItems = [
 ]
 
 export default function AdminSidebar() {
-  const { user, logout } = useAuth()
+  const { logout } = useAuth()
 
   return (
     <aside
-      className="flex flex-col h-screen bg-white border-r border-gray-100"
-      style={{ width: '200px', minWidth: '200px' }}
+      className="flex flex-col h-screen bg-white"
+      style={{
+        width: '220px',
+        minWidth: '220px',
+        borderRight: '1px solid #f3f4f6',
+      }}
     >
       {/* Logo */}
-      <div className="flex items-center gap-2 px-4 py-5">
-        <img src="/logo3.png" alt="logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
-        <span className="font-bold text-sm" style={{ color: '#000033' }}>optimixage</span>
+      <div style={{ padding: '1.5rem 1.25rem 1rem' }}>
+        <img
+          src="/logo3.png"
+          alt="Optimixage"
+          style={{ width: '140px', height: 'auto' }}
+        />
       </div>
 
       {/* Nav */}
-      <nav className="flex flex-col gap-1 flex-1 px-1 mt-2">
+      <nav className="flex flex-col flex-1" style={{ padding: '0.25rem 0.75rem', gap: '2px' }}>
         {navItems.map((item) => {
           const Icon = item.icon
           return (
@@ -42,34 +50,46 @@ export default function AdminSidebar() {
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg mx-1 text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-500 hover:bg-gray-50'
+                `flex items-center gap-3 rounded-lg font-medium text-sm transition-colors ${
+                  isActive ? 'text-white' : 'text-gray-600 hover:bg-gray-100'
                 }`
               }
+              style={({ isActive }) => ({
+                padding: '0.75rem 1rem',
+                marginBottom: '2px',
+                backgroundColor: isActive ? '#0099cc' : undefined,
+              })}
             >
-              <Icon size={17} />
+              <Icon size={18} />
               <span>{item.label}</span>
             </NavLink>
           )
         })}
       </nav>
 
-      {/* Bottom user info */}
-      <div className="px-3 py-4 border-t border-gray-100">
-        {user && (
-          <p className="text-xs text-gray-400 truncate mb-2" title={user.email}>
-            {user.email}
-          </p>
-        )}
+      {/* Logout */}
+      <div style={{ padding: '0 0.75rem 0.75rem' }}>
         <button
           onClick={logout}
-          className="flex items-center gap-2 text-xs text-gray-500 hover:text-red-500 transition-colors"
+          className="flex items-center gap-3 w-full rounded-lg text-sm font-medium text-gray-600 transition-colors hover:bg-red-50 hover:text-red-500"
+          style={{ padding: '0.75rem 1rem' }}
         >
-          <LogOut size={14} />
+          <LogOut size={18} />
           <span>Cerrar sesión</span>
         </button>
+      </div>
+
+      {/* Info footer */}
+      <div style={{ padding: '0 0.75rem 1rem' }}>
+        <div
+          className="flex items-start gap-2 rounded-lg"
+          style={{ padding: '0.75rem 1rem' }}
+        >
+          <Info size={14} className="text-gray-400 flex-shrink-0" style={{ marginTop: '2px' }} />
+          <p style={{ fontSize: '0.75rem', color: '#9CA3AF', lineHeight: '1.4' }}>
+            Lorem ipsum dolor sit amet consectetur.
+          </p>
+        </div>
       </div>
     </aside>
   )
