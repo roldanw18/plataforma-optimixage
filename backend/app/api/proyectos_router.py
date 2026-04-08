@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_role
-from app.schemas.proyecto_schema import ProyectoCreate, ProyectoResponse, AsignarClienteRequest
+from app.schemas.proyecto_schema import ProyectoCreate, ProyectoUpdate, ProyectoResponse, AsignarClienteRequest
 from app.models.proyecto import Proyecto
 from app.models.usuario import Usuario
 
@@ -17,8 +17,27 @@ def crear_proyecto(
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(require_role("Admin")),
 ):
-    proyecto = Proyecto(nombre=data.nombre)
+    proyecto = Proyecto(**data.model_dump(), created_by=current_user.id)
     db.add(proyecto)
+    db.commit()
+    db.refresh(proyecto)
+    return proyecto
+
+
+@router.patch("/{proyecto_id}", response_model=ProyectoResponse)
+def actualizar_proyecto(
+    proyecto_id: UUID,
+    data: ProyectoUpdate,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(require_role("Admin")),
+):
+    proyecto = db.query(Proyecto).filter(Proyecto.id == proyecto_id).first()
+    if not proyecto:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+
+    for field, value in data.model_dump(exclude_none=True).items():
+        setattr(proyecto, field, value)
+
     db.commit()
     db.refresh(proyecto)
     return proyecto
