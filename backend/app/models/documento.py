@@ -13,7 +13,8 @@ class Documento(Base):
     descripcion = Column(String, nullable=True)
     url = Column(String, nullable=False)
     estado = Column(String, nullable=False, default="borrador")  # borrador | publicado
-    fecha_creacion = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-
+    tipo = Column(String, nullable=True, default="otro")  # contrato | propuesta | informe | diseño | otro
     proyecto_id = Column(UUID(as_uuid=True), ForeignKey("proyectos.id"), nullable=False)
     autor_id = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=False)
+    fecha_creacion = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
