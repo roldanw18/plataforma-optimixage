@@ -17,15 +17,15 @@ export default function Inicio() {
         const pid = proyectos[0].id
         setProyectoId(pid)
 
-        const [docsRes, reunRes, hitosRes] = await Promise.allSettled([
+        const [docsRes, reunRes, procesoRes] = await Promise.allSettled([
           api.get(`/documentos/proyecto/${pid}`),
           api.get(`/reuniones/proyecto/${pid}`),
-          api.get(`/hitos/proyecto/${pid}`),
+          api.get(`/proceso/${pid}`),
         ])
 
         if (docsRes.status === 'fulfilled') setDocumentos(docsRes.value.data.slice(0, 5))
         if (reunRes.status === 'fulfilled') setReuniones(reunRes.value.data)
-        if (hitosRes.status === 'fulfilled') setHitos(hitosRes.value.data)
+        if (procesoRes.status === 'fulfilled') setHitos(procesoRes.value.data.etapas || [])
       } catch (e) {
         // silently handle
       } finally {
@@ -37,10 +37,10 @@ export default function Inicio() {
 
   const proximaReunion = reuniones.find((r) => new Date(r.fecha) >= new Date()) || reuniones[0]
 
-  const etapaActual = hitos.find((h) => h.estado === 'en_progreso') || hitos[0]
+  const etapaActual = hitos.find((h) => h.estado === 'activo') || hitos[0]
   const totalHitos = hitos.length || 5
   const hitosCompletados = hitos.filter((h) => h.estado === 'completado').length
-  const progreso = totalHitos > 0 ? Math.round((hitosCompletados / totalHitos) * 100) : 20
+  const progreso = totalHitos > 0 ? Math.round(((hitosCompletados + (etapaActual ? 1 : 0)) / totalHitos) * 100) : 20
 
   const videosPlaceholder = [
     { id: 1, title: 'Introducción al proceso' },

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.models.usuario import Usuario
 from app.models.rol import Rol
 from app.core.security import hash_password, verify_password
+from app.utils.audit import registrar_evento
 from jose import jwt
 
 SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
@@ -26,6 +27,17 @@ def crear_usuario(db: Session, nombre: str, email: str, password: str):
     )
 
     db.add(usuario)
+    db.flush()  # obtener el id antes del commit
+
+    registrar_evento(
+        db,
+        accion="registro_usuario",
+        usuario_id=usuario.id,
+        tabla="usuarios",
+        registro_id=usuario.id,
+        detalle_nuevo={"nombre": nombre, "email": email, "rol": "Cliente"},
+    )
+
     db.commit()
     db.refresh(usuario)
 
