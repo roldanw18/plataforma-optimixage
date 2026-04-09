@@ -3,11 +3,13 @@ name: CI Pipeline
 on:
   push:
     branches:
+      - main
       - develop
+      - feature/sprint2
   pull_request:
 
 jobs:
-  test:
+  test-backend:
     runs-on: ubuntu-latest
 
     env:
@@ -24,10 +26,38 @@ jobs:
           python-version: "3.10"
 
       - name: Instalar dependencias
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
-      - name: Ejecutar tests
-        run: |
-          pytest -v
+      - name: Ejecutar tests con cobertura
+        run: pytest -v --cov=app --cov-report=term-missing --cov-fail-under=60
         working-directory: ./backend
+
+      - name: Verificar importaciones y sintaxis
+        run: python -c "from app.main import app; print('App OK')"
+        working-directory: ./backend
+        env:
+          DATABASE_URL: "sqlite:///:memory:"
+          SECRET_KEY: "ci-test-secret-key"
+
+  build-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v3
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Instalar dependencias
+        run: npm ci
+        working-directory: ./frontend
+
+      - name: Build de producción
+        run: npm run build
+        working-directory: ./frontend
+
+      - name: Verificar artefacto de build
+        run: test -f frontend/dist/index.html

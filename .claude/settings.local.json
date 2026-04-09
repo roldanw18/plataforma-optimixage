@@ -1,7 +1,35 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find /c/Users/USUARIO/Desktop/d -type d -not -path */.* -not -path */venv/* -not -path */__pycache__/*)"
+      "Bash(find /c/Users/USUARIO/Desktop/d -type d -not -path */.* -not -path */venv/* -not -path */__pycache__/*)",
+      "mcp__supabase__list_tables",
+      "mcp__supabase__list_migrations",
+      "mcp__supabase__get_project_url",
+      "mcp__supabase__apply_migration",
+      "mcp__supabase__execute_sql",
+      "Bash(pip install:*)",
+      "Bash(python -c \":*)",
+      "Bash(nslookup:*)",
+      "Bash(python:*)",
+      "Bash(curl -s http://localhost:8000/)",
+      "Bash(npm run:*)",
+      "Bash(curl:*)",
+      "Bash(venv/Scripts/python -c \":*)",
+      "Bash(venv/Scripts/pip install:*)",
+      "Bash(venv/Scripts/pip show:*)",
+      "Bash(\"C:/Users/USUARIO/Desktop/d/requirements.txt\")",
+      "Bash(netstat -ano)",
+      "Bash(findstr \":8000\")",
+      "Bash(taskkill /PID 12376 /F)",
+      "Bash(taskkill /PID 9252 /F)",
+      "Bash(cmd /c \"taskkill /PID 12376 /F & taskkill /PID 9252 /F\" 2>&1)",
+      "Bash(cmd /c \"taskkill /PID 12376 /F\")",
+      "Bash(cmd /c \"taskkill /PID 9252 /F\")",
+      "Bash(../venv/Scripts/pytest -v --tb=short)",
+      "Bash(npx claude-code-templates@latest --skill development/senior-frontend)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "supabase"
+  ]
 }

@@ -1,6 +1,19 @@
 import os
+from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+
+# Cargar .env desde el directorio del proyecto (sube hasta encontrarlo)
+try:
+    from dotenv import load_dotenv
+    _base = Path(__file__).resolve()
+    for _parent in _base.parents:
+        _env = _parent / ".env"
+        if _env.exists():
+            load_dotenv(_env)
+            break
+except ImportError:
+    pass
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:1@localhost:5432/optimixagedb")
 
@@ -23,5 +36,15 @@ def get_db():
 
 
 # importar modelos para que SQLAlchemy los registre
-from app.models.usuario import Usuario
-from app.models.rol import Rol
+from app.models.rol import Rol  # noqa: F401
+from app.models.usuario import Usuario  # noqa: F401
+from app.models.proyecto import Proyecto  # noqa: F401
+from app.models.hito import Hito  # noqa: F401
+from app.models.tarea import Tarea  # noqa: F401
+from app.models.documento import Documento  # noqa: F401
+from app.models.mensaje import Mensaje  # noqa: F401
+from app.models.reunion import Reunion  # noqa: F401
+from app.models.notificacion import Notificacion  # noqa: F401
+from app.models.proyecto_miembro import ProyectoMiembro  # noqa: F401
+from app.models.etapa_historial import EtapaHistorial  # noqa: F401
+from app.models.audit_log import AuditLog  # noqa: F401
