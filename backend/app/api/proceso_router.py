@@ -8,6 +8,7 @@ from app.core.dependencies import get_current_user, require_role
 from app.models.proyecto import Proyecto
 from app.models.usuario import Usuario
 from app.models.etapa_historial import EtapaHistorial
+from app.models.notificacion import Notificacion
 from app.schemas.proceso_schema import (
     CambiarEtapaRequest,
     EtapaHistorialResponse,
@@ -121,6 +122,22 @@ def cambiar_etapa(
         detalle_anterior={"etapa_actual": etapa_anterior},
         detalle_nuevo={"etapa_actual": data.etapa, "notas": data.notas},
     )
+
+    # Notificación automática al cliente del proyecto
+    if proyecto.cliente_id:
+        etapa_label = ETAPA_LABELS.get(data.etapa, data.etapa)
+        notificacion = Notificacion(
+            usuario_id=proyecto.cliente_id,
+            tipo="proyecto_actualizado",
+            titulo=f"Tu proyecto avanzó a: {etapa_label}",
+            contenido=(
+                data.notas
+                or f"El administrador actualizó la etapa de '{proyecto.nombre}' a {etapa_label}."
+            ),
+            referencia_id=proyecto.id,
+            referencia_tipo="proyecto",
+        )
+        db.add(notificacion)
 
     db.commit()
     db.refresh(proyecto)
