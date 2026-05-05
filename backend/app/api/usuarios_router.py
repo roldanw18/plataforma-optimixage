@@ -11,6 +11,17 @@ from app.models.usuario import Usuario
 router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
 
 
+def _perfil_dict(usuario: Usuario) -> dict:
+    return {
+        "id": str(usuario.id),
+        "nombre": usuario.nombre,
+        "email": usuario.email,
+        "avatar_url": usuario.avatar_url,
+        "telefono": usuario.telefono,
+        "rol": {"nombre": usuario.rol.nombre} if usuario.rol else None,
+    }
+
+
 class PerfilUpdate(BaseModel):
     nombre: Optional[str] = None
     telefono: Optional[str] = None
@@ -24,14 +35,7 @@ class CambiarPasswordRequest(BaseModel):
 
 @router.get("/me")
 def get_profile(usuario: Usuario = Depends(get_current_user)):
-    return {
-        "id": str(usuario.id),
-        "nombre": usuario.nombre,
-        "email": usuario.email,
-        "avatar_url": usuario.avatar_url,
-        "telefono": usuario.telefono,
-        "rol": {"nombre": usuario.rol.nombre} if usuario.rol else None,
-    }
+    return _perfil_dict(usuario)
 
 
 @router.patch("/me")
@@ -48,14 +52,7 @@ def update_profile(
         usuario.avatar_url = data.avatar_url
     db.commit()
     db.refresh(usuario)
-    return {
-        "id": str(usuario.id),
-        "nombre": usuario.nombre,
-        "email": usuario.email,
-        "avatar_url": usuario.avatar_url,
-        "telefono": usuario.telefono,
-        "rol": {"nombre": usuario.rol.nombre} if usuario.rol else None,
-    }
+    return _perfil_dict(usuario)
 
 
 @router.patch("/me/password")

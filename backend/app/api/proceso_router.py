@@ -93,7 +93,7 @@ def cambiar_etapa(
         db.query(EtapaHistorial)
         .filter(
             EtapaHistorial.proyecto_id == proyecto_id,
-            EtapaHistorial.fecha_fin == None,  # noqa: E711
+            EtapaHistorial.fecha_fin.is_(None),
         )
         .first()
     )

@@ -1,5 +1,6 @@
 import os
 import shutil
+import uuid as _uuid_mod
 from uuid import UUID
 from pathlib import Path
 
@@ -63,7 +64,7 @@ def upload_documento(
     proyecto_dir = UPLOADS_DIR / str(proyecto_id)
     proyecto_dir.mkdir(exist_ok=True)
 
-    safe_name = f"{UUID(int=__import__('uuid').uuid4().int)}{ext}"
+    safe_name = f"{_uuid_mod.uuid4()}{ext}"
     file_path = proyecto_dir / safe_name
 
     with open(file_path, "wb") as f:
@@ -98,7 +99,10 @@ def download_documento(
     if not doc:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
 
-    file_path = UPLOADS_DIR / str(proyecto_id) / filename
+    file_path = (UPLOADS_DIR / str(proyecto_id) / filename).resolve()
+    allowed_root = UPLOADS_DIR.resolve()
+    if not str(file_path).startswith(str(allowed_root)):
+        raise HTTPException(status_code=400, detail="Ruta de archivo inválida")
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Archivo no encontrado en el servidor")
 

@@ -77,18 +77,26 @@ def listar_proyectos_admin(
 ):
     """Devuelve todos los proyectos con información del cliente asociado."""
     proyectos = db.query(Proyecto).all()
+
+    cliente_ids = {p.cliente_id for p in proyectos if p.cliente_id}
+    clientes_map: dict = {}
+    if cliente_ids:
+        clientes = db.query(Usuario).filter(Usuario.id.in_(cliente_ids)).all()
+        clientes_map = {c.id: c for c in clientes}
+
     resultado = []
     for p in proyectos:
-        cliente_info = None
-        if p.cliente_id:
-            cliente = db.query(Usuario).filter(Usuario.id == p.cliente_id).first()
-            if cliente:
-                cliente_info = ClienteInfo(
-                    id=cliente.id,
-                    nombre=cliente.nombre,
-                    email=cliente.email,
-                    avatar_url=cliente.avatar_url,
-                )
+        cliente = clientes_map.get(p.cliente_id) if p.cliente_id else None
+        cliente_info = (
+            ClienteInfo(
+                id=cliente.id,
+                nombre=cliente.nombre,
+                email=cliente.email,
+                avatar_url=cliente.avatar_url,
+            )
+            if cliente
+            else None
+        )
         resultado.append(
             ProyectoAdminResponse(
                 id=p.id,

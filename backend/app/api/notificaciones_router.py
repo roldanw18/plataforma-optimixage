@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -39,7 +39,6 @@ def marcar_leida(
         .first()
     )
     if not notif:
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Notificación no encontrada")
 
     notif.leida = True
@@ -55,6 +54,6 @@ def marcar_todas_leidas(
 ):
     db.query(Notificacion).filter(
         Notificacion.usuario_id == current_user.id,
-        Notificacion.leida == False,
+        Notificacion.leida.is_(False),
     ).update({"leida": True})
     db.commit()
