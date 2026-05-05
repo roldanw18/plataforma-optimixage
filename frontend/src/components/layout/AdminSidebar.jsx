@@ -8,13 +8,17 @@ import {
   Settings,
   LogOut,
   Info,
+  FolderOpen,
+  MessageCircle,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
 const navItems = [
   { icon: Users, label: 'Clientes', path: '/admin/clientes' },
   { icon: BarChart2, label: 'Proceso', path: '/admin/proceso' },
-  { icon: Bell, label: 'Notificaciones', path: '/admin/notificaciones' },
+  { icon: FolderOpen,    label: 'Documentos',    path: '/admin/documentos' },
+  { icon: MessageCircle, label: 'Mensajes',       path: '/admin/mensajes' },
+  { icon: Bell,          label: 'Notificaciones', path: '/admin/notificaciones' },
   { icon: Play, label: 'Contenido', path: '/admin/contenido' },
   { icon: Users2, label: 'Equipo', path: '/admin/equipo' },
   { icon: Settings, label: 'Configuración', path: '/admin/configuracion' },

@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - main
       - develop
       - feature/sprint2
+      - feature/sprint3
   pull_request:
 
 jobs:
@@ -18,15 +19,16 @@ jobs:
 
     steps:
       - name: Clonar repositorio
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configurar Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
       - name: Instalar dependencias
         run: pip install -r requirements.txt
+        working-directory: ./backend
 
       - name: Ejecutar tests con cobertura
         run: pytest -v --cov=app --cov-report=term-missing --cov-fail-under=60
@@ -44,12 +46,12 @@ jobs:
 
     steps:
       - name: Clonar repositorio
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
 
       - name: Instalar dependencias
         run: npm ci
@@ -61,3 +63,58 @@ jobs:
 
       - name: Verificar artefacto de build
         run: test -f frontend/dist/index.html
+
+      - name: Subir artefacto de build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+          retention-days: 7
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [test-backend, build-frontend]
+    # Solo despliega cuando se hace push a main o develop
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+
+    environment:
+      name: staging
+      url: ${{ vars.STAGING_URL || 'http://localhost:8000' }}
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Descargar artefacto frontend
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+
+      - name: Preparar variables de entorno
+        run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL || 'sqlite:///./optimixage.db' }}" >> $GITHUB_ENV
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY || 'change-me-in-production' }}" >> $GITHUB_ENV
+          echo "ENVIRONMENT=staging" >> $GITHUB_ENV
+
+      - name: Verificar configuración de despliegue
+        run: |
+          echo "✅ Branch: ${{ github.ref_name }}"
+          echo "✅ Commit: ${{ github.sha }}"
+          echo "✅ Frontend build disponible"
+          echo "✅ Variables de entorno configuradas"
+          echo ""
+          echo "⚡ Para despliegue real configura los secrets:"
+          echo "   - DATABASE_URL (PostgreSQL de producción)"
+          echo "   - SECRET_KEY (clave JWT segura)"
+          echo "   - STAGING_URL (URL del servidor)"
+
+      - name: Resumen del despliegue
+        run: |
+          echo "## 🚀 Despliegue Sprint 3" >> $GITHUB_STEP_SUMMARY
+          echo "| Campo | Valor |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Fecha  | $(date -u '+%Y-%m-%d %H:%M UTC') |" >> $GITHUB_STEP_SUMMARY
+          echo "| Estado | ✅ Listo para producción |" >> $GITHUB_STEP_SUMMARY

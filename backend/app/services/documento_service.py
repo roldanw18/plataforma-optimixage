@@ -4,12 +4,14 @@ from app.models.documento import Documento
 
 
 def crear_documento(db: Session, titulo: str, descripcion: str, url: str,
-                    estado: str, proyecto_id: UUID, autor_id: UUID) -> Documento:
+                    estado: str, proyecto_id: UUID, autor_id: UUID,
+                    tipo: str = "otro") -> Documento:
     documento = Documento(
         titulo=titulo,
         descripcion=descripcion,
         url=url,
         estado=estado,
+        tipo=tipo,
         proyecto_id=proyecto_id,
         autor_id=autor_id,
     )

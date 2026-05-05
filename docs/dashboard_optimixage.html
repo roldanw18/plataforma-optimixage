@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avance Proyecto Optimixage</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green:   #27ae60;
+    --green-l: #2ecc71;
+    --orange:  #e67e22;
+    --red:     #e74c3c;
+    --yellow:  #f1c40f;
+    --navy:    #1a1a2e;
+    --dark:    #16213e;
+    --card:    #ffffff;
+    --border:  #dee2e6;
+    --text:    #2d3436;
+    --muted:   #636e72;
+    --bg:      #f4f6f9;
+    --edit-hl: rgba(52,152,219,0.12);
+  }
+
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 13px; }
+
+  /* ── TOOLBAR ─────────────────────────────────────────── */
+  #toolbar {
+    background: var(--navy);
+    color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  }
+  #toolbar h1 { font-size: 15px; font-weight: 600; flex: 1; }
+  #toolbar button {
+    border: none; border-radius: 5px; padding: 6px 14px;
+    font-size: 12px; cursor: pointer; font-weight: 600; transition: opacity .2s;
+  }
+  #toolbar button:hover { opacity: .85; }
+  #btn-edit   { background: #3498db; color: #fff; }
+  #btn-save   { background: var(--green); color: #fff; }
+  #btn-export { background: #9b59b6; color: #fff; }
+  #btn-import { background: var(--orange); color: #fff; }
+  #edit-badge {
+    background: #e74c3c; color: #fff; border-radius: 4px;
+    padding: 3px 8px; font-size: 11px; font-weight: 700; display: none;
+  }
+  #file-input { display: none; }
+  .saved-msg { color: #2ecc71; font-size: 11px; display: none; }
+
+  /* ── LAYOUT ──────────────────────────────────────────── */
+  .page { max-width: 960px; margin: 20px auto; padding: 0 16px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.07);
+  }
+
+  /* ── TOP ROW ─────────────────────────────────────────── */
+  .top-row { display: grid; grid-template-columns: 220px 1fr 180px; gap: 12px; margin-bottom: 12px; }
+
+  /* left: completed/progress */
+  .status-panel h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 6px; }
+  .check-item { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; font-size: 12px; }
+  .check-item input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--green); cursor: pointer; }
+  .check-item span { flex: 1; }
+  .in-progress-list { list-style: none; }
+  .in-progress-list li { font-size: 12px; padding: 2px 0; color: var(--text); }
+  .in-progress-list li::before { content: '- '; color: var(--muted); }
+  .add-btn {
+    background: none; border: 1px dashed var(--border); border-radius: 4px;
+    color: var(--muted); font-size: 11px; padding: 2px 8px; cursor: pointer;
+    margin-top: 4px; display: none; /* shown in edit mode */
+  }
+  .rm-btn {
+    background: none; border: none; color: #e74c3c; cursor: pointer;
+    font-size: 14px; padding: 0 2px; display: none; line-height: 1;
+  }
+
+  /* timeline */
+  .timeline-panel { display: flex; flex-direction: column; justify-content: center; }
+  .timeline-panel .project-label {
+    background: var(--navy); color: #fff; text-align: center;
+    border-radius: 6px; padding: 6px 10px; font-size: 13px; font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .timeline-track { position: relative; padding: 0 20px 30px; }
+  .track-bar {
+    height: 6px; background: #dfe6e9; border-radius: 3px;
+    position: relative; margin: 20px 0 0;
+  }
+  .track-fill {
+    height: 100%; background: var(--green); border-radius: 3px;
+    transition: width .4s;
+  }
+  .milestones { display: flex; justify-content: space-between; margin-top: 4px; }
+  .milestone { text-align: center; font-size: 10px; color: var(--muted); width: 60px; }
+  .milestone span { display: block; font-weight: 700; font-size: 11px; color: var(--text); }
+  .progress-marker {
+    position: absolute; top: -20px;
+    transform: translateX(-50%);
+    background: var(--orange); color: #fff; border-radius: 10px;
+    padding: 2px 8px; font-size: 10px; font-weight: 700; white-space: nowrap;
+  }
+  .progress-marker::after {
+    content: ''; position: absolute; bottom: -5px; left: 50%;
+    transform: translateX(-50%); border: 5px solid transparent;
+    border-top-color: var(--orange); border-bottom: none;
+  }
+
+  /* estado */
+  .estado-panel h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 8px; }
+  .estado-badges { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+  .badge {
+    border-radius: 4px; padding: 3px 8px; font-size: 11px; font-weight: 700;
+    cursor: pointer; transition: opacity .2s; user-select: none;
+  }
+  .badge.ok     { background: var(--green);  color: #fff; }
+  .badge.riesgo { background: var(--orange); color: #fff; }
+  .badge.retrasado { background: var(--red); color: #fff; }
+  .badge.inactive { opacity: .3; }
+  .estado-text { font-size: 11px; color: var(--text); line-height: 1.5; }
+
+  /* ── METRICS BAR ─────────────────────────────────────── */
+  .metrics-bar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .metric {
+    border-radius: 8px; padding: 10px 8px; text-align: center; color: #fff;
+  }
+  .metric .label { font-size: 9px; text-transform: uppercase; letter-spacing: .4px; opacity: .85; margin-bottom: 4px; }
+  .metric .value { font-size: 18px; font-weight: 800; line-height: 1; }
+  .metric .sub   { font-size: 10px; opacity: .75; margin-top: 2px; }
+  .metric.green  { background: var(--green); }
+  .metric.orange { background: var(--orange); }
+  .metric.dark   { background: var(--dark); }
+  .metric.red    { background: var(--red); }
+  .metric.navy   { background: var(--navy); }
+  .metric.yellow { background: #e6a817; }
+  .metric.teal   { background: #00b894; }
+
+  /* ── BOTTOM ROW ──────────────────────────────────────── */
+  .bottom-row { display: grid; grid-template-columns: 1fr 240px; gap: 12px; margin-bottom: 12px; }
+
+  .next-steps h3, .risks-section h3, .calendar-panel h3, .sprint-list h3 {
+    font-size: 11px; text-transform: uppercase; letter-spacing: .5px;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .next-steps-list { list-style: none; margin-bottom: 10px; }
+  .next-steps-list li {
+    font-size: 11px; padding: 4px 0; border-bottom: 1px solid #f0f0f0;
+    display: flex; align-items: flex-start; gap: 4px;
+  }
+  .next-steps-list li::before { content: '→'; color: var(--green); flex-shrink: 0; }
+
+  .risks-section {
+    background: #fff5f5; border: 1px solid #ffcccc; border-radius: 8px; padding: 12px; margin-top: 12px;
+  }
+  .risks-section h3 { color: var(--red); }
+  .risks-list { list-style: none; }
+  .risks-list li { font-size: 11px; padding: 3px 0; color: #c0392b; }
+  .risks-list li::before { content: '⚠ '; }
+
+  /* calendar */
+  .mini-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-bottom: 12px; }
+  .cal-cell {
+    width: 22px; height: 22px; border-radius: 4px; background: #eee;
+    cursor: pointer; transition: background .2s;
+  }
+  .cal-cell.done    { background: var(--green); }
+  .cal-cell.active  { background: var(--orange); }
+  .cal-cell.pending { background: #dfe6e9; }
+  .cal-cell:hover   { opacity: .75; }
+
+  .sprint-list { margin-top: 8px; }
+  .sprint-entry {
+    border-left: 4px solid var(--green); padding: 6px 10px;
+    margin-bottom: 8px; background: #f8f9fa; border-radius: 0 6px 6px 0;
+  }
+  .sprint-entry.pending { border-left-color: #dfe6e9; }
+  .sprint-entry.active  { border-left-color: var(--orange); }
+  .sprint-entry .sprint-name { font-weight: 700; font-size: 12px; margin-bottom: 3px; }
+  .sprint-entry .sprint-date { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+  .sprint-check { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+  .sprint-check input { accent-color: var(--green); cursor: pointer; }
+
+  /* ── VOICE SECTIONS ──────────────────────────────────── */
+  .voice-section { margin-bottom: 16px; }
+  .voice-section h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .voice-list { list-style: none; }
+  .voice-list li { font-size: 13px; padding: 5px 0; border-bottom: 1px solid #f0f0f0; line-height: 1.5; }
+  .voice-list li::before { content: '- '; color: var(--muted); }
+
+  /* ── PAGE NUMBER ─────────────────────────────────────── */
+  .page-num { text-align: right; color: var(--muted); font-size: 11px; margin-top: 8px; }
+
+  /* ── EDIT MODE ───────────────────────────────────────── */
+  body.edit-mode [contenteditable] {
+    background: var(--edit-hl);
+    border-radius: 3px;
+    outline: 1px dashed #3498db;
+    min-width: 20px;
+    min-height: 16px;
+    cursor: text;
+    padding: 1px 3px;
+  }
+  body.edit-mode .add-btn { display: inline-block; }
+  body.edit-mode .rm-btn  { display: inline-block; }
+
+  /* number input overlay for metrics */
+  .metric-input {
+    background: transparent; border: none; color: inherit;
+    font-size: inherit; font-weight: inherit; font-family: inherit;
+    text-align: center; width: 100%; outline: none;
+  }
+  body.edit-mode .metric-input {
+    background: rgba(255,255,255,.15);
+    border-radius: 4px;
+    cursor: text;
+  }
+
+  @media print {
+    #toolbar { display: none; }
+    .page { max-width: 100%; margin: 0; padding: 8px; }
+    body { background: #fff; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div id="toolbar">
+  <h1>📊 Dashboard Optimixage — Avance del Proyecto</h1>
+  <span id="edit-badge">✏ MODO EDICIÓN</span>
+  <span class="saved-msg" id="saved-msg">✓ Guardado</span>
+  <button id="btn-edit"   onclick="toggleEdit()">✏ Editar</button>
+  <button id="btn-save"   onclick="saveToStorage()">💾 Guardar</button>
+  <button id="btn-export" onclick="exportJSON()">⬇ Exportar JSON</button>
+  <button id="btn-import" onclick="document.getElementById('file-input').click()">⬆ Importar JSON</button>
+  <input type="file" id="file-input" accept=".json" onchange="importJSON(event)">
+</div>
+
+<div class="page">
+
+  <!-- ── TOP ROW ──────────────────────────────────────── -->
+  <div class="top-row">
+
+    <!-- STATUS PANEL -->
+    <div class="card status-panel">
+      <h3>Completado</h3>
+      <div id="completed-list">
+        <div class="check-item">
+          <input type="checkbox" checked onchange="saveToStorage()">
+          <span contenteditable="false">Sprint 1</span>
+          <button class="rm-btn" onclick="removeItem(this)">×</button>
+        </div>
+        <div class="check-item">
+          <input type="checkbox" checked onchange="saveToStorage()">
+          <span contenteditable="false">Sprint 2</span>
+          <button class="rm-btn" onclick="removeItem(this)">×</button>
+        </div>
+        <div class="check-item">
+          <input type="checkbox" onchange="saveToStorage()">
+          <span contenteditable="false">Asignación de responsabilidades</span>
+          <button class="rm-btn" onclick="removeItem(this)">×</button>
+        </div>
+      </div>
+      <button class="add-btn" onclick="addCompletedItem()">+ agregar</button>
+
+      <h3 style="margin-top:12px;">En Progreso</h3>
+      <ul class="in-progress-list" id="progress-list">
+        <li contenteditable="false">Sprint 3 — por iniciar<button class="rm-btn" onclick="removeItem(this)">×</button></li>
+        <li contenteditable="false">Gestión Documental<button class="rm-btn" onclick="removeItem(this)">×</button></li>
+        <li contenteditable="false">Módulo de Comunicación<button class="rm-btn" onclick="removeItem(this)">×</button></li>
+        <li contenteditable="false">Continuous Deployment<button class="rm-btn" onclick="removeItem(this)">×</button></li>
+      </ul>
+      <button class="add-btn" onclick="addProgressItem()">+ agregar</button>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="card timeline-panel">
+      <div class="project-label" contenteditable="false">OPTIMIXAGE — Plataforma de Seguimiento</div>
+      <div class="timeline-track">
+        <div class="track-bar" id="track-bar">
+          <div class="track-fill" id="track-fill" style="width:66%"></div>
+          <div class="progress-marker" id="progress-marker" style="left:66%">
+            Aquí vamos <span id="pct-label">66%</span>
+          </div>
+        </div>
+        <div class="milestones">
+          <div class="milestone"><span contenteditable="false">Hito 1</span><br>Sprint 1</div>
+          <div class="milestone"><span contenteditable="false">Hito 2</span><br>Sprint 2</div>
+          <div class="milestone"><span contenteditable="false">Hito 3</span><br>Sprint 3</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--muted);">
+          <span>Inicio: <span contenteditable="false">Mar 2026</span></span>
+          <span>Entrega: <span contenteditable="false">Jun 2026</span></span>
+        </div>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
+          <label style="font-size:11px;color:var(--muted);">% avance global:</label>
+          <input type="range" min="0" max="100" value="66" id="pct-slider"
+            oninput="updateProgress(this.value)"
+            style="flex:1;accent-color:var(--orange);">
+          <span id="pct-display" style="font-size:12px;font-weight:700;color:var(--orange);">66%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESTADO -->
+    <div class="card estado-panel">
+      <h3>Estado del proyecto</h3>
+      <div class="estado-badges">
+        <span class="badge ok"        onclick="setEstado('ok')">Ok</span>
+        <span class="badge riesgo"    onclick="setEstado('riesgo')">Riesgo</span>
+        <span class="badge retrasado" onclick="setEstado('retrasado')">Retrasado</span>
+      </div>
+      <div class="estado-text" contenteditable="false" id="estado-text">
+        El proyecto avanza de acuerdo al tiempo y presupuesto. Sprint 1 y 2 completados exitosamente. Sprint 3 por iniciar.
+      </div>
+    </div>
+
+  </div><!-- /top-row -->
+
+  <!-- ── METRICS BAR ───────────────────────────────────── -->
+  <div class="metrics-bar" style="margin-bottom:12px;">
+    <div class="metric green">
+      <div class="label">Sprints completados</div>
+      <div class="value">
+        <input class="metric-input" type="text" value="2/3" id="m-sprints" onchange="saveToStorage()">
+      </div>
+    </div>
+    <div class="metric dark">
+      <div class="label">Días trabajados</div>
+      <div class="value">
+        <input class="metric-input" type="text" value="42/60" id="m-dias" onchange="saveToStorage()">
+      </div>
+    </div>
+    <div class="metric navy">
+      <div class="label">Horas</div>
+      <div class="value">
+        <input class="metric-input" type="text" value=">500" id="m-horas" onchange="saveToStorage()">
+      </div>
+    </div>
+    <div class="metric orange">
+      <div class="label">Ejecución</div>
+      <div class="value">
+        <input class="metric-input" type="text" value="66%" id="m-ejec" onchange="saveToStorage()">
+      </div>
+    </div>
+    <div class="metric teal">
+      <div class="label">Exploración</div>
+      <div class="value">
+        <input class="metric-input" type="text" value="45%" id="m-expl" onchange="saveToStorage()">
+      </div>
+    </div>
+    <div class="metric yellow">
+      <div class="label">Módulos</div>
+      <div class="value">
+        <input class="metric-input" type="text" value="7/12" id="m-mod" onchange="saveToStorage()">
+      </div>
+      <div class="sub">implementados</div>
+    </div>
+    <div class="metric red">
+      <div class="label">Entregables</div>
+      <div class="value">
+        <input class="metric-input" type="text" value="2/3" id="m-entregables" onchange="saveToStorage()">
+      </div>
+      <div class="sub">sprints</div>
+    </div>
+  </div>
+
+  <!-- ── BOTTOM ROW ────────────────────────────────────── -->
+  <div class="bottom-row">
+
+    <!-- LEFT: próximos pasos + riesgos -->
+    <div>
+      <div class="card">
+        <h3>Próximos pasos</h3>
+        <ul class="next-steps-list" id="next-steps-list">
+          <li contenteditable="false">
+            Iniciar Sprint 3 — Responsable: Wbeimar. Fecha: <span contenteditable="false">Mayo 2026</span>
+            <button class="rm-btn" onclick="removeItem(this)">×</button>
+          </li>
+          <li contenteditable="false">
+            Implementar Gestión Documental (carga, descarga segura, roles)
+            <button class="rm-btn" onclick="removeItem(this)">×</button>
+          </li>
+          <li contenteditable="false">
+            Desarrollar Módulo de Comunicación / mensajería
+            <button class="rm-btn" onclick="removeItem(this)">×</button>
+          </li>
+          <li contenteditable="false">
+            Configurar Continuous Deployment en GitHub Actions
+            <button class="rm-btn" onclick="removeItem(this)">×</button>
+          </li>
+          <li contenteditable="false">
+            Demo final y documentación de entrega universitaria
+            <button class="rm-btn" onclick="removeItem(this)">×</button>
+          </li>
+        </ul>
+        <button class="add-btn" onclick="addNextStep()">+ agregar paso</button>
+      </div>
+
+      <div class="risks-section" style="margin-top:12px;">
+        <h3>Riesgos</h3>
+        <ul class="risks-list" id="risks-list">
+          <li contenteditable="false">
+            Tiempo limitado para Sprint 3 — 7 grupos de actividades por completar
+            <button class="rm-btn" onclick="removeItem(this)">×</button>
+          </li>
+          <li contenteditable="false">
+            Despliegue en nube puede requerir configuración adicional no prevista
+            <button class="rm-btn" onclick="removeItem(this)">×</button>
+          </li>
+        </ul>
+        <button class="add-btn" onclick="addRisk()">+ agregar riesgo</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: calendario + sprints -->
+    <div>
+      <div class="card">
+        <h3>Calendario</h3>
+        <div class="mini-cal" id="mini-cal"></div>
+
+        <div class="sprint-list">
+          <h3>Sprints</h3>
+
+          <div class="sprint-entry" id="sprint1-entry">
+            <div class="sprint-name" contenteditable="false">Sprint 1</div>
+            <div class="sprint-date" contenteditable="false">Mar 2026 — Abr 2026</div>
+            <div class="sprint-check">
+              <input type="checkbox" checked onchange="saveToStorage()">
+              <span>Fundamentos Técnicos + CI</span>
+            </div>
+            <div class="sprint-check">
+              <input type="checkbox" checked onchange="saveToStorage()">
+              <span>Autenticación JWT</span>
+            </div>
+          </div>
+
+          <div class="sprint-entry" id="sprint2-entry">
+            <div class="sprint-name" contenteditable="false">Sprint 2</div>
+            <div class="sprint-date" contenteditable="false">Abr 2026 — May 2026</div>
+            <div class="sprint-check">
+              <input type="checkbox" checked onchange="saveToStorage()">
+              <span>MVP Funcional / Core</span>
+            </div>
+            <div class="sprint-check">
+              <input type="checkbox" checked onchange="saveToStorage()">
+              <span>Frontend React + Docker</span>
+            </div>
+          </div>
+
+          <div class="sprint-entry pending" id="sprint3-entry">
+            <div class="sprint-name" contenteditable="false">Sprint 3</div>
+            <div class="sprint-date" contenteditable="false">May 2026 — Jun 2026</div>
+            <div class="sprint-check">
+              <input type="checkbox" onchange="saveToStorage()">
+              <span>Interacción + CD</span>
+            </div>
+            <div class="sprint-check">
+              <input type="checkbox" onchange="saveToStorage()">
+              <span>Calidad y Entrega final</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /bottom-row -->
+
+  <div class="page-num" contenteditable="false">Página 1 · Optimixage · <span id="date-label"></span></div>
+
+  <hr style="margin: 20px 0; border-color: var(--border);">
+
+  <!-- ── VOZ DEL CLIENTE ─────────────────────────────── -->
+  <div class="voice-section card" style="margin-bottom:16px;">
+    <h2>🔥 Voz del cliente</h2>
+    <ul class="voice-list" id="vc-list">
+      <li contenteditable="false">
+        Necesitamos ver el avance del proyecto en tiempo real, con datos claros de cada sprint.
+        <button class="rm-btn" onclick="removeItem(this)">×</button>
+      </li>
+      <li contenteditable="false">
+        La plataforma debe ser intuitiva para gestores de proyecto sin formación técnica.
+        <button class="rm-btn" onclick="removeItem(this)">×</button>
+      </li>
+      <li contenteditable="false">
+        Requerimos control de roles: administrador, cliente y colaborador con permisos diferenciados.
+        <button class="rm-btn" onclick="removeItem(this)">×</button>
+      </li>
+    </ul>
+    <button class="add-btn" onclick="addVoiceItem('vc-list')">+ agregar</button>
+  </div>
+
+  <!-- ── VOZ DEL USUARIO ────────────────────────────── -->
+  <div class="voice-section card" style="margin-bottom:16px;">
+    <h2>❓ Voz del usuario</h2>
+    <ul class="voice-list" id="vu-list">
+      <li contenteditable="false">
+        (Pendiente — completar con feedback de usuarios reales durante el Sprint 3)
+        <button class="rm-btn" onclick="removeItem(this)">×</button>
+      </li>
+    </ul>
+    <button class="add-btn" onclick="addVoiceItem('vu-list')">+ agregar</button>
+  </div>
+
+  <!-- ── VOZ DE LOS OPTIMIXAGERS ───────────────────── -->
+  <div class="voice-section card" style="margin-bottom:16px;">
+    <h2>🤝 Voz de los Optimixagers</h2>
+    <ul class="voice-list" id="vo-list">
+      <li contenteditable="false">
+        Mostrar datos y evidencias de alto valor: módulos implementados, pruebas pasadas, CI/CD operativo.
+        <button class="rm-btn" onclick="removeItem(this)">×</button>
+      </li>
+      <li contenteditable="false">
+        Sprint 2 adelantó 5 ítems del Sprint 3 — eficiencia del equipo demostrada.
+        <button class="rm-btn" onclick="removeItem(this)">×</button>
+      </li>
+      <li contenteditable="false">
+        ¿Cómo presentamos el demo final para maximizar el impacto ante la universidad?
+        <button class="rm-btn" onclick="removeItem(this)">×</button>
+      </li>
+    </ul>
+    <button class="add-btn" onclick="addVoiceItem('vo-list')">+ agregar</button>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────
+const STORAGE_KEY = 'optimixage_dashboard_v1';
+let editMode = false;
+let currentEstado = 'ok';
+
+// ─── INIT ─────────────────────────────────────────────────────
+window.onload = () => {
+  document.getElementById('date-label').textContent = new Date().toLocaleDateString('es-ES', {year:'numeric',month:'long',day:'numeric'});
+  buildCalendar();
+  loadFromStorage();
+  setEstado(currentEstado, false);
+};
+
+// ─── EDIT MODE ────────────────────────────────────────────────
+function toggleEdit() {
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  document.querySelectorAll('[contenteditable]').forEach(el => {
+    el.contentEditable = editMode ? 'true' : 'false';
+  });
+  document.getElementById('edit-badge').style.display = editMode ? 'inline-block' : 'none';
+  document.getElementById('btn-edit').textContent = editMode ? '✓ Listo' : '✏ Editar';
+  document.getElementById('btn-edit').style.background = editMode ? '#27ae60' : '#3498db';
+  if (!editMode) saveToStorage();
+}
+
+// ─── PROGRESS SLIDER ─────────────────────────────────────────
+function updateProgress(val) {
+  document.getElementById('track-fill').style.width = val + '%';
+  document.getElementById('progress-marker').style.left = val + '%';
+  document.getElementById('pct-label').textContent = val + '%';
+  document.getElementById('pct-display').textContent = val + '%';
+  saveToStorage();
+}
+
+// ─── ESTADO BADGES ────────────────────────────────────────────
+function setEstado(estado, save = true) {
+  currentEstado = estado;
+  document.querySelectorAll('.badge').forEach(b => {
+    b.classList.toggle('inactive', !b.classList.contains(estado));
+  });
+  if (save) saveToStorage();
+}
+
+// ─── ADD / REMOVE ITEMS ───────────────────────────────────────
+function addCompletedItem() {
+  const div = document.createElement('div');
+  div.className = 'check-item';
+  div.innerHTML = `<input type="checkbox" onchange="saveToStorage()"><span contenteditable="true">Nuevo ítem</span><button class="rm-btn" onclick="removeItem(this)">×</button>`;
+  document.getElementById('completed-list').appendChild(div);
+  div.querySelector('span').focus();
+}
+
+function addProgressItem() {
+  const li = document.createElement('li');
+  li.innerHTML = `<span contenteditable="true">Nuevo ítem</span><button class="rm-btn" onclick="removeItem(this)">×</button>`;
+  li.contentEditable = 'false';
+  document.getElementById('progress-list').appendChild(li);
+  li.querySelector('span').focus();
+}
+
+function addNextStep() {
+  const li = document.createElement('li');
+  li.contentEditable = 'false';
+  li.innerHTML = `Nuevo paso — Responsable: <span contenteditable="true">Nombre</span>. Fecha: <span contenteditable="true">Fecha</span><button class="rm-btn" onclick="removeItem(this)">×</button>`;
+  document.getElementById('next-steps-list').appendChild(li);
+}
+
+function addRisk() {
+  const li = document.createElement('li');
+  li.contentEditable = 'true';
+  li.innerHTML = `Nuevo riesgo<button class="rm-btn" onclick="removeItem(this)">×</button>`;
+  document.getElementById('risks-list').appendChild(li);
+  li.focus();
+}
+
+function addVoiceItem(listId) {
+  const li = document.createElement('li');
+  li.contentEditable = 'true';
+  li.innerHTML = `Nueva entrada<button class="rm-btn" onclick="removeItem(this)">×</button>`;
+  document.getElementById(listId).appendChild(li);
+  li.focus();
+}
+
+function removeItem(btn) {
+  btn.parentElement.remove();
+  saveToStorage();
+}
+
+// ─── MINI CALENDAR ────────────────────────────────────────────
+function buildCalendar() {
+  const cal = document.getElementById('mini-cal');
+  cal.innerHTML = '';
+  for (let i = 0; i < 35; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell';
+    if (i < 14)      cell.classList.add('done');
+    else if (i < 15) cell.classList.add('active');
+    else             cell.classList.add('pending');
+    cell.title = 'Click para cambiar estado';
+    cell.onclick = () => {
+      const states = ['pending','done','active'];
+      const cur = states.find(s => cell.classList.contains(s)) || 'pending';
+      const next = states[(states.indexOf(cur) + 1) % states.length];
+      states.forEach(s => cell.classList.remove(s));
+      cell.classList.add(next);
+      saveToStorage();
+    };
+    cal.appendChild(cell);
+  }
+}
+
+// ─── PERSISTENCE ──────────────────────────────────────────────
+function saveToStorage() {
+  const data = collectState();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  showSaved();
+}
+
+function loadFromStorage() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  try {
+    applyState(JSON.parse(raw));
+  } catch(e) { console.warn('Error cargando datos:', e); }
+}
+
+function collectState() {
+  // metrics
+  const metrics = {};
+  ['m-sprints','m-dias','m-horas','m-ejec','m-expl','m-mod','m-entregables'].forEach(id => {
+    metrics[id] = document.getElementById(id)?.value || '';
+  });
+
+  // checkboxes
+  const checkboxes = [...document.querySelectorAll('input[type=checkbox]')].map(cb => cb.checked);
+
+  // slider
+  const pct = document.getElementById('pct-slider').value;
+
+  // calendar
+  const calStates = [...document.querySelectorAll('.cal-cell')].map(c => {
+    if (c.classList.contains('done'))   return 'done';
+    if (c.classList.contains('active')) return 'active';
+    return 'pending';
+  });
+
+  // HTML sections (inner HTML of editable lists)
+  const sections = ['completed-list','progress-list','next-steps-list','risks-list',
+                    'vc-list','vu-list','vo-list','next-steps-list'];
+  const htmlSections = {};
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) htmlSections[id] = el.innerHTML;
+  });
+
+  // text areas
+  const estadoText = document.getElementById('estado-text')?.innerHTML || '';
+  const pageNum    = document.querySelector('.page-num')?.innerHTML || '';
+
+  return { metrics, checkboxes, pct, calStates, htmlSections, estadoText, currentEstado, pageNum };
+}
+
+function applyState(data) {
+  if (!data) return;
+  if (data.metrics) {
+    Object.entries(data.metrics).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    });
+  }
+  if (data.pct !== undefined) {
+    document.getElementById('pct-slider').value = data.pct;
+    updateProgress(data.pct);
+  }
+  if (data.calStates) {
+    const cells = document.querySelectorAll('.cal-cell');
+    data.calStates.forEach((s, i) => {
+      if (cells[i]) {
+        ['done','active','pending'].forEach(c => cells[i].classList.remove(c));
+        cells[i].classList.add(s);
+      }
+    });
+  }
+  if (data.htmlSections) {
+    Object.entries(data.htmlSections).forEach(([id, html]) => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = html;
+    });
+  }
+  if (data.estadoText) {
+    document.getElementById('estado-text').innerHTML = data.estadoText;
+  }
+  if (data.currentEstado) {
+    setEstado(data.currentEstado, false);
+  }
+  if (data.checkboxes) {
+    const boxes = document.querySelectorAll('input[type=checkbox]');
+    data.checkboxes.forEach((v, i) => { if (boxes[i]) boxes[i].checked = v; });
+  }
+}
+
+// ─── EXPORT / IMPORT ──────────────────────────────────────────
+function exportJSON() {
+  const data = collectState();
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `optimixage_dashboard_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+function importJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      applyState(data);
+      saveToStorage();
+      alert('✓ Dashboard cargado correctamente.');
+    } catch(err) {
+      alert('Error al importar: archivo JSON inválido.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function showSaved() {
+  const msg = document.getElementById('saved-msg');
+  msg.style.display = 'inline';
+  clearTimeout(window._saveTimer);
+  window._saveTimer = setTimeout(() => msg.style.display = 'none', 1800);
+}
+
+// auto-save on any input change
+document.addEventListener('input', () => saveToStorage());
+document.addEventListener('focusout', e => {
+  if (e.target.contentEditable === 'true') saveToStorage();
+});
+</script>
+</body>
+</html>

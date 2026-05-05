@@ -6,7 +6,7 @@ from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.models.usuario import Usuario
 from app.schemas.mensaje_schema import MensajeCreate, MensajeResponse
-from app.services.mensaje_service import enviar_mensaje, obtener_mensajes_proyecto
+from app.services.mensaje_service import enviar_mensaje, obtener_mensajes_proyecto, marcar_leidos
 
 router = APIRouter(prefix="/mensajes", tags=["Mensajes"])
 
@@ -29,3 +29,13 @@ def listar_mensajes(
     current_user: Usuario = Depends(get_current_user),
 ):
     return obtener_mensajes_proyecto(db, proyecto_id)
+
+
+@router.patch("/proyecto/{proyecto_id}/leer")
+def marcar_proyecto_leido(
+    proyecto_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    count = marcar_leidos(db, proyecto_id, current_user.id)
+    return {"marcados_leidos": count}
