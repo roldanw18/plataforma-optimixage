@@ -1,0 +1,28 @@
+__pycache__/
+*.py[codz]
+*.egg-info/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Tests / data local
+test.db
+*.sqlite
+*.sqlite3
+uploads/
+.env
+.env.local

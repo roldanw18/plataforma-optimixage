@@ -16,6 +16,7 @@ jobs:
     env:
       DATABASE_URL: "sqlite:///:memory:"
       SECRET_KEY: "ci-test-secret-key"
+      ENVIRONMENT: "test"
 
     steps:
       - name: Clonar repositorio
@@ -24,22 +25,22 @@ jobs:
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.11"
+          cache: pip
 
       - name: Instalar dependencias
-        run: pip install -r requirements.txt
-        working-directory: ./backend
-
-      - name: Ejecutar tests con cobertura
-        run: pytest -v --cov=app --cov-report=term-missing --cov-fail-under=60
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
         working-directory: ./backend
 
       - name: Verificar importaciones y sintaxis
         run: python -c "from app.main import app; print('App OK')"
         working-directory: ./backend
-        env:
-          DATABASE_URL: "sqlite:///:memory:"
-          SECRET_KEY: "ci-test-secret-key"
+
+      - name: Ejecutar tests con cobertura
+        run: pytest -v --cov=app --cov-report=term-missing --cov-fail-under=60
+        working-directory: ./backend
 
   build-frontend:
     runs-on: ubuntu-latest
@@ -51,15 +52,19 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Instalar dependencias
         run: npm ci
         working-directory: ./frontend
 
-      - name: Build de producción
+      - name: Build de produccion
         run: npm run build
         working-directory: ./frontend
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL || 'http://localhost:8000' }}
 
       - name: Verificar artefacto de build
         run: test -f frontend/dist/index.html
@@ -74,7 +79,6 @@ jobs:
   deploy-staging:
     runs-on: ubuntu-latest
     needs: [test-backend, build-frontend]
-    # Solo despliega cuando se hace push a main o develop
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
 
     environment:
@@ -91,30 +95,24 @@ jobs:
           name: frontend-dist
           path: frontend/dist/
 
-      - name: Preparar variables de entorno
+      - name: Verificar configuracion de despliegue
         run: |
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL || 'sqlite:///./optimixage.db' }}" >> $GITHUB_ENV
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY || 'change-me-in-production' }}" >> $GITHUB_ENV
-          echo "ENVIRONMENT=staging" >> $GITHUB_ENV
-
-      - name: Verificar configuración de despliegue
-        run: |
-          echo "✅ Branch: ${{ github.ref_name }}"
-          echo "✅ Commit: ${{ github.sha }}"
-          echo "✅ Frontend build disponible"
-          echo "✅ Variables de entorno configuradas"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Frontend build disponible"
           echo ""
-          echo "⚡ Para despliegue real configura los secrets:"
-          echo "   - DATABASE_URL (PostgreSQL de producción)"
-          echo "   - SECRET_KEY (clave JWT segura)"
-          echo "   - STAGING_URL (URL del servidor)"
+          echo "Para despliegue real configura los secrets:"
+          echo "  - DATABASE_URL  (PostgreSQL/Supabase de produccion)"
+          echo "  - SECRET_KEY    (clave JWT segura, p.ej. token_urlsafe(64))"
+          echo "  - CORS_ORIGINS  (dominio publico del frontend)"
+          echo "  - STAGING_URL   (URL del servidor de staging)"
 
       - name: Resumen del despliegue
         run: |
-          echo "## 🚀 Despliegue Sprint 3" >> $GITHUB_STEP_SUMMARY
+          echo "## Despliegue Sprint 3" >> $GITHUB_STEP_SUMMARY
           echo "| Campo | Valor |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Branch | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Fecha  | $(date -u '+%Y-%m-%d %H:%M UTC') |" >> $GITHUB_STEP_SUMMARY
-          echo "| Estado | ✅ Listo para producción |" >> $GITHUB_STEP_SUMMARY
+          echo "| Estado | OK |" >> $GITHUB_STEP_SUMMARY

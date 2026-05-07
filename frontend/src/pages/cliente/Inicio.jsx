@@ -21,6 +21,12 @@ function EtapaIcon({ estado }) {
   return <Circle size={16} color="#d1d5db" />
 }
 
+const VIDEOS_PLACEHOLDER = [
+  { id: 1, title: 'Introducción al proceso' },
+  { id: 2, title: 'Diagnóstico empresarial' },
+  { id: 3, title: 'Herramientas digitales' },
+]
+
 function DocIcon() {
   return (
     <div style={{
@@ -69,12 +75,6 @@ export default function Inicio() {
   const etapaActual    = proceso?.etapa_actual || ''
   const progreso       = proceso?.progreso || 0
   const etapaIdx       = ETAPAS.findIndex(e => e.key === etapaActual)
-
-  const videosPlaceholder = [
-    { id: 1, title: 'Introducción al proceso' },
-    { id: 2, title: 'Diagnóstico empresarial' },
-    { id: 3, title: 'Herramientas digitales' },
-  ]
 
   if (loading) {
     return (
@@ -267,7 +267,7 @@ export default function Inicio() {
           Contenido
         </h2>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          {videosPlaceholder.map((v, idx) => (
+          {VIDEOS_PLACEHOLDER.map((v, idx) => (
             <div key={v.id} style={{
               backgroundColor: idx === 0 ? '#0a0a4e' : '#374151',
               borderRadius: '12px', width: '280px', height: '160px',

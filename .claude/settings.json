@@ -3,7 +3,9 @@
     "allow": [
       "Bash(claude mcp:*)",
       "Bash(xargs wc:*)",
-      "WebSearch"
+      "WebSearch",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\USUARIO\\\\Desktop\\\\d\" -Recurse -Force | Select-Object FullName | ForEach-Object { $_.FullName } | Sort-Object)",
+      "Read(//c/c/Users/USUARIO/Desktop/**)"
     ]
   }
 }

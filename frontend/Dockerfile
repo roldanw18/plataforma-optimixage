@@ -1,7 +1,13 @@
-FROM node:18-alpine AS build
+FROM node:20-alpine AS build
 WORKDIR /app
+
+# Permitir override de VITE_API_URL en el build (docker-compose lo pasa).
+ARG VITE_API_URL=/api
+ENV VITE_API_URL=$VITE_API_URL
+
 COPY package*.json ./
 RUN npm ci
+
 COPY . .
 RUN npm run build
 

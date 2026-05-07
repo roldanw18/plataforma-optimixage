@@ -14,13 +14,13 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-from app.core.database import Base # Importa el Base para acceder a target_metadata
-target_metadata = Base.metadata #importa mi bd para que alembic la lea
-#target_metadata = None
+# Carga settings (que ya carga .env) e impone DATABASE_URL en alembic config.
+# Asi `alembic upgrade head` funciona en cualquier maquina sin tocar alembic.ini.
+from app.core.config import settings  # noqa: E402
+from app.core.database import Base  # noqa: E402
+
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

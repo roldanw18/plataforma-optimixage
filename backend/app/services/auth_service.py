@@ -1,15 +1,15 @@
-import os
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from app.models.usuario import Usuario
 from app.models.rol import Rol
+from app.core.config import settings
 from app.core.security import hash_password, verify_password
 from app.utils.audit import registrar_evento
 from jose import jwt
 
-SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.JWT_ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 
 def crear_usuario(db: Session, nombre: str, email: str, password: str):

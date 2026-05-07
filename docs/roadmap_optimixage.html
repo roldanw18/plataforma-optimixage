@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roadmap Optimixage — Propuesta de Proyecto</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Arial, sans-serif;
+    background: #fff;
+    color: #333;
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  /* ── TOOLBAR ─────────────────────────────────────────── */
+  #toolbar {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+  }
+  #toolbar h1 { font-size: 14px; font-weight: 600; flex: 1; }
+  #toolbar button {
+    border: none; border-radius: 4px; padding: 6px 12px;
+    font-size: 11px; cursor: pointer; font-weight: 600; transition: opacity .2s;
+  }
+  #toolbar button:hover { opacity: .85; }
+  #btn-edit   { background: #3498db; color: #fff; }
+  #btn-save   { background: #27ae60; color: #fff; }
+  #btn-export { background: #9b59b6; color: #fff; }
+  #edit-badge {
+    background: #e74c3c; color: #fff; border-radius: 3px;
+    padding: 2px 6px; font-size: 10px; font-weight: 700; display: none;
+  }
+  .saved-msg { color: #2ecc71; font-size: 10px; display: none; }
+
+  /* ── LEYENDAS ────────────────────────────────────────── */
+  .legends {
+    margin-bottom: 25px;
+    line-height: 1.6;
+  }
+  .legends h3 {
+    font-weight: bold;
+    margin-top: 8px;
+    margin-bottom: 4px;
+  }
+
+  /* ── VISUAL ROADMAP ──────────────────────────────────── */
+  .roadmap-visual {
+    border: 2px solid #333;
+    padding: 15px;
+    margin: 20px 0;
+    background: #f9f9f9;
+    position: relative;
+  }
+
+  .phases-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .phase-col {
+    border: 2px solid #333;
+    padding: 10px;
+    background: #fff;
+    min-height: 250px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .phase-label {
+    font-weight: bold;
+    font-size: 11px;
+    margin-bottom: 8px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+    width: 100%;
+  }
+
+  /* Bloques 3D de trabajo */
+  .work-block {
+    width: 28px;
+    height: 28px;
+    margin: 3px;
+    position: relative;
+    display: inline-block;
+    transform-style: preserve-3d;
+    transition: transform 0.3s;
+  }
+
+  .work-block:hover {
+    transform: rotateX(10deg) rotateY(10deg);
+  }
+
+  .block-cube {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(-20deg) rotateY(-30deg);
+  }
+
+  .block-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(0,0,0,0.2);
+    font-size: 8px;
+    color: #fff;
+    font-weight: bold;
+  }
+
+  .block-face.front {
+    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+    transform: translateZ(14px);
+  }
+
+  .block-face.back {
+    background: linear-gradient(135deg, #2d5ab8 0%, #1a3a70 100%);
+    transform: rotateY(180deg) translateZ(14px);
+  }
+
+  .block-face.right {
+    background: linear-gradient(135deg, #3d7bc9 0%, #2a5a99 100%);
+    transform: rotateY(90deg) translateZ(14px);
+  }
+
+  .block-face.left {
+    background: linear-gradient(135deg, #5aa1f0 0%, #4a90e2 100%);
+    transform: rotateY(-90deg) translateZ(14px);
+  }
+
+  .block-face.top {
+    background: linear-gradient(135deg, #6bb1ff 0%, #5aa1f0 100%);
+    transform: rotateX(90deg) translateZ(14px);
+  }
+
+  .block-face.bottom {
+    background: linear-gradient(135deg, #2d5ab8 0%, #1a3a70 100%);
+    transform: rotateX(-90deg) translateZ(14px);
+  }
+
+  .work-block.red .block-face.front { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); }
+  .work-block.red .block-face.back { background: linear-gradient(135deg, #a93226 0%, #7b241c 100%); }
+  .work-block.red .block-face.right { background: linear-gradient(135deg, #d35400 0%, #ba4a00 100%); }
+  .work-block.red .block-face.left { background: linear-gradient(135deg, #ec7063 0%, #e74c3c 100%); }
+
+  .work-block.green .block-face.front { background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%); }
+  .work-block.green .block-face.back { background: linear-gradient(135deg, #186a3b 0%, #0f5132 100%); }
+  .work-block.green .block-face.right { background: linear-gradient(135deg, #1f8f4f 0%, #186a3b 100%); }
+  .work-block.green .block-face.left { background: linear-gradient(135deg, #52be80 0%, #27ae60 100%); }
+
+  .gear-icon {
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 60px;
+    height: 60px;
+    opacity: 0.3;
+  }
+
+  .date-row {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+    font-size: 10px;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .date-cell {
+    border-top: 1px solid #333;
+    padding-top: 5px;
+  }
+
+  .duration-label {
+    margin-top: 10px;
+    font-weight: bold;
+    border-top: 1px solid #ddd;
+    padding-top: 5px;
+    text-align: center;
+  }
+
+  .month-indicator {
+    display: flex;
+    margin-top: 15px;
+    font-weight: bold;
+  }
+
+  .month {
+    flex: 1;
+    text-align: center;
+    border-bottom: 2px solid #333;
+    padding-bottom: 5px;
+  }
+
+  .progress-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 20px;
+    background: #ddd;
+    border: 1px solid #333;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #27ae60 0%, #3498db 100%);
+    width: 68.3%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #fff;
+    font-weight: bold;
+  }
+
+  /* ── HITOS ───────────────────────────────────────────── */
+  .completitud-section {
+    margin: 25px 0;
+    padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+  }
+
+  .completitud-header {
+    font-weight: bold;
+    margin-bottom: 15px;
+    font-size: 13px;
+  }
+
+  .hitos-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+
+  .hito {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .hito-marker {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    border-radius: 50%;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+    font-size: 18px;
+  }
+
+  .hito-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
+
+  .hito-desc {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.3;
+  }
+
+  /* ── POSTDATA ────────────────────────────────────────── */
+  .postdata-section {
+    margin: 25px 0;
+    padding: 15px;
+    background: #f9f9f9;
+    border-left: 4px solid #333;
+  }
+
+  .postdata-section h3 {
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+
+  .postdata-section p {
+    font-size: 11px;
+    line-height: 1.6;
+    text-align: justify;
+  }
+
+  /* ── EDIT MODE ───────────────────────────────────────── */
+  body.edit-mode [contenteditable] {
+    background: rgba(52, 152, 219, 0.15);
+    border-radius: 2px;
+    outline: 1px dashed #3498db;
+    padding: 1px 3px;
+  }
+
+  @media print {
+    #toolbar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div id="toolbar">
+  <h1>🗺️ Roadmap Optimixage — Propuesta de Proyecto</h1>
+  <span id="edit-badge">✏ MODO EDICIÓN</span>
+  <span class="saved-msg" id="saved-msg">✓ Guardado</span>
+  <button id="btn-edit" onclick="toggleEdit()">✏ Editar</button>
+  <button id="btn-save" onclick="saveToStorage()">💾 Guardar</button>
+  <button id="btn-export" onclick="exportJSON()">⬇ Exportar</button>
+</div>
+
+<!-- LEYENDAS -->
+<div class="legends">
+  <h3>Leyendas:</h3>
+  <p><strong>Product Backlog:</strong> <span contenteditable="true">Definición de la descripción general de trabajo de forma detallada.</span></p>
+  <p><strong>Management:</strong> <span contenteditable="true">Revisión, retrospectiva, planeación y objetivo. Serán generados informes de avances y resultados para las partes interesadas del proyecto.</span></p>
+  <p><strong>Execution:</strong> <span contenteditable="true">Trabajo específico e implementación directa de requerimientos, basado en la definición de hechos.</span></p>
+  <p><strong>Strategic Plan:</strong> <span contenteditable="true">Representa el documento final estratégico para la acción masiva de trabajo requerido en las siguientes fases.</span></p>
+  <p><strong>Sprint:</strong> <span contenteditable="true">Son ciclos de "Scrum", donde las ideas se transforman en valor.</span></p>
+</div>
+
+<!-- ROADMAP VISUAL -->
+<div class="roadmap-visual" id="roadmap-visual">
+  <div class="phases-grid">
+    <!-- Product Backlog -->
+    <div class="phase-col">
+      <div class="phase-label">Product Backlog</div>
+      <div class="work-block"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+      <div class="work-block red"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+      <div class="work-block"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+      <div class="work-block green"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+      <div class="work-block red"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+      <div class="work-block green"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+    </div>
+
+    <!-- Management -->
+    <div class="phase-col">
+      <div class="phase-label">Management</div>
+      <div class="work-block"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+      <div class="work-block"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+      <div class="work-block green"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+    </div>
+
+    <!-- Fase 1: Descubrimiento y Planeación -->
+    <div class="phase-col">
+      <div class="phase-label">Fase 1 : Descubrimiento y Planeación</div>
+      <div class="work-block"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+      <div class="work-block"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+      <div class="work-block green"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+    </div>
+
+    <!-- Management (2) -->
+    <div class="phase-col">
+      <div class="phase-label">Management</div>
+      <div class="work-block"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+    </div>
+
+    <!-- Execution (1) -->
+    <div class="phase-col">
+      <div class="phase-label">Execution</div>
+      <div class="work-block"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+    </div>
+
+    <!-- Management (3) -->
+    <div class="phase-col">
+      <div class="phase-label">Management</div>
+    </div>
+
+    <!-- Execution (2) -->
+    <div class="phase-col">
+      <div class="phase-label">Execution</div>
+      <div class="work-block"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+      <div class="work-block"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+    </div>
+
+    <!-- Strategic Plan -->
+    <div class="phase-col">
+      <div class="phase-label">Strategic Plan</div>
+      <div class="work-block"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+      <div class="work-block"><div class="block-cube">
+        <div class="block-face front"></div>
+        <div class="block-face back"></div>
+        <div class="block-face right"></div>
+        <div class="block-face left"></div>
+        <div class="block-face top"></div>
+        <div class="block-face bottom"></div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="date-row">
+    <div class="date-cell">21 mayo</div>
+    <div class="date-cell">27-28 mayo</div>
+    <div class="date-cell">29 mayo</div>
+    <div class="date-cell">11 junio</div>
+    <div class="date-cell">12-18 junio</div>
+    <div class="date-cell">19 junio</div>
+    <div class="date-cell">4 julio</div>
+    <div class="date-cell">4-11 de julio</div>
+  </div>
+
+  <div class="date-row" style="font-weight: normal; font-size: 11px;">
+    <div class="date-cell"></div>
+    <div class="date-cell"></div>
+    <div class="date-cell">10</div>
+    <div class="date-cell"></div>
+    <div class="date-cell"></div>
+    <div class="date-cell"></div>
+    <div class="date-cell"></div>
+    <div class="date-cell"></div>
+  </div>
+
+  <div class="duration-label">Fechas</div>
+  <div class="duration-label">Duración (Días)</div>
+
+  <div class="month-indicator">
+    <div class="month">Month 1</div>
+    <div class="month">Month 2</div>
+    <div class="month" style="flex: 1.5;">Month 3</div>
+  </div>
+
+  <div class="progress-bar-container">
+    <span style="font-weight: bold; font-size: 11px;">Completitud</span>
+    <div class="progress-bar">
+      <div class="progress-fill">Aquí vamos 68,3%</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPLETITUD Y HITOS -->
+<div class="completitud-section">
+  <div class="completitud-header">Completitud</div>
+  <div class="hitos-container">
+    <div class="hito">
+      <div class="hito-marker">①</div>
+      <div class="hito-title" contenteditable="true">Hito Uno</div>
+      <div class="hito-desc" contenteditable="true">Inicio del proyecto</div>
+    </div>
+    <div class="hito">
+      <div class="hito-marker">②</div>
+      <div class="hito-title" contenteditable="true">Hito Dos</div>
+      <div class="hito-desc" contenteditable="true">Completitud del 50% del trabajo</div>
+    </div>
+    <div class="hito">
+      <div class="hito-marker">③</div>
+      <div class="hito-title" contenteditable="true">Hito Tres</div>
+      <div class="hito-desc" contenteditable="true">Entrega e intera satisfacción</div>
+    </div>
+  </div>
+</div>
+
+<!-- POSTDATA -->
+<div class="postdata-section">
+  <h3>Postdata</h3>
+  <p contenteditable="true">Como fue descrito en el documento "Propuesta Pavira 2024.pdf", será utilizada la metodología Scrum para la ejecución del proyecto e ir generando avances e informes de resultados para las partes interesadas del proyecto; mediante un esquema llamado Sprints. Para la aseguración de un nivel de calidad en los entregables, el documento llamado "checklist-project.pdf", el cual acordó con el equipo de trabajo del proyecto durante el periodo de la definición de ejecución.</p>
+</div>
+
+<p style="text-align: right; color: #999; font-size: 10px; margin-top: 20px;">Página 2 · Optimixage Roadmap · <span id="date-label"></span></p>
+
+<script>
+const STORAGE_KEY = 'optimixage_roadmap_v2';
+let editMode = false;
+
+window.onload = () => {
+  document.getElementById('date-label').textContent = new Date().toLocaleDateString('es-ES', {year:'numeric',month:'long',day:'numeric'});
+  loadFromStorage();
+};
+
+function toggleEdit() {
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  document.querySelectorAll('[contenteditable]').forEach(el => {
+    el.contentEditable = editMode ? 'true' : 'false';
+  });
+  document.getElementById('edit-badge').style.display = editMode ? 'inline-block' : 'none';
+  document.getElementById('btn-edit').textContent = editMode ? '✓ Listo' : '✏ Editar';
+  document.getElementById('btn-edit').style.background = editMode ? '#27ae60' : '#3498db';
+  if (!editMode) saveToStorage();
+}
+
+function saveToStorage() {
+  const data = collectEditableContent();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  showSaved();
+}
+
+function collectEditableContent() {
+  const data = {};
+  document.querySelectorAll('[contenteditable]').forEach((el, idx) => {
+    data[`edit_${idx}`] = el.textContent;
+  });
+  return data;
+}
+
+function loadFromStorage() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    const editables = document.querySelectorAll('[contenteditable]');
+    editables.forEach((el, idx) => {
+      if (data[`edit_${idx}`]) el.textContent = data[`edit_${idx}`];
+    });
+  } catch(e) { console.warn('Error cargando datos:', e); }
+}
+
+function exportJSON() {
+  const data = collectEditableContent();
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `optimixage_roadmap_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+function showSaved() {
+  const msg = document.getElementById('saved-msg');
+  msg.style.display = 'inline';
+  clearTimeout(window._saveTimer);
+  window._saveTimer = setTimeout(() => msg.style.display = 'none', 1800);
+}
+
+document.addEventListener('input', () => saveToStorage());
+document.addEventListener('focusout', e => {
+  if (e.target.contentEditable === 'true') saveToStorage();
+});
+</script>
+</body>
+</html>

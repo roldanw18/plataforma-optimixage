@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { AlignJustify, X } from 'lucide-react'
+import { AlignJustify } from 'lucide-react'
 import api from '../../services/api'
+import Modal from '../../components/common/Modal'
 
 const ETAPA_LABELS = {
   primer_contacto: 'Primer contacto',
@@ -11,36 +12,6 @@ const ETAPA_LABELS = {
 }
 
 const ETAPAS_ORDER = ['primer_contacto', 'diagnostico', 'capacitacion', 'desarrollo', 'entrega']
-
-// ── Componentes base ──────────────────────────────────────────────────────────
-
-function Modal({ title, onClose, children }) {
-  return (
-    <div
-      style={{
-        position: 'fixed', inset: 0, zIndex: 50,
-        backgroundColor: 'rgba(0,0,0,0.35)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '1rem',
-      }}
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div style={{
-        backgroundColor: 'white', borderRadius: '16px',
-        width: '100%', maxWidth: '420px',
-        padding: '1.75rem', boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '1rem', fontWeight: '700', color: '#0a0a4e' }}>{title}</h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}>
-            <X size={18} />
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  )
-}
 
 // ── Card de proyecto/cliente ──────────────────────────────────────────────────
 
@@ -242,6 +213,7 @@ export default function AdminProceso() {
         <Modal
           title={`Cambiar etapa — ${modalProyecto.cliente?.nombre || modalProyecto.nombre}`}
           onClose={cerrarModal}
+          maxWidth="420px"
         >
           <form onSubmit={handleCambiarEtapa}>
             {/* Etapa actual */}
