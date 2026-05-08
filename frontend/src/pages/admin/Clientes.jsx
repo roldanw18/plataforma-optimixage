@@ -35,6 +35,7 @@ function Field({ label, type = 'text', value, onChange, placeholder, required })
 }
 
 function PrimaryBtn({ children, onClick, loading, type = 'button', fullWidth }) {
+  const { t } = useTranslation()
   return (
     <button
       type={type}
@@ -53,37 +54,16 @@ function PrimaryBtn({ children, onClick, loading, type = 'button', fullWidth }) 
       onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#007aa3')}
       onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = '#0099cc')}
     >
-      {loading ? 'Guardando…' : children}
+      {loading ? t('admin.proceso.modal.guardando') : children}
     </button>
-  )
-}
-
-// ── Skeleton card ─────────────────────────────────────────────────────────────
-
-function SkeletonCard() {
-  return (
-    <div style={{
-      backgroundColor: 'white', borderRadius: '16px',
-      border: '1px solid #e9ecef',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-      width: '100%', height: '215px',
-      overflow: 'hidden', position: 'relative',
-    }}>
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: 'linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%)',
-        backgroundSize: '200% 100%',
-        animation: 'shimmer 1.4s infinite',
-      }} />
-    </div>
   )
 }
 
 // ── Card de cliente ───────────────────────────────────────────────────────────
 
 function ClienteCard({ cliente, onNuevoProyecto, onProgramarReunion }) {
+  const { t } = useTranslation()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [hovered, setHovered] = useState(false)
   const menuRef = useRef(null)
 
   useEffect(() => {
@@ -97,114 +77,91 @@ function ClienteCard({ cliente, onNuevoProyecto, onProgramarReunion }) {
   return (
     <div
       style={{
-        backgroundColor: 'white',
-        borderRadius: '16px',
-        padding: '1.25rem 1rem 1rem',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        position: 'relative',
-        border: '1px solid #e9ecef',
-        boxShadow: hovered
-          ? '0 8px 24px rgba(0,0,0,0.11)'
-          : '0 2px 8px rgba(0,0,0,0.05)',
-        cursor: 'pointer',
-        width: '100%',
-        height: '215px',
-        transition: 'box-shadow 0.22s ease, transform 0.22s ease',
-        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
-        boxSizing: 'border-box',
+        backgroundColor: 'white', borderRadius: '16px',
+        padding: '1.5rem 1rem', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', position: 'relative',
+        border: '1px solid #d1d5db', boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+        cursor: 'pointer', width: '160px', height: '180px',
+        transition: 'all 0.2s ease',
       }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.12)'
+        e.currentTarget.style.transform = 'translateY(-2px)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)'
+        e.currentTarget.style.transform = 'translateY(0)'
+      }}
     >
       {/* Menú contextual */}
-      <div ref={menuRef} style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 2 }}>
+      <div ref={menuRef} style={{ position: 'absolute', top: '12px', right: '12px' }}>
         <button
           onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o) }}
           style={{
-            background: menuOpen ? '#f3f4f6' : 'transparent',
-            border: 'none', cursor: 'pointer',
-            color: '#9ca3af', padding: '3px 5px', borderRadius: '5px',
+            background: 'transparent', border: 'none', cursor: 'pointer',
+            color: '#9ca3af', padding: '4px 6px', borderRadius: '6px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'background 0.15s, color 0.15s',
-            lineHeight: 1,
+            transition: 'background 0.15s',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.color = '#6b7280' }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = menuOpen ? '#f3f4f6' : 'transparent'; e.currentTarget.style.color = '#9ca3af' }}
-          title="Opciones"
+          onMouseEnter={(e) => (e.currentTarget.style.background = '#f3f4f6')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
         >
-          <AlignJustify size={15} strokeWidth={1.8} />
+          <AlignJustify size={16} />
         </button>
         {menuOpen && (
           <div style={{
-            position: 'absolute', top: '30px', right: 0,
-            backgroundColor: 'white', borderRadius: '10px',
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 6px 18px rgba(0,0,0,0.1)',
-            minWidth: '168px', zIndex: 20, overflow: 'hidden',
+            position: 'absolute', top: '32px', right: 0,
+            backgroundColor: 'white', borderRadius: '8px',
+            border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            minWidth: '160px', zIndex: 10, overflow: 'hidden',
           }}>
             <button
               onClick={(e) => { e.stopPropagation(); setMenuOpen(false); onNuevoProyecto(cliente) }}
               style={{
                 display: 'block', width: '100%', textAlign: 'left',
-                padding: '0.625rem 1rem', fontSize: '0.8rem', color: '#374151',
+                padding: '0.6rem 1rem', fontSize: '0.8rem', color: '#374151',
                 background: 'none', border: 'none', cursor: 'pointer',
-                fontWeight: '500', transition: 'background 0.12s',
+                fontWeight: '500',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              onMouseEnter={(e) => (e.target.style.backgroundColor = '#f3f4f6')}
+              onMouseLeave={(e) => (e.target.style.backgroundColor = 'transparent')}
             >
-              Crear proyecto
+              {t('admin.clientes.crearProyecto')}
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); setMenuOpen(false); onProgramarReunion(cliente) }}
               style={{
                 display: 'block', width: '100%', textAlign: 'left',
-                padding: '0.625rem 1rem', fontSize: '0.8rem', color: '#374151',
+                padding: '0.6rem 1rem', fontSize: '0.8rem', color: '#374151',
                 background: 'none', border: 'none', cursor: 'pointer',
                 borderTop: '1px solid #f3f4f6', fontWeight: '500',
-                transition: 'background 0.12s',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              onMouseEnter={(e) => (e.target.style.backgroundColor = '#f3f4f6')}
+              onMouseLeave={(e) => (e.target.style.backgroundColor = 'transparent')}
             >
-              Programar reunión
+              {t('admin.clientes.programarReunion')}
             </button>
           </div>
         )}
       </div>
 
-      {/* Logo / avatar */}
-      <div style={{
-        flex: 1,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        width: '100%', marginTop: '8px',
-      }}>
+      {/* Avatar */}
+      <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
         {cliente.avatar_url ? (
-          <img
-            src={resolveAvatarUrl(cliente.avatar_url)}
-            alt={cliente.nombre}
-            style={{ maxWidth: '130px', maxHeight: '108px', objectFit: 'contain' }}
-          />
+          <img src={resolveAvatarUrl(cliente.avatar_url)} alt={cliente.nombre}
+            style={{ width: '100px', height: '100px', objectFit: 'contain' }} />
         ) : (
-          <div style={{
-            width: '92px', height: '110px',
-            backgroundColor: '#d1d5db',
-            borderRadius: '6px',
-          }} />
+          <div style={{ width: '100px', height: '100px', backgroundColor: '#e5e7eb', borderRadius: '8px' }} />
         )}
       </div>
 
-      {/* Nombre */}
       <p style={{
-        fontSize: '0.82rem', fontWeight: '500', color: '#4b5563',
-        textAlign: 'center', lineHeight: '1.35',
+        fontSize: '0.85rem', fontWeight: '500', color: '#4b5563',
+        textAlign: 'center', lineHeight: '1.4',
         overflow: 'hidden', display: '-webkit-box',
         WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-        width: '100%', paddingInline: '4px',
-        margin: '0 0 2px',
-        flexShrink: 0,
+        width: '100%', paddingInline: '6px',
+        margin: '0',
       }}>
         {cliente.nombre || cliente.email}
       </p>
@@ -215,6 +172,7 @@ function ClienteCard({ cliente, onNuevoProyecto, onProgramarReunion }) {
 // ── Página principal ──────────────────────────────────────────────────────────
 
 export default function AdminClientes() {
+  const { t } = useTranslation()
   const [clientes, setClientes] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -241,7 +199,7 @@ export default function AdminClientes() {
       const filtered = data.filter((u) => u.rol?.nombre?.toLowerCase() === 'cliente')
       setClientes(filtered)
     } catch {
-      setError('No se pudieron cargar los clientes.')
+      setError(t('errors.noSePudieron') + ' clientes')
     } finally {
       setLoading(false)
     }
@@ -296,20 +254,27 @@ export default function AdminClientes() {
     }
   }
 
-  return (
-    <div style={{ padding: '2rem 2.5rem', minHeight: '100%' }}>
-      {/* Shimmer keyframe */}
-      <style>{`
-        @keyframes shimmer {
-          0% { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
-        }
-      `}</style>
+  if (loading) {
+    return (
+      <div style={{ padding: '2rem' }}>
+        <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1.5rem' }}>
+          {t('admin.clientes.titulo')}
+        </h1>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '2rem', maxWidth: '100%' }}>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} style={{ backgroundColor: '#f3f4f6', borderRadius: '16px', border: '1px solid #e5e7eb', width: '160px', height: '180px' }} />
+          ))}
+        </div>
+      </div>
+    )
+  }
 
+  return (
+    <div style={{ padding: '2rem' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#0a0a4e', margin: 0 }}>
-          Nuestros clientes
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0a0a4e' }}>
+          {t('admin.clientes.titulo')}
         </h1>
         <button
           onClick={() => setShowNuevoCliente(true)}
@@ -322,44 +287,37 @@ export default function AdminClientes() {
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#007aa3')}
           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#0099cc')}
         >
-          <Plus size={16} /> Nuevo cliente
+          <Plus size={16} /> {t('admin.clientes.nuevoCliente')}
         </button>
       </div>
 
       {error && <p style={{ color: '#EF4444', fontSize: '0.875rem', marginBottom: '1rem' }}>{error}</p>}
+      {clientes.length === 0 && !error && (
+        <p style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>{t('admin.clientes.noHay')}</p>
+      )}
 
-      {/* Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(5, 1fr)',
-        gap: '2rem',
-      }}>
-        {loading
-          ? [1, 2, 3, 4, 5].map((i) => <SkeletonCard key={i} />)
-          : clientes.length === 0 && !error
-            ? <p style={{ color: '#9CA3AF', fontSize: '0.875rem', gridColumn: '1/-1' }}>No hay clientes registrados.</p>
-            : clientes.map((cliente) => (
-                <ClienteCard
-                  key={cliente.id}
-                  cliente={cliente}
-                  onNuevoProyecto={(c) => { setClienteSeleccionado(c); setShowNuevoProyecto(true) }}
-                  onProgramarReunion={(c) => setClienteReuniones(c)}
-                />
-              ))
-        }
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '2rem', maxWidth: '100%' }}>
+        {clientes.map((cliente) => (
+          <ClienteCard
+            key={cliente.id}
+            cliente={cliente}
+            onNuevoProyecto={(c) => { setClienteSeleccionado(c); setShowNuevoProyecto(true) }}
+            onProgramarReunion={(c) => setClienteReuniones(c)}
+          />
+        ))}
       </div>
 
       {/* Modal: Nuevo cliente */}
       {showNuevoCliente && (
-        <Modal title="Nuevo cliente" onClose={() => { setShowNuevoCliente(false); setErrorCliente('') }}>
+        <Modal title={t('admin.clientes.modal.titulo')} onClose={() => { setShowNuevoCliente(false); setErrorCliente('') }}>
           <form onSubmit={handleCrearCliente}>
-            <Field label="Nombre completo" value={formCliente.nombre}
+            <Field label={t('admin.clientes.modal.nombre')} value={formCliente.nombre}
               onChange={(v) => setFormCliente((f) => ({ ...f, nombre: v }))}
               placeholder="Ej: Juan Pérez" required />
-            <Field label="Correo electrónico" type="email" value={formCliente.email}
+            <Field label={t('admin.clientes.modal.email')} type="email" value={formCliente.email}
               onChange={(v) => setFormCliente((f) => ({ ...f, email: v }))}
               placeholder="juan@empresa.com" required />
-            <Field label="Contraseña inicial" type="password" value={formCliente.password}
+            <Field label={t('admin.clientes.modal.password')} type="password" value={formCliente.password}
               onChange={(v) => setFormCliente((f) => ({ ...f, password: v }))}
               placeholder="Mínimo 8 caracteres" required />
             {errorCliente && (
@@ -368,9 +326,9 @@ export default function AdminClientes() {
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
               <button type="button" onClick={() => { setShowNuevoCliente(false); setErrorCliente('') }}
                 style={{ padding: '0.6rem 1.25rem', background: 'none', border: '1px solid #E5E7EB', borderRadius: '8px', cursor: 'pointer', fontSize: '0.875rem', color: '#374151' }}>
-                Cancelar
+                {t('buttons.cancelar')}
               </button>
-              <PrimaryBtn type="submit" loading={loadingCliente}>Crear cliente</PrimaryBtn>
+              <PrimaryBtn type="submit" loading={loadingCliente}>{t('admin.clientes.modal.crear')}</PrimaryBtn>
             </div>
           </form>
         </Modal>
@@ -426,7 +384,7 @@ export default function AdminClientes() {
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
               <button type="button" onClick={() => { setShowNuevoProyecto(false); setErrorProyecto('') }}
                 style={{ padding: '0.6rem 1.25rem', background: 'none', border: '1px solid #E5E7EB', borderRadius: '8px', cursor: 'pointer', fontSize: '0.875rem', color: '#374151' }}>
-                Cancelar
+                {t('buttons.cancelar')}
               </button>
               <PrimaryBtn type="submit" loading={loadingProyecto}>Crear proyecto</PrimaryBtn>
             </div>

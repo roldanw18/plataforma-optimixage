@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { AlignJustify } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import api from '../../services/api'
 import Modal from '../../components/common/Modal'
 import { resolveAvatarUrl } from '../../components/common/AvatarUploader'
@@ -159,6 +160,7 @@ function ProyectoCard({ proyecto, onCambiarEtapa }) {
 // ── Página principal ──────────────────────────────────────────────────────────
 
 export default function AdminProceso() {
+  const { t } = useTranslation()
   const [proyectos, setProyectos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
