@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { User, Lock, Save, CheckCircle, AlertCircle } from 'lucide-react'
 import api from '../../services/api'
+import AvatarUploader from '../../components/common/AvatarUploader'
 
 function Alert({ type, message }) {
   if (!message) return null
@@ -85,7 +86,6 @@ export default function Configuracion() {
       await api.patch('/usuarios/me', {
         nombre: perfil.nombre,
         telefono: perfil.telefono,
-        avatar_url: perfil.avatar_url,
       })
       setPerfilMsg('Perfil actualizado correctamente.')
     } catch (err) {
@@ -152,18 +152,15 @@ export default function Configuracion() {
               placeholder="+57 300 000 0000"
             />
           </Field>
-          <Field label="URL de avatar">
-            <input
-              style={inputStyle}
+          <Field label="Avatar">
+            <AvatarUploader
               value={perfil.avatar_url}
-              onChange={e => setPerfil(p => ({ ...p, avatar_url: e.target.value }))}
-              placeholder="https://..."
+              onChange={(url) => {
+                setPerfil(p => ({ ...p, avatar_url: url }))
+                setPerfilMsg('Avatar actualizado correctamente.')
+              }}
             />
           </Field>
-          {perfil.avatar_url && (
-            <img src={perfil.avatar_url} alt="avatar"
-              style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', marginBottom: '14px' }} />
-          )}
           <button type="submit" disabled={saving} style={{
             display: 'flex', alignItems: 'center', gap: '8px',
             background: '#0a0a4e', color: 'white', border: 'none',

@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.core.database import SessionLocal
+from app.core.database import SessionLocal, engine, Base
 from app.api.auth_router import router as auth_router
 from app.api.proyectos_router import router as proyectos_router
 from app.api.usuarios_router import router as usuarios_router
@@ -15,7 +15,9 @@ from app.api.tareas_router import router as tareas_router
 from app.api.reuniones_router import router as reuniones_router
 from app.api.notificaciones_router import router as notificaciones_router
 from app.api.proceso_router import router as proceso_router
+from app.api.contenidos_router import router as contenidos_router
 from app.utils.logger import get_logger
+from sqlalchemy import inspect, text
 
 logger = get_logger(__name__)
 
@@ -62,10 +64,65 @@ def _seed_roles_y_admin():
         db.close()
 
 
+def _ensure_schema_actualizado():
+    """
+    Crea tablas nuevas (contenidos) y agrega columnas que falten en tablas
+    existentes (reuniones.estado, reuniones.updated_at) sin requerir alembic.
+
+    Idempotente: solo aplica cambios si faltan. Pensado para entornos de
+    desarrollo con SQLite. En produccion se recomienda correr alembic.
+    """
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as exc:
+        logger.warning("create_all omitido: %s", exc)
+        return
+
+    try:
+        inspector = inspect(engine)
+        if inspector.has_table("reuniones"):
+            cols = {c["name"] for c in inspector.get_columns("reuniones")}
+            with engine.begin() as conn:
+                if "estado" not in cols:
+                    conn.execute(text(
+                        "ALTER TABLE reuniones ADD COLUMN estado VARCHAR DEFAULT 'pendiente' NOT NULL"
+                    ))
+                    logger.info("Columna 'estado' agregada a reuniones")
+                if "updated_at" not in cols:
+                    conn.execute(text(
+                        "ALTER TABLE reuniones ADD COLUMN updated_at TIMESTAMP"
+                    ))
+                    logger.info("Columna 'updated_at' agregada a reuniones")
+    except Exception as exc:
+        logger.warning("Auto-migracion reuniones omitida: %s", exc)
+
+    try:
+        inspector = inspect(engine)
+        if inspector.has_table("contenidos"):
+            col_info = {c["name"]: c for c in inspector.get_columns("contenidos")}
+            is_postgres = engine.dialect.name == "postgresql"
+            uuid_type = "UUID" if is_postgres else "VARCHAR(36)"
+            with engine.begin() as conn:
+                if "cliente_id" not in col_info:
+                    conn.execute(text(f"ALTER TABLE contenidos ADD COLUMN cliente_id {uuid_type}"))
+                    logger.info("Columna 'cliente_id' agregada a contenidos")
+                elif is_postgres:
+                    # Reparar instalaciones previas donde cliente_id quedo como VARCHAR
+                    current_type = str(col_info["cliente_id"].get("type", "")).upper()
+                    if "UUID" not in current_type:
+                        conn.execute(text(
+                            "ALTER TABLE contenidos ALTER COLUMN cliente_id TYPE uuid USING cliente_id::uuid"
+                        ))
+                        logger.info("Columna 'cliente_id' convertida de VARCHAR a UUID")
+    except Exception as exc:
+        logger.warning("Auto-migracion contenidos omitida: %s", exc)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Iniciando aplicacion en entorno '%s'", settings.ENVIRONMENT)
     logger.info("CORS origins permitidos: %s", settings.CORS_ORIGINS)
+    _ensure_schema_actualizado()
     _seed_roles_y_admin()
     yield
     logger.info("Aplicacion detenida.")
@@ -99,6 +156,7 @@ app.include_router(tareas_router)
 app.include_router(reuniones_router)
 app.include_router(notificaciones_router)
 app.include_router(proceso_router)
+app.include_router(contenidos_router)
 
 
 @app.get("/")

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Play, FileText, Calendar, CheckCircle, Clock, Circle } from 'lucide-react'
+import { Calendar, CheckCircle, Clock, Circle } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import api from '../../services/api'
 
 const ETAPAS = [
@@ -21,11 +22,11 @@ function EtapaIcon({ estado }) {
   return <Circle size={16} color="#d1d5db" />
 }
 
-const VIDEOS_PLACEHOLDER = [
-  { id: 1, title: 'Introducción al proceso' },
-  { id: 2, title: 'Diagnóstico empresarial' },
-  { id: 3, title: 'Herramientas digitales' },
-]
+function resolveContenidoUrl(url) {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  return `/api${url}`
+}
 
 function DocIcon() {
   return (
@@ -45,13 +46,20 @@ export default function Inicio() {
   const [reuniones, setReuniones]     = useState([])
   const [proceso, setProceso]         = useState(null)
   const [historial, setHistorial]     = useState([])
+  const [contenidos, setContenidos]   = useState([])
   const [loading, setLoading]         = useState(true)
 
   useEffect(() => {
     async function fetchData() {
       try {
         const { data: proyectos } = await api.get('/proyectos/mis-proyectos')
-        if (!proyectos?.length) return
+
+        const contenidosReq = api.get('/contenidos/').then(r => setContenidos(r.data)).catch(() => {})
+
+        if (!proyectos?.length) {
+          await contenidosReq
+          return
+        }
         const pid = proyectos[0].id
 
         const [docsRes, reunRes, procesoRes, histRes] = await Promise.allSettled([
@@ -65,6 +73,7 @@ export default function Inicio() {
         if (reunRes.status === 'fulfilled')    setReuniones(reunRes.value.data)
         if (procesoRes.status === 'fulfilled') setProceso(procesoRes.value.data)
         if (histRes.status === 'fulfilled')    setHistorial(histRes.value.data || [])
+        await contenidosReq
       } catch { /* silently handle */ }
       finally { setLoading(false) }
     }
@@ -261,34 +270,64 @@ export default function Inicio() {
         </div>
       </section>
 
-      {/* ── SECTION 3: Contenido ──────────────────────────── */}
-      <section>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1rem' }}>
-          Contenido
-        </h2>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          {VIDEOS_PLACEHOLDER.map((v, idx) => (
-            <div key={v.id} style={{
-              backgroundColor: idx === 0 ? '#0a0a4e' : '#374151',
-              borderRadius: '12px', width: '280px', height: '160px',
-              display: 'flex', flexDirection: 'column', alignItems: 'center',
-              justifyContent: 'center', cursor: 'pointer', flexShrink: 0,
-              gap: '10px',
-            }}>
-              <button style={{
-                width: '56px', height: '56px', borderRadius: '9999px',
-                border: '3px solid white', backgroundColor: 'transparent',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+      {/* ── SECTION 3: Contenido dinámico ─────────────────── */}
+      {contenidos.length > 0 && (
+        <section>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0a0a4e' }}>
+              Contenido
+            </h2>
+            {contenidos.length > 4 && (
+              <Link to="/contenido" style={{
+                fontSize: '12px', fontWeight: '600', color: '#0099cc',
+                textDecoration: 'none',
+              }}>Ver todo →</Link>
+            )}
+          </div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+            gap: '1rem',
+          }}>
+            {contenidos.slice(0, 4).map((c) => (
+              <div key={c.id} style={{
+                backgroundColor: 'white', borderRadius: '12px', overflow: 'hidden',
+                border: '1px solid #f3f4f6', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                display: 'flex', flexDirection: 'column',
               }}>
-                <Play size={22} color="white" fill="white" style={{ marginLeft: '3px' }} />
-              </button>
-              <p style={{ color: 'rgba(255,255,255,.7)', fontSize: '12px', textAlign: 'center', padding: '0 16px' }}>
-                {v.title}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+                <div style={{
+                  position: 'relative', aspectRatio: '16/9', background: '#0a0a4e',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+                }}>
+                  {c.tipo === 'imagen' ? (
+                    <img src={resolveContenidoUrl(c.url)} alt={c.titulo}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <video src={resolveContenidoUrl(c.url)} controls
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', background: '#000' }} />
+                  )}
+                  <span style={{
+                    position: 'absolute', top: '8px', left: '8px',
+                    fontSize: '10px', fontWeight: '700', textTransform: 'uppercase',
+                    background: 'rgba(0,0,0,0.6)', color: 'white',
+                    padding: '3px 8px', borderRadius: '999px', letterSpacing: '0.05em',
+                  }}>{c.tipo}</span>
+                </div>
+                <div style={{ padding: '12px 14px', flex: 1 }}>
+                  <h3 style={{ fontSize: '0.875rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '4px' }}>
+                    {c.titulo}
+                  </h3>
+                  {c.descripcion && (
+                    <p style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: '1.4' }}>
+                      {c.descripcion}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
     </div>
   )

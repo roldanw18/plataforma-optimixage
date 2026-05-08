@@ -2,10 +2,17 @@ import { useEffect, useState } from 'react'
 import { AlignJustify, Bell, CheckCheck } from 'lucide-react'
 import api from '../../services/api'
 
+function resolveAvatar(url) {
+  if (!url) return null
+  if (url.startsWith('http') || url.startsWith('data:') || url.startsWith('blob:')) return url
+  return `/api${url}`
+}
+
 function AvatarIcon({ nombre, avatarUrl }) {
-  if (avatarUrl) {
+  const src = resolveAvatar(avatarUrl)
+  if (src) {
     return (
-      <img src={avatarUrl} alt={nombre}
+      <img src={src} alt={nombre}
         style={{ width: '52px', height: '52px', borderRadius: '9999px', objectFit: 'cover', flexShrink: 0 }} />
     )
   }

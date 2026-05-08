@@ -64,6 +64,11 @@ export default function AdminDocumentos() {
       })
   }, [])
 
+  function labelProyecto(p) {
+    const owner = p.cliente?.nombre || p.cliente?.email
+    return owner ? `${p.nombre} — ${owner}` : `${p.nombre} — sin asignar`
+  }
+
   useEffect(() => {
     if (!proyectoId) return
     setLoadingDocs(true)
@@ -151,11 +156,22 @@ export default function AdminDocumentos() {
         <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }}>
           Proyecto
         </label>
-        <select value={proyectoId} onChange={e => setProyectoId(e.target.value)} style={{ ...selectSt, maxWidth: '360px' }}>
+        <select value={proyectoId} onChange={e => setProyectoId(e.target.value)} style={{ ...selectSt, maxWidth: '420px' }}>
           {proyectos.map(p => (
-            <option key={p.id} value={p.id}>{p.nombre}</option>
+            <option key={p.id} value={p.id}>{labelProyecto(p)}</option>
           ))}
         </select>
+        {proyectoId && (() => {
+          const p = proyectos.find(x => x.id === proyectoId)
+          if (!p?.cliente) return null
+          return (
+            <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '6px' }}>
+              Propietario:{' '}
+              <span style={{ color: '#374151', fontWeight: '600' }}>{p.cliente.nombre}</span>
+              {p.cliente.email && <span> · {p.cliente.email}</span>}
+            </p>
+          )
+        })()}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: '24px', alignItems: 'start' }}>

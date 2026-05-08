@@ -52,3 +52,4 @@ from app.models.notificacion import Notificacion  # noqa: F401,E402
 from app.models.proyecto_miembro import ProyectoMiembro  # noqa: F401,E402
 from app.models.etapa_historial import EtapaHistorial  # noqa: F401,E402
 from app.models.audit_log import AuditLog  # noqa: F401,E402
+from app.models.contenido import Contenido  # noqa: F401,E402

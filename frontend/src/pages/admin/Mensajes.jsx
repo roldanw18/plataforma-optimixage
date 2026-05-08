@@ -141,8 +141,11 @@ export default function AdminMensajes() {
                       color: activo ? '#0a0a4e' : '#374151',
                       overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                     }}>{p.nombre}</p>
-                    {p.cliente_nombre && (
-                      <p style={{ fontSize: '11px', color: '#9ca3af' }}>{p.cliente_nombre}</p>
+                    {p.cliente?.nombre && (
+                      <p style={{ fontSize: '11px', color: '#9ca3af',
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {p.cliente.nombre}
+                      </p>
                     )}
                   </div>
                   {noLeido > 0 && (
@@ -173,15 +176,28 @@ export default function AdminMensajes() {
               <div style={{
                 width: '36px', height: '36px', borderRadius: '50%', background: '#0099cc',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: 'white', fontSize: '14px', fontWeight: '700',
+                color: 'white', fontSize: '14px', fontWeight: '700', flexShrink: 0,
               }}>
                 {(proyectoSel.nombre || '?')[0].toUpperCase()}
               </div>
-              <div>
-                <p style={{ fontSize: '14px', fontWeight: '700', color: '#0a0a4e' }}>{proyectoSel.nombre}</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Circle size={7} color="#22c55e" fill="#22c55e" />
-                  <span style={{ fontSize: '11px', color: '#6b7280' }}>Activo</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: '14px', fontWeight: '700', color: '#0a0a4e',
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {proyectoSel.nombre}
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                  {proyectoSel.cliente?.nombre && (
+                    <span style={{ fontSize: '11px', fontWeight: '600', color: '#0099cc' }}>
+                      {proyectoSel.cliente.nombre}
+                    </span>
+                  )}
+                  {proyectoSel.cliente?.nombre && (
+                    <span style={{ fontSize: '11px', color: '#d1d5db' }}>·</span>
+                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Circle size={7} color="#22c55e" fill="#22c55e" />
+                    <span style={{ fontSize: '11px', color: '#6b7280' }}>Activo</span>
+                  </div>
                 </div>
               </div>
             </div>

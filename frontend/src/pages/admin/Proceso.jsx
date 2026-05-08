@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { AlignJustify } from 'lucide-react'
 import api from '../../services/api'
 import Modal from '../../components/common/Modal'
+import { resolveAvatarUrl } from '../../components/common/AvatarUploader'
 
 const ETAPA_LABELS = {
   primer_contacto: 'Primer contacto',
@@ -13,10 +14,32 @@ const ETAPA_LABELS = {
 
 const ETAPAS_ORDER = ['primer_contacto', 'diagnostico', 'capacitacion', 'desarrollo', 'entrega']
 
-// ── Card de proyecto/cliente ──────────────────────────────────────────────────
+// ── Skeleton card ─────────────────────────────────────────────────────────────
+
+function SkeletonCard() {
+  return (
+    <div style={{
+      backgroundColor: 'white', borderRadius: '16px',
+      border: '1px solid #e9ecef',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+      width: '100%', height: '215px',
+      overflow: 'hidden', position: 'relative',
+    }}>
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%)',
+        backgroundSize: '200% 100%',
+        animation: 'shimmer 1.4s infinite',
+      }} />
+    </div>
+  )
+}
+
+// ── Card de proyecto ──────────────────────────────────────────────────────────
 
 function ProyectoCard({ proyecto, onCambiarEtapa }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [hovered, setHovered] = useState(false)
   const menuRef = useRef(null)
 
   useEffect(() => {
@@ -27,45 +50,68 @@ function ProyectoCard({ proyecto, onCambiarEtapa }) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  const nombre = proyecto.cliente?.nombre || proyecto.nombre
+  const nombre = proyecto.nombre
   const avatarUrl = proyecto.cliente?.avatar_url || null
 
   return (
     <div
       style={{
-        backgroundColor: 'white', borderRadius: '16px',
-        padding: '1rem 0.75rem', display: 'flex', flexDirection: 'column',
-        alignItems: 'center', position: 'relative',
-        border: '1px solid #f3f4f6', boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
-        cursor: 'pointer', width: '120px', minHeight: '110px',
-        transition: 'box-shadow 0.2s',
+        backgroundColor: 'white',
+        borderRadius: '16px',
+        padding: '1.25rem 1rem 1rem',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        position: 'relative',
+        border: '1px solid #e9ecef',
+        boxShadow: hovered
+          ? '0 8px 24px rgba(0,0,0,0.11)'
+          : '0 2px 8px rgba(0,0,0,0.05)',
+        cursor: 'pointer',
+        width: '100%',
+        height: '215px',
+        transition: 'box-shadow 0.22s ease, transform 0.22s ease',
+        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
+        boxSizing: 'border-box',
       }}
-      onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)')}
-      onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)')}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      <div ref={menuRef} style={{ position: 'absolute', top: '8px', right: '8px' }}>
+      {/* Menú contextual */}
+      <div ref={menuRef} style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 2 }}>
         <button
           onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o) }}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', padding: '2px' }}
+          style={{
+            background: menuOpen ? '#f3f4f6' : 'transparent',
+            border: 'none', cursor: 'pointer',
+            color: '#9ca3af', padding: '3px 5px', borderRadius: '5px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'background 0.15s, color 0.15s',
+            lineHeight: 1,
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.color = '#6b7280' }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = menuOpen ? '#f3f4f6' : 'transparent'; e.currentTarget.style.color = '#9ca3af' }}
         >
-          <AlignJustify size={13} />
+          <AlignJustify size={15} strokeWidth={1.8} />
         </button>
         {menuOpen && (
           <div style={{
-            position: 'absolute', top: '20px', right: 0,
-            backgroundColor: 'white', borderRadius: '8px',
-            border: '1px solid #E5E7EB', boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            minWidth: '150px', zIndex: 10, overflow: 'hidden',
+            position: 'absolute', top: '30px', right: 0,
+            backgroundColor: 'white', borderRadius: '10px',
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 6px 18px rgba(0,0,0,0.1)',
+            minWidth: '168px', zIndex: 20, overflow: 'hidden',
           }}>
             <button
               onClick={(e) => { e.stopPropagation(); setMenuOpen(false); onCambiarEtapa(proyecto) }}
               style={{
                 display: 'block', width: '100%', textAlign: 'left',
-                padding: '0.6rem 1rem', fontSize: '0.8rem', color: '#374151',
+                padding: '0.625rem 1rem', fontSize: '0.8rem', color: '#374151',
                 background: 'none', border: 'none', cursor: 'pointer',
+                fontWeight: '500', transition: 'background 0.12s',
               }}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = '#F3F4F6')}
-              onMouseLeave={(e) => (e.target.style.backgroundColor = 'transparent')}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
               Cambiar etapa
             </button>
@@ -73,20 +119,36 @@ function ProyectoCard({ proyecto, onCambiarEtapa }) {
         )}
       </div>
 
-      <div style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>
+      {/* Logo / avatar del cliente */}
+      <div style={{
+        flex: 1,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        width: '100%', marginTop: '8px',
+      }}>
         {avatarUrl ? (
-          <img src={avatarUrl} alt={nombre}
-            style={{ width: '56px', height: '56px', objectFit: 'contain', borderRadius: '8px' }} />
+          <img
+            src={resolveAvatarUrl(avatarUrl)}
+            alt={nombre}
+            style={{ maxWidth: '130px', maxHeight: '108px', objectFit: 'contain' }}
+          />
         ) : (
-          <div style={{ width: '56px', height: '56px', backgroundColor: '#E5E7EB', borderRadius: '8px' }} />
+          <div style={{
+            width: '92px', height: '110px',
+            backgroundColor: '#d1d5db',
+            borderRadius: '6px',
+          }} />
         )}
       </div>
 
+      {/* Nombre del proyecto */}
       <p style={{
-        fontSize: '0.75rem', fontWeight: '600', color: '#1a1a4e',
-        textAlign: 'center', lineHeight: '1.3',
-        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        fontSize: '0.82rem', fontWeight: '500', color: '#4b5563',
+        textAlign: 'center', lineHeight: '1.35',
+        overflow: 'hidden', display: '-webkit-box',
+        WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
         width: '100%', paddingInline: '4px',
+        margin: '0 0 2px',
+        flexShrink: 0,
       }}>
         {nombre}
       </p>
@@ -168,35 +230,38 @@ export default function AdminProceso() {
     return acc
   }, {})
 
-  if (loading) {
-    return (
-      <div style={{ padding: '2rem' }}>
-        {[1, 2].map((i) => (
-          <div key={i} style={{
-            backgroundColor: 'white', borderRadius: '12px',
-            height: '120px', border: '1px solid #f3f4f6', marginBottom: '1.5rem',
-          }} />
-        ))}
-      </div>
-    )
-  }
-
   return (
-    <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div style={{ padding: '2rem 2.5rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
+
       {error && <p style={{ color: '#EF4444', fontSize: '0.875rem' }}>{error}</p>}
 
-      {Object.keys(grouped).length === 0 && !error && (
+      {loading && (
+        <section>
+          <div style={{ height: '1.5rem', width: '120px', backgroundColor: '#e5e7eb', borderRadius: '6px', marginBottom: '1rem' }} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '2rem' }}>
+            {[1, 2, 3, 4, 5].map((i) => <SkeletonCard key={i} />)}
+          </div>
+        </section>
+      )}
+
+      {!loading && Object.keys(grouped).length === 0 && !error && (
         <p style={{ fontSize: '0.875rem', color: '#9CA3AF' }}>
           No hay proyectos activos. Creá un proyecto desde la sección Clientes.
         </p>
       )}
 
-      {Object.entries(grouped).map(([etapaKey, items]) => (
+      {!loading && Object.entries(grouped).map(([etapaKey, items]) => (
         <section key={etapaKey}>
-          <h2 style={{ fontSize: '1rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1rem' }}>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1.25rem', margin: '0 0 1.25rem' }}>
             {ETAPA_LABELS[etapaKey]}
           </h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '2rem' }}>
             {items.map((proyecto) => (
               <ProyectoCard
                 key={proyecto.id}

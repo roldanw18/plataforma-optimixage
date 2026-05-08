@@ -1,6 +1,18 @@
 import { useEffect, useState } from 'react'
-import { User, Search, Clipboard, Users, CheckCircle, Clock, MoreHorizontal } from 'lucide-react'
+import { User, Search, Clipboard, Users, CheckCircle, Clock, MoreHorizontal, Calendar, Video } from 'lucide-react'
 import api from '../../services/api'
+
+const ESTADO_REUNION = {
+  pendiente:  { label: 'Pendiente',  color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
+  confirmada: { label: 'Confirmada', color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' },
+  cancelada:  { label: 'Cancelada',  color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
+  completada: { label: 'Completada', color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe' },
+}
+
+function fmtDateTime(iso) {
+  if (!iso) return ''
+  return new Date(iso).toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
 
 const ETAPA_ICONS = {
   primer_contacto: User,
@@ -8,6 +20,119 @@ const ETAPA_ICONS = {
   capacitacion: Clipboard,
   desarrollo: Users,
   entrega: CheckCircle,
+}
+
+function ReunionesSection({ reuniones }) {
+  const ahora = new Date()
+  const ordenadas = [...reuniones].sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+  const futuras = ordenadas.filter(r => new Date(r.fecha) >= ahora)
+  const pasadas = ordenadas.filter(r => new Date(r.fecha) <  ahora).reverse()
+
+  if (reuniones.length === 0) {
+    return (
+      <div style={{
+        backgroundColor: 'white', borderRadius: '12px', padding: '1.25rem',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04)', border: '1px solid #f3f4f6',
+      }}>
+        <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '0.75rem',
+          display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Calendar size={16} color="#0099cc" /> Reuniones
+        </h3>
+        <p style={{ fontSize: '13px', color: '#9ca3af', textAlign: 'center', padding: '12px' }}>
+          No tienes reuniones programadas todavía.
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{
+      backgroundColor: 'white', borderRadius: '12px', padding: '1.25rem',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.04)', border: '1px solid #f3f4f6',
+    }}>
+      <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '12px',
+        display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Calendar size={16} color="#0099cc" /> Reuniones
+        <span style={{ fontWeight: '400', color: '#9ca3af', fontSize: '12px' }}>({reuniones.length})</span>
+      </h3>
+
+      {futuras.length > 0 && (
+        <>
+          <p style={{ fontSize: '11px', fontWeight: '700', color: '#6b7280',
+            textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+            Próximas
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+            {futuras.map(r => <ReunionItem key={r.id} reunion={r} />)}
+          </div>
+        </>
+      )}
+
+      {pasadas.length > 0 && (
+        <>
+          <p style={{ fontSize: '11px', fontWeight: '700', color: '#6b7280',
+            textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+            Anteriores
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {pasadas.slice(0, 5).map(r => <ReunionItem key={r.id} reunion={r} pasada />)}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+function ReunionItem({ reunion, pasada }) {
+  const cfg = ESTADO_REUNION[reunion.estado] || ESTADO_REUNION.pendiente
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'flex-start', gap: '12px',
+      padding: '10px 12px', borderRadius: '8px',
+      background: pasada ? '#fafafa' : '#f9fafb',
+      border: '1px solid #f3f4f6', opacity: pasada ? 0.75 : 1,
+    }}>
+      <div style={{
+        width: '44px', textAlign: 'center', flexShrink: 0,
+        padding: '4px', background: 'white', borderRadius: '6px',
+        border: '1px solid #e5e7eb',
+      }}>
+        <p style={{ fontSize: '16px', fontWeight: '800', color: '#0a0a4e', lineHeight: '1' }}>
+          {new Date(reunion.fecha).getDate()}
+        </p>
+        <p style={{ fontSize: '9px', fontWeight: '700', color: '#6b7280',
+          textTransform: 'uppercase', marginTop: '2px' }}>
+          {new Date(reunion.fecha).toLocaleString('es-ES', { month: 'short' })}
+        </p>
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px', flexWrap: 'wrap' }}>
+          <p style={{ fontSize: '13px', fontWeight: '700', color: '#0a0a4e' }}>{reunion.titulo}</p>
+          <span style={{
+            fontSize: '9px', fontWeight: '700', padding: '1px 7px', borderRadius: '999px',
+            background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`,
+            textTransform: 'uppercase', letterSpacing: '0.05em',
+          }}>{cfg.label}</span>
+        </div>
+        <p style={{ fontSize: '11px', color: '#6b7280' }}>
+          {fmtDateTime(reunion.fecha)}
+          {reunion.duracion_minutos && ` · ${reunion.duracion_minutos} min`}
+        </p>
+        {reunion.descripcion && (
+          <p style={{ fontSize: '11px', color: '#9ca3af', lineHeight: '1.4', marginTop: '4px' }}>
+            {reunion.descripcion}
+          </p>
+        )}
+        {reunion.enlace && reunion.estado !== 'cancelada' && (
+          <a href={reunion.enlace} target="_blank" rel="noopener noreferrer"
+            style={{ fontSize: '11px', color: '#0099cc', fontWeight: '700',
+              display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
+            <Video size={11} /> Unirse a la reunión →
+          </a>
+        )}
+      </div>
+    </div>
+  )
 }
 
 export default function Proceso() {
@@ -233,9 +358,12 @@ export default function Proceso() {
         </div>
       )}
 
+      {/* Reuniones — sección completa */}
+      <ReunionesSection reuniones={reuniones} proximaReunion={proximaReunion} />
+
       {/* Bottom cards */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-        {/* Reuniones */}
+        {/* Próxima reunión card resumida */}
         <div
           style={{
             backgroundColor: 'white',
@@ -246,14 +374,14 @@ export default function Proceso() {
           }}
         >
           <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1rem' }}>
-            Reuniones
+            Próxima reunión
           </h3>
 
           {proximaReunion ? (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <p style={{ color: '#4B5563', fontSize: '0.875rem', marginBottom: '4px' }}>
-                  Próxima reunión
+                <p style={{ color: '#4B5563', fontSize: '0.875rem', marginBottom: '4px', fontWeight: '700' }}>
+                  {proximaReunion.titulo}
                 </p>
                 {proximaReunion.fecha && (
                   <p style={{ color: '#4B5563', fontSize: '0.875rem' }}>
@@ -263,11 +391,6 @@ export default function Proceso() {
                         hour: '2-digit', minute: '2-digit',
                       })}
                     </strong>
-                  </p>
-                )}
-                {proximaReunion.lugar && (
-                  <p style={{ color: '#4B5563', fontSize: '0.875rem' }}>
-                    Lugar: <strong>{proximaReunion.lugar}</strong>
                   </p>
                 )}
                 <p style={{ color: '#0a0a4e', fontWeight: '700', marginTop: '1rem', fontSize: '0.875rem' }}>

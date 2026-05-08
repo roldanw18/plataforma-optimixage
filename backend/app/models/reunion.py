@@ -15,8 +15,10 @@ class Reunion(Base):
     fecha = Column(DateTime(timezone=True), nullable=False)
     duracion_minutos = Column(Integer, nullable=True)
     enlace = Column(String, nullable=True)
+    estado = Column(String, nullable=False, default="pendiente")  # pendiente | confirmada | cancelada | completada
     proyecto_id = Column(UUID(as_uuid=True), ForeignKey("proyectos.id"), nullable=False)
     creado_por = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     proyecto = relationship("Proyecto", back_populates="reuniones")

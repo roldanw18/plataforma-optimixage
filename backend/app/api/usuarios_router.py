@@ -1,5 +1,9 @@
+import uuid as _uuid_mod
+from pathlib import Path
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException
+
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -9,6 +13,13 @@ from app.core.security import hash_password, verify_password
 from app.models.usuario import Usuario
 
 router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
+
+UPLOADS_DIR = Path("uploads")
+AVATARS_DIR = UPLOADS_DIR / "avatars"
+AVATARS_DIR.mkdir(parents=True, exist_ok=True)
+
+AVATAR_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
+MAX_AVATAR_SIZE = 5 * 1024 * 1024  # 5 MB
 
 
 def _perfil_dict(usuario: Usuario) -> dict:
@@ -53,6 +64,56 @@ def update_profile(
     db.commit()
     db.refresh(usuario)
     return _perfil_dict(usuario)
+
+
+@router.post("/me/avatar")
+def subir_avatar(
+    archivo: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    usuario: Usuario = Depends(get_current_user),
+):
+    ext = Path(archivo.filename or "").suffix.lower()
+    if ext not in AVATAR_EXTS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Formato no permitido. Usa: {', '.join(sorted(AVATAR_EXTS))}",
+        )
+
+    content = archivo.file.read()
+    if len(content) > MAX_AVATAR_SIZE:
+        raise HTTPException(status_code=400, detail="El avatar supera el límite de 5 MB")
+
+    # Borrar avatar anterior si era local
+    if usuario.avatar_url and usuario.avatar_url.startswith("/usuarios/avatar/"):
+        old_name = usuario.avatar_url.rsplit("/", 1)[-1]
+        old_path = AVATARS_DIR / old_name
+        if old_path.exists():
+            try:
+                old_path.unlink()
+            except OSError:
+                pass
+
+    safe_name = f"{usuario.id}_{_uuid_mod.uuid4().hex[:8]}{ext}"
+    file_path = AVATARS_DIR / safe_name
+    with open(file_path, "wb") as f:
+        f.write(content)
+
+    new_url = f"/usuarios/avatar/{safe_name}"
+    usuario.avatar_url = new_url
+    db.commit()
+    db.refresh(usuario)
+    return _perfil_dict(usuario)
+
+
+@router.get("/avatar/{filename}")
+def servir_avatar(filename: str):
+    file_path = (AVATARS_DIR / filename).resolve()
+    allowed_root = AVATARS_DIR.resolve()
+    if not str(file_path).startswith(str(allowed_root)):
+        raise HTTPException(status_code=400, detail="Ruta inválida")
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Avatar no encontrado")
+    return FileResponse(path=str(file_path))
 
 
 @router.patch("/me/password")
