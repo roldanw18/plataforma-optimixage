@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { AlignJustify, Plus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import api from '../../services/api'
 import Modal from '../../components/common/Modal'
 import { resolveAvatarUrl } from '../../components/common/AvatarUploader'

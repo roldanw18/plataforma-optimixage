@@ -1,0 +1,72 @@
+{
+  "nav": {
+    "clientes": "Clientes",
+    "proceso": "Processo",
+    "documentos": "Documentos",
+    "mensajes": "Mensagens",
+    "notificaciones": "Notificações",
+    "contenido": "Conteúdo",
+    "equipo": "Equipe",
+    "configuracion": "Configurações",
+    "logout": "Sair"
+  },
+  "admin": {
+    "clientes": {
+      "titulo": "Nossos clientes",
+      "nuevoCliente": "Novo cliente",
+      "crearProyecto": "Criar projeto",
+      "programarReunion": "Agendar reunião",
+      "noHay": "Nenhum cliente registrado.",
+      "modal": {
+        "titulo": "Novo cliente",
+        "nombre": "Nome completo",
+        "email": "Endereço de email",
+        "password": "Senha inicial",
+        "crear": "Criar cliente",
+        "cancelar": "Cancelar"
+      }
+    },
+    "proceso": {
+      "titulo": "Processo",
+      "cambiarEtapa": "Alterar etapa",
+      "noHay": "Nenhum projeto ativo. Crie um projeto na seção Clientes.",
+      "etapas": {
+        "primer_contacto": "Primeiro contato",
+        "diagnostico": "Diagnóstico",
+        "capacitacion": "Treinamento",
+        "desarrollo": "Desenvolvimento",
+        "entrega": "Entrega"
+      },
+      "modal": {
+        "etapaActual": "Etapa atual",
+        "nuevaEtapa": "Nova etapa",
+        "notas": "Notas (opcional)",
+        "confirmar": "Confirmar alteração",
+        "guardando": "Salvando…",
+        "cancelar": "Cancelar"
+      }
+    },
+    "contenido": {
+      "titulo": "Conteúdo",
+      "filtros": {
+        "todo": "Todos",
+        "imagenes": "Imagens",
+        "videos": "Vídeos"
+      },
+      "noHay": "Nenhum conteúdo disponível."
+    }
+  },
+  "errors": {
+    "noSePudieron": "Não foi possível carregar",
+    "error": "Erro",
+    "intenteLuego": "Tente novamente mais tarde"
+  },
+  "buttons": {
+    "guardar": "Salvar",
+    "cancelar": "Cancelar",
+    "crear": "Criar",
+    "eliminar": "Excluir",
+    "editar": "Editar"
+  },
+  "idioma": "Idioma"
+}

@@ -12,6 +12,7 @@ import {
   MessageCircle,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import LanguageSwitcher from '../common/LanguageSwitcher'
 
 const navItems = [
   { icon: Users, label: 'Clientes', path: '/admin/clientes' },
@@ -70,6 +71,11 @@ export default function AdminSidebar() {
           )
         })}
       </nav>
+
+      {/* Language Switcher */}
+      <div style={{ padding: '0 0.75rem 1rem', borderBottom: '1px solid #f3f4f6' }}>
+        <LanguageSwitcher />
+      </div>
 
       {/* Logout */}
       <div style={{ padding: '0 0.75rem 0.75rem' }}>
