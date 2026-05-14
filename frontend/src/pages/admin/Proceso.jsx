@@ -5,14 +5,6 @@ import api from '../../services/api'
 import Modal from '../../components/common/Modal'
 import { resolveAvatarUrl } from '../../components/common/AvatarUploader'
 
-const ETAPA_LABELS = {
-  primer_contacto: 'Primer contacto',
-  diagnostico: 'Diagnóstico',
-  capacitacion: 'Capacitación',
-  desarrollo: 'Desarrollo',
-  entrega: 'Entrega',
-}
-
 const ETAPAS_ORDER = ['primer_contacto', 'diagnostico', 'capacitacion', 'desarrollo', 'entrega']
 
 // ── Skeleton card ─────────────────────────────────────────────────────────────
@@ -38,7 +30,7 @@ function SkeletonCard() {
 
 // ── Card de proyecto ──────────────────────────────────────────────────────────
 
-function ProyectoCard({ proyecto, onCambiarEtapa }) {
+function ProyectoCard({ proyecto, onCambiarEtapa, t }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [hovered, setHovered] = useState(false)
   const menuRef = useRef(null)
@@ -114,7 +106,7 @@ function ProyectoCard({ proyecto, onCambiarEtapa }) {
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
-              Cambiar etapa
+              {t('admin.proceso.cambiarEtapa')}
             </button>
           </div>
         )}
@@ -178,7 +170,7 @@ export default function AdminProceso() {
       const { data } = await api.get('/proyectos/admin/todos')
       setProyectos(data)
     } catch {
-      setError('No se pudieron cargar los proyectos.')
+      setError(t('admin.proceso.errorCargar'))
     } finally {
       setLoading(false)
     }
@@ -203,9 +195,9 @@ export default function AdminProceso() {
 
   async function handleCambiarEtapa(e) {
     e.preventDefault()
-    if (!etapaSeleccionada) { setErrorEtapa('Seleccioná una etapa.'); return }
+    if (!etapaSeleccionada) { setErrorEtapa(t('admin.proceso.seleccionarEtapa')); return }
     if (etapaSeleccionada === modalProyecto.etapa_actual) {
-      setErrorEtapa('La etapa seleccionada es la misma que la actual.')
+      setErrorEtapa(t('admin.proceso.mismaEtapa'))
       return
     }
     setLoadingEtapa(true)
@@ -215,11 +207,11 @@ export default function AdminProceso() {
         etapa: etapaSeleccionada,
         notas: notas || null,
       })
-      setSuccessMsg(`Etapa actualizada a "${ETAPA_LABELS[etapaSeleccionada]}"`)
+      setSuccessMsg(t('admin.proceso.actualizada', { etapa: t(`admin.proceso.etapas.${etapaSeleccionada}`) }))
       await fetchProyectos()
       setTimeout(cerrarModal, 1200)
     } catch (err) {
-      setErrorEtapa(err?.response?.data?.detail || 'Error al cambiar la etapa.')
+      setErrorEtapa(err?.response?.data?.detail || t('admin.proceso.errorCambiar'))
     } finally {
       setLoadingEtapa(false)
     }
@@ -254,14 +246,14 @@ export default function AdminProceso() {
 
       {!loading && Object.keys(grouped).length === 0 && !error && (
         <p style={{ fontSize: '0.875rem', color: '#9CA3AF' }}>
-          No hay proyectos activos. Creá un proyecto desde la sección Clientes.
+          {t('admin.proceso.sinProyectos')}
         </p>
       )}
 
       {!loading && Object.entries(grouped).map(([etapaKey, items]) => (
         <section key={etapaKey}>
           <h2 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1.25rem', margin: '0 0 1.25rem' }}>
-            {ETAPA_LABELS[etapaKey]}
+            {t(`admin.proceso.etapas.${etapaKey}`)}
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '2rem' }}>
             {items.map((proyecto) => (
@@ -269,6 +261,7 @@ export default function AdminProceso() {
                 key={proyecto.id}
                 proyecto={proyecto}
                 onCambiarEtapa={abrirModal}
+                t={t}
               />
             ))}
           </div>
@@ -278,23 +271,23 @@ export default function AdminProceso() {
       {/* Modal: Cambiar etapa */}
       {modalProyecto && (
         <Modal
-          title={`Cambiar etapa — ${modalProyecto.cliente?.nombre || modalProyecto.nombre}`}
+          title={t('admin.proceso.cambiarEtapaTitulo', { nombre: modalProyecto.cliente?.nombre || modalProyecto.nombre })}
           onClose={cerrarModal}
           maxWidth="420px"
         >
           <form onSubmit={handleCambiarEtapa}>
             {/* Etapa actual */}
             <div style={{ marginBottom: '1rem', padding: '0.6rem 0.875rem', backgroundColor: '#F3F4F6', borderRadius: '8px' }}>
-              <p style={{ fontSize: '0.7rem', color: '#9CA3AF', marginBottom: '2px' }}>Etapa actual</p>
+              <p style={{ fontSize: '0.7rem', color: '#9CA3AF', marginBottom: '2px' }}>{t('admin.proceso.etapaActual')}</p>
               <p style={{ fontSize: '0.875rem', fontWeight: '600', color: '#0a0a4e' }}>
-                {ETAPA_LABELS[modalProyecto.etapa_actual]}
+                {t(`admin.proceso.etapas.${modalProyecto.etapa_actual}`)}
               </p>
             </div>
 
             {/* Selector nueva etapa */}
             <div style={{ marginBottom: '1rem' }}>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
-                Nueva etapa <span style={{ color: '#EF4444' }}>*</span>
+                {t('admin.proceso.nuevaEtapa')} <span style={{ color: '#EF4444' }}>*</span>
               </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {ETAPAS_ORDER.map((key) => (
@@ -317,10 +310,10 @@ export default function AdminProceso() {
                       style={{ accentColor: '#0099cc' }}
                     />
                     <span style={{ fontSize: '0.875rem', color: '#374151', fontWeight: etapaSeleccionada === key ? '600' : '400' }}>
-                      {ETAPA_LABELS[key]}
+                      {t(`admin.proceso.etapas.${key}`)}
                     </span>
                     {modalProyecto.etapa_actual === key && (
-                      <span style={{ marginLeft: 'auto', fontSize: '0.7rem', color: '#9CA3AF' }}>actual</span>
+                      <span style={{ marginLeft: 'auto', fontSize: '0.7rem', color: '#9CA3AF' }}>{t('common.actual')}</span>
                     )}
                   </label>
                 ))}
@@ -330,12 +323,12 @@ export default function AdminProceso() {
             {/* Notas */}
             <div style={{ marginBottom: '1rem' }}>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
-                Notas (opcional)
+                {t('admin.proceso.notas')}
               </label>
               <textarea
                 value={notas}
                 onChange={(e) => setNotas(e.target.value)}
-                placeholder="Ej: Se completó el diagnóstico inicial…"
+                placeholder={t('admin.proceso.notasPlaceholder')}
                 rows={3}
                 style={{
                   width: '100%', padding: '0.6rem 0.875rem',
@@ -365,7 +358,7 @@ export default function AdminProceso() {
                   cursor: 'pointer', fontSize: '0.875rem', color: '#374151',
                 }}
               >
-                Cancelar
+                {t('admin.proceso.cancelar')}
               </button>
               <button
                 type="submit"
@@ -377,7 +370,7 @@ export default function AdminProceso() {
                   opacity: loadingEtapa ? 0.6 : 1,
                 }}
               >
-                {loadingEtapa ? 'Guardando…' : 'Confirmar cambio'}
+                {loadingEtapa ? t('admin.proceso.modal.guardando') : t('admin.proceso.confirmar')}
               </button>
             </div>
           </form>

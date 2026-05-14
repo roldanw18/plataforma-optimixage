@@ -90,9 +90,9 @@ export default function AdminConfiguracion() {
         nombre: perfil.nombre,
         telefono: perfil.telefono,
       })
-      setPerfilMsg('Profile updated successfully.')
+      setPerfilMsg(t('admin.configuracion.perfilExito'))
     } catch (err) {
-      setPerfilErr(err.response?.data?.detail || 'Error saving profile.')
+      setPerfilErr(err.response?.data?.detail || t('admin.configuracion.perfilError'))
     } finally {
       setSaving(false)
     }
@@ -101,18 +101,18 @@ export default function AdminConfiguracion() {
   async function cambiarPassword(e) {
     e.preventDefault()
     setPwdErr(null); setPwdMsg(null)
-    if (pwd.nuevo !== pwd.confirmar) { setPwdErr('New passwords do not match.'); return }
-    if (pwd.nuevo.length < 6) { setPwdErr('Minimum 6 characters.'); return }
+    if (pwd.nuevo !== pwd.confirmar) { setPwdErr(t('admin.configuracion.passwordNoCoincide')); return }
+    if (pwd.nuevo.length < 6) { setPwdErr(t('admin.configuracion.passwordMinChars')); return }
     setSaving(true)
     try {
       await api.patch('/usuarios/me/password', {
         password_actual: pwd.actual,
         password_nuevo: pwd.nuevo,
       })
-      setPwdMsg('Password changed successfully.')
+      setPwdMsg(t('admin.configuracion.passwordExito'))
       setPwd({ actual: '', nuevo: '', confirmar: '' })
     } catch (err) {
-      setPwdErr(err.response?.data?.detail || 'Error changing password.')
+      setPwdErr(err.response?.data?.detail || t('admin.configuracion.passwordError'))
     } finally {
       setSaving(false)
     }
@@ -137,7 +137,7 @@ export default function AdminConfiguracion() {
             padding: '14px 18px',
           }}>
             <div style={{ fontSize: '22px', fontWeight: '800' }}>{totalUsuarios}</div>
-            <div style={{ fontSize: '11px', opacity: 0.75 }}>Registered users</div>
+            <div style={{ fontSize: '11px', opacity: 0.75 }}>{t('admin.configuracion.usuariosRegistrados')}</div>
           </div>
           <div style={{
             flex: 1, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px',
@@ -145,7 +145,7 @@ export default function AdminConfiguracion() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Shield size={16} color="#16a34a" />
-              <span style={{ fontSize: '13px', fontWeight: '700', color: '#15803d' }}>Admin</span>
+              <span style={{ fontSize: '13px', fontWeight: '700', color: '#15803d' }}>{t('admin.configuracion.rolAdmin')}</span>
             </div>
             <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '4px' }}>{perfil.email}</div>
           </div>
@@ -153,27 +153,27 @@ export default function AdminConfiguracion() {
       )}
 
       {/* Perfil */}
-      <Section title="Personal Information" icon={User}>
+      <Section title={t('admin.configuracion.infoPersonal')} icon={User}>
         <Alert type="success" message={perfilMsg} />
         <Alert type="error" message={perfilErr} />
         <form onSubmit={guardarPerfil}>
-          <Field label="Full name">
+          <Field label={t('admin.configuracion.nombreCompleto')}>
             <input style={inputStyle} value={perfil.nombre}
-              onChange={e => setPerfil(p => ({ ...p, nombre: e.target.value }))} placeholder="Your name" />
+              onChange={e => setPerfil(p => ({ ...p, nombre: e.target.value }))} placeholder={t('admin.configuracion.tuNombre')} />
           </Field>
-          <Field label="Email">
+          <Field label={t('admin.configuracion.email')}>
             <input style={{ ...inputStyle, background: '#f9fafb', color: '#9ca3af' }} value={perfil.email} disabled />
           </Field>
-          <Field label="Phone">
+          <Field label={t('admin.configuracion.telefono')}>
             <input style={inputStyle} value={perfil.telefono}
-              onChange={e => setPerfil(p => ({ ...p, telefono: e.target.value }))} placeholder="+1 (555) 000-0000" />
+              onChange={e => setPerfil(p => ({ ...p, telefono: e.target.value }))} placeholder={t('admin.configuracion.telefonoPlaceholder')} />
           </Field>
-          <Field label="Avatar">
+          <Field label={t('admin.configuracion.avatar')}>
             <AvatarUploader
               value={perfil.avatar_url}
               onChange={(url) => {
                 setPerfil(p => ({ ...p, avatar_url: url }))
-                setPerfilMsg('Avatar updated successfully.')
+                setPerfilMsg(t('admin.configuracion.avatarActualizado'))
               }}
             />
           </Field>
@@ -183,27 +183,27 @@ export default function AdminConfiguracion() {
             borderRadius: '8px', padding: '10px 20px', fontSize: '13px',
             fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
           }}>
-            <Save size={15} /> {saving ? 'Saving...' : 'Save changes'}
+            <Save size={15} /> {saving ? t('admin.configuracion.guardando') : t('admin.configuracion.guardarCambios')}
           </button>
         </form>
       </Section>
 
       {/* Contraseña */}
-      <Section title="Change Password" icon={Lock} accent="#dc2626">
+      <Section title={t('admin.configuracion.cambiarPassword')} icon={Lock} accent="#dc2626">
         <Alert type="success" message={pwdMsg} />
         <Alert type="error" message={pwdErr} />
         <form onSubmit={cambiarPassword}>
-          <Field label="Current password">
+          <Field label={t('admin.configuracion.passwordActual')}>
             <input type="password" style={inputStyle} value={pwd.actual}
-              onChange={e => setPwd(p => ({ ...p, actual: e.target.value }))} placeholder="••••••••" />
+              onChange={e => setPwd(p => ({ ...p, actual: e.target.value }))} placeholder={t('admin.configuracion.passwordPlaceholder')} />
           </Field>
-          <Field label="New password">
+          <Field label={t('admin.configuracion.passwordNueva')}>
             <input type="password" style={inputStyle} value={pwd.nuevo}
-              onChange={e => setPwd(p => ({ ...p, nuevo: e.target.value }))} placeholder="Minimum 6 characters" />
+              onChange={e => setPwd(p => ({ ...p, nuevo: e.target.value }))} placeholder={t('admin.configuracion.passwordPlaceholderNueva')} />
           </Field>
-          <Field label="Confirm new password">
+          <Field label={t('admin.configuracion.passwordConfirmar')}>
             <input type="password" style={inputStyle} value={pwd.confirmar}
-              onChange={e => setPwd(p => ({ ...p, confirmar: e.target.value }))} placeholder="Repeat password" />
+              onChange={e => setPwd(p => ({ ...p, confirmar: e.target.value }))} placeholder={t('admin.configuracion.passwordPlaceholderRepetir')} />
           </Field>
           <button type="submit" disabled={saving} style={{
             display: 'flex', alignItems: 'center', gap: '8px',
@@ -211,7 +211,7 @@ export default function AdminConfiguracion() {
             borderRadius: '8px', padding: '10px 20px', fontSize: '13px',
             fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
           }}>
-            <Lock size={15} /> {saving ? 'Changing...' : 'Change password'}
+            <Lock size={15} /> {saving ? t('admin.configuracion.cambiando') : t('admin.configuracion.cambiarPassword')}
           </button>
         </form>
       </Section>

@@ -1,19 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Calendar, CheckCircle, Clock, Circle } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import api from '../../services/api'
 
-const ETAPAS = [
-  { key: 'primer_contacto', label: 'Primer Contacto' },
-  { key: 'diagnostico',     label: 'Diagnóstico' },
-  { key: 'capacitacion',    label: 'Capacitación' },
-  { key: 'desarrollo',      label: 'Desarrollo' },
-  { key: 'entrega',         label: 'Entrega' },
-]
+const ETAPA_KEYS = ['primer_contacto', 'diagnostico', 'capacitacion', 'desarrollo', 'entrega']
 
-function formatDate(iso) {
+function formatDate(iso, lng) {
   if (!iso) return ''
-  return new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString(lng === 'en' ? 'en-US' : 'es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 function EtapaIcon({ estado }) {
@@ -42,6 +37,8 @@ function DocIcon() {
 }
 
 export default function Inicio() {
+  const { t, i18n } = useTranslation()
+  const lng = i18n.language?.split('-')[0] || 'es'
   const [documentos, setDocumentos]   = useState([])
   const [reuniones, setReuniones]     = useState([])
   const [proceso, setProceso]         = useState(null)
@@ -83,12 +80,12 @@ export default function Inicio() {
   const proximaReunion = reuniones.find(r => new Date(r.fecha) >= new Date()) || reuniones[0]
   const etapaActual    = proceso?.etapa_actual || ''
   const progreso       = proceso?.progreso || 0
-  const etapaIdx       = ETAPAS.findIndex(e => e.key === etapaActual)
+  const etapaIdx       = ETAPA_KEYS.indexOf(etapaActual)
 
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center h-full">
-        <div style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>Cargando...</div>
+        <div style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>{t('cliente.inicio.cargando')}</div>
       </div>
     )
   }
@@ -99,10 +96,10 @@ export default function Inicio() {
       {/* ── SECTION 1: Documentos recientes ───────────────── */}
       <section>
         <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1rem' }}>
-          Documentos
+          {t('cliente.inicio.documentosTitulo')}
         </h2>
         {documentos.length === 0 ? (
-          <p style={{ fontSize: '0.875rem', color: '#9CA3AF' }}>Sin documentos disponibles.</p>
+          <p style={{ fontSize: '0.875rem', color: '#9CA3AF' }}>{t('cliente.inicio.sinDocumentos')}</p>
         ) : (
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             {documentos.map(doc => (
@@ -120,7 +117,7 @@ export default function Inicio() {
                 </p>
                 {doc.fecha_creacion && (
                   <p style={{ fontSize: '10px', color: '#d1d5db', marginTop: '4px' }}>
-                    {formatDate(doc.fecha_creacion)}
+                    {formatDate(doc.fecha_creacion, lng)}
                   </p>
                 )}
               </div>
@@ -132,7 +129,7 @@ export default function Inicio() {
       {/* ── SECTION 2: Proceso + Próxima reunión ──────────── */}
       <section>
         <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1rem' }}>
-          Proceso
+          {t('cliente.inicio.procesoTitulo')}
         </h2>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
 
@@ -143,12 +140,12 @@ export default function Inicio() {
             boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
           }}>
             <h3 style={{ fontWeight: '700', color: '#0a0a4e', marginBottom: '4px', fontSize: '0.9rem' }}>
-              Avance de digitalización
+              {t('cliente.inicio.avanceDigitalizacion')}
             </h3>
             <p style={{ color: '#6B7280', fontSize: '0.8rem', marginBottom: '1rem' }}>
               {etapaActual
-                ? `Etapa actual: ${ETAPAS.find(e => e.key === etapaActual)?.label || etapaActual}`
-                : 'Proceso no iniciado'}
+                ? t('cliente.inicio.etapaActualTexto', { etapa: t(`cliente.etapas.${etapaActual}`) })
+                : t('cliente.inicio.procesoNoIniciado')}
             </p>
 
             {/* Barra de progreso */}
@@ -158,14 +155,14 @@ export default function Inicio() {
                 width: `${progreso}%`, transition: 'width .5s',
               }} />
             </div>
-            <p style={{ fontSize: '11px', color: '#9ca3af', textAlign: 'right' }}>{progreso}% completado</p>
+            <p style={{ fontSize: '11px', color: '#9ca3af', textAlign: 'right' }}>{t('cliente.inicio.porcentajeCompletado', { progreso })}</p>
 
             {/* Etapas visuales */}
             <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {ETAPAS.map((etapa, i) => {
+              {ETAPA_KEYS.map((key, i) => {
                 const estado = i < etapaIdx ? 'completado' : i === etapaIdx ? 'activo' : 'pendiente'
                 return (
-                  <div key={etapa.key} style={{
+                  <div key={key} style={{
                     display: 'flex', alignItems: 'center', gap: '10px',
                     padding: '6px 10px', borderRadius: '8px',
                     background: estado === 'activo' ? '#eff6ff' : 'transparent',
@@ -176,13 +173,13 @@ export default function Inicio() {
                       fontSize: '12px', fontWeight: estado === 'activo' ? '700' : '400',
                       color: estado === 'completado' ? '#16a34a' : estado === 'activo' ? '#0099cc' : '#9ca3af',
                     }}>
-                      {etapa.label}
+                      {t(`cliente.etapas.${key}`)}
                     </span>
                     {estado === 'activo' && (
                       <span style={{
                         marginLeft: 'auto', fontSize: '10px', background: '#dbeafe',
                         color: '#2563eb', borderRadius: '999px', padding: '2px 8px', fontWeight: '700',
-                      }}>En progreso</span>
+                      }}>{t('cliente.inicio.enProgreso')}</span>
                     )}
                   </div>
                 )
@@ -200,7 +197,7 @@ export default function Inicio() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <Calendar size={16} color="#0099cc" />
                 <span style={{ fontSize: '12px', fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '.5px' }}>
-                  Próxima reunión
+                  {t('cliente.inicio.proximaReunion')}
                 </span>
               </div>
               <div style={{ textAlign: 'center', marginBottom: '12px' }}>
@@ -208,20 +205,20 @@ export default function Inicio() {
                   {new Date(proximaReunion.fecha).getDate()}
                 </span>
                 <p style={{ fontSize: '1rem', fontWeight: '700', color: '#0a0a4e' }}>
-                  {new Date(proximaReunion.fecha).toLocaleString('es-ES', { month: 'short' }).toUpperCase()}
+                  {new Date(proximaReunion.fecha).toLocaleString(lng === 'en' ? 'en-US' : 'es-ES', { month: 'short' }).toUpperCase()}
                 </p>
               </div>
               <p style={{ fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>
                 {proximaReunion.titulo}
               </p>
               {proximaReunion.duracion_minutos && (
-                <p style={{ fontSize: '11px', color: '#9ca3af' }}>{proximaReunion.duracion_minutos} min</p>
+                <p style={{ fontSize: '11px', color: '#9ca3af' }}>{proximaReunion.duracion_minutos} {t('cliente.inicio.minutos')}</p>
               )}
               {proximaReunion.enlace && (
                 <a href={proximaReunion.enlace} target="_blank" rel="noopener noreferrer"
                   style={{ display: 'inline-block', marginTop: '10px', fontSize: '12px',
                     color: '#0099cc', fontWeight: '600', textDecoration: 'none' }}>
-                  Unirse →
+                  {t('cliente.inicio.unirse')}
                 </a>
               )}
             </div>
@@ -236,7 +233,7 @@ export default function Inicio() {
             }}>
               <h3 style={{ fontSize: '12px', fontWeight: '700', color: '#6b7280',
                 textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: '12px' }}>
-                Historial de etapas
+                {t('cliente.inicio.historialEtapas')}
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
                 {historial.slice(0, 5).map((h, i) => (
@@ -255,11 +252,11 @@ export default function Inicio() {
                     }} />
                     <div>
                       <p style={{ fontSize: '12px', fontWeight: '600', color: '#374151' }}>
-                        {ETAPAS.find(e => e.key === h.etapa)?.label || h.etapa}
+                        {ETAPA_KEYS.includes(h.etapa) ? t(`cliente.etapas.${h.etapa}`) : h.etapa}
                       </p>
                       <p style={{ fontSize: '10px', color: '#9ca3af' }}>
-                        {formatDate(h.fecha_inicio)}
-                        {h.fecha_fin ? ` → ${formatDate(h.fecha_fin)}` : ' · En curso'}
+                        {formatDate(h.fecha_inicio, lng)}
+                        {h.fecha_fin ? ` → ${formatDate(h.fecha_fin, lng)}` : ` · ${t('cliente.inicio.enCurso')}`}
                       </p>
                     </div>
                   </div>
@@ -275,13 +272,13 @@ export default function Inicio() {
         <section>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0a0a4e' }}>
-              Contenido
+              {t('cliente.inicio.contenidoTitulo')}
             </h2>
             {contenidos.length > 4 && (
               <Link to="/contenido" style={{
                 fontSize: '12px', fontWeight: '600', color: '#0099cc',
                 textDecoration: 'none',
-              }}>Ver todo →</Link>
+              }}>{t('cliente.inicio.verTodo')}</Link>
             )}
           </div>
           <div style={{

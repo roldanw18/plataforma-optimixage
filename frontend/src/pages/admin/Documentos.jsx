@@ -68,7 +68,7 @@ export default function AdminDocumentos() {
 
   function labelProyecto(p) {
     const owner = p.cliente?.nombre || p.cliente?.email
-    return owner ? `${p.nombre} — ${owner}` : `${p.nombre} — sin asignar`
+    return owner ? `${p.nombre} — ${owner}` : `${p.nombre} — ${t('common.sin_asignar')}`
   }
 
   useEffect(() => {
@@ -216,8 +216,8 @@ export default function AdminDocumentos() {
                 ) : (
                   <>
                     <Upload size={20} color="#9ca3af" style={{ margin: '0 auto 6px' }} />
-                    <p style={{ fontSize: '12px', color: '#9ca3af' }}>Click to select file</p>
-                    <p style={{ fontSize: '10px', color: '#d1d5db', marginTop: '2px' }}>PDF, DOC, XLS, IMG, ZIP · max 10 MB</p>
+                    <p style={{ fontSize: '12px', color: '#9ca3af' }}>{t('admin.documentos.clickSeleccionar')}</p>
+                    <p style={{ fontSize: '10px', color: '#d1d5db', marginTop: '2px' }}>{t('admin.documentos.formatosArchivo')}</p>
                   </>
                 )}
               </div>
@@ -228,7 +228,7 @@ export default function AdminDocumentos() {
                 {t('admin.documentos.titulo_label')} <span style={{ color: '#ef4444' }}>*</span>
               </label>
               <input style={inputSt} value={titulo}
-                onChange={e => setTitulo(e.target.value)} placeholder="Document name" />
+                onChange={e => setTitulo(e.target.value)} placeholder={t('admin.documentos.placeholderNombre')} />
             </div>
 
             <div style={{ marginBottom: '12px' }}>
@@ -237,14 +237,14 @@ export default function AdminDocumentos() {
               </label>
               <textarea style={{ ...inputSt, resize: 'vertical', minHeight: '60px' }}
                 value={descripcion} onChange={e => setDescripcion(e.target.value)}
-                placeholder="Optional description" />
+                placeholder={t('admin.documentos.placeholderDescripcion')} />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '5px' }}>{t('admin.documentos.tipo')}</label>
                 <select style={selectSt} value={tipo} onChange={e => setTipo(e.target.value)}>
-                  {TIPOS.map(t => <option key={t} value={t}>{t('admin.documentos.tipos.' + t)}</option>)}
+                  {TIPOS.map(tp => <option key={tp} value={tp}>{t('admin.documentos.tipos.' + tp)}</option>)}
                 </select>
               </div>
               <div>

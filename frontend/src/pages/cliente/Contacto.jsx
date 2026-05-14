@@ -1,16 +1,18 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { Send, MessageCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import api from '../../services/api'
 import { useAuth } from '../../context/AuthContext'
 
-function formatTime(iso) {
+function formatTime(iso, lng) {
   if (!iso) return ''
   const d = new Date(iso)
   const hoy = new Date()
+  const localeId = lng === 'en' ? 'en-US' : 'es-ES'
   const esHoy = d.toDateString() === hoy.toDateString()
-  if (esHoy) return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
-  return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) + ' ' +
-    d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+  if (esHoy) return d.toLocaleTimeString(localeId, { hour: '2-digit', minute: '2-digit' })
+  return d.toLocaleDateString(localeId, { day: '2-digit', month: 'short' }) + ' ' +
+    d.toLocaleTimeString(localeId, { hour: '2-digit', minute: '2-digit' })
 }
 
 function Avatar({ nombre, isAdmin }) {
@@ -34,6 +36,8 @@ function Avatar({ nombre, isAdmin }) {
 
 export default function Contacto() {
   const { user } = useAuth()
+  const { t, i18n } = useTranslation()
+  const lng = i18n.language?.split('-')[0] || 'es'
   const [mensajes, setMensajes]     = useState([])
   const [texto, setTexto]           = useState('')
   const [proyectoId, setProyectoId] = useState(null)
@@ -117,15 +121,15 @@ export default function Contacto() {
         <MessageCircle size={22} color="#0099cc" />
         <div>
           <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0a0a4e', lineHeight: 1 }}>
-            Contacto
+            {t('cliente.contacto.titulo')}
           </h1>
           <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px' }}>
-            Chat directo con el equipo Optimixage
+            {t('cliente.contacto.subtitulo')}
           </p>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
           <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }} />
-          <span style={{ fontSize: '11px', color: '#6b7280' }}>En línea</span>
+          <span style={{ fontSize: '11px', color: '#6b7280' }}>{t('cliente.contacto.enLinea')}</span>
         </div>
       </div>
 
@@ -143,7 +147,7 @@ export default function Contacto() {
         }}>
           {loading && (
             <p style={{ color: '#9CA3AF', fontSize: '13px', textAlign: 'center', marginTop: '2rem' }}>
-              Cargando mensajes...
+              {t('cliente.contacto.cargandoMensajes')}
             </p>
           )}
 
@@ -151,10 +155,10 @@ export default function Contacto() {
             <div style={{ textAlign: 'center', marginTop: '3rem' }}>
               <MessageCircle size={40} color="#e5e7eb" style={{ margin: '0 auto 12px' }} />
               <p style={{ color: '#9CA3AF', fontSize: '14px', fontWeight: '600' }}>
-                ¡Inicia la conversación!
+                {t('cliente.contacto.iniciaConversacion')}
               </p>
               <p style={{ color: '#d1d5db', fontSize: '12px', marginTop: '4px' }}>
-                El equipo Optimixage responderá a la brevedad.
+                {t('cliente.contacto.equipoResponde')}
               </p>
             </div>
           )}
@@ -180,9 +184,9 @@ export default function Contacto() {
                       {showMeta && (
                         <p style={{ fontSize: '11px', fontWeight: '600', color: isAdmin ? '#0099cc' : '#6b7280',
                           marginBottom: '3px', paddingLeft: '4px' }}>
-                          {msg.remitente_nombre || 'Optimixage'}
+                          {msg.remitente_nombre || t('cliente.contacto.nombrePorDefecto')}
                           {isAdmin && <span style={{ fontSize: '10px', background: '#eff6ff', color: '#2563eb',
-                            borderRadius: '999px', padding: '1px 6px', marginLeft: '5px', fontWeight: '700' }}>Admin</span>}
+                            borderRadius: '999px', padding: '1px 6px', marginLeft: '5px', fontWeight: '700' }}>{t('cliente.contacto.etiquetaAdmin')}</span>}
                         </p>
                       )}
                       <div style={{
@@ -192,7 +196,7 @@ export default function Contacto() {
                       }}>
                         <p style={{ color: '#374151', fontSize: '14px', lineHeight: '1.4' }}>{msg.contenido}</p>
                         <p style={{ fontSize: '10px', color: '#9CA3AF', marginTop: '4px', textAlign: 'right' }}>
-                          {formatTime(msg.fecha_envio)}
+                          {formatTime(msg.fecha_envio, lng)}
                         </p>
                       </div>
                     </div>
@@ -208,7 +212,7 @@ export default function Contacto() {
                     }}>
                       <p style={{ color: 'white', fontSize: '14px', lineHeight: '1.4' }}>{msg.contenido}</p>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px', marginTop: '4px' }}>
-                        <p style={{ fontSize: '10px', color: '#93c5fd' }}>{formatTime(msg.fecha_envio)}</p>
+                        <p style={{ fontSize: '10px', color: '#93c5fd' }}>{formatTime(msg.fecha_envio, lng)}</p>
                         {msg.leido && <span style={{ fontSize: '10px', color: '#93c5fd' }}>✓✓</span>}
                       </div>
                     </div>
@@ -230,7 +234,7 @@ export default function Contacto() {
             <input
               type="text" value={texto}
               onChange={e => setTexto(e.target.value)}
-              placeholder="Escribe un mensaje..."
+              placeholder={t('cliente.contacto.escribeMensaje')}
               disabled={sending || !proyectoId}
               style={{
                 flex: 1, background: 'transparent', border: 'none',

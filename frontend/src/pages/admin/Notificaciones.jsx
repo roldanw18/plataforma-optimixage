@@ -113,7 +113,7 @@ export default function AdminNotificaciones() {
             onMouseLeave={(e) => !markingAll && (e.currentTarget.style.backgroundColor = 'white')}
           >
             <CheckCheck size={14} />
-            Mark all as read
+            {markingAll ? t('admin.notificaciones.marcando') : t('admin.notificaciones.marcarTodas')}
           </button>
         )}
       </div>
@@ -123,7 +123,7 @@ export default function AdminNotificaciones() {
       {notificaciones.length === 0 && !error && (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 0', gap: '0.75rem' }}>
           <Bell size={40} color="#E5E7EB" />
-          <p style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>No notifications.</p>
+          <p style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>{t('admin.notificaciones.sinNotificaciones')}</p>
         </div>
       )}
 

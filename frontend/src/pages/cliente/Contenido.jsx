@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Play, Image as ImageIcon, Video as VideoIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import api from '../../services/api'
 
 function resolveUrl(url) {
@@ -9,6 +10,7 @@ function resolveUrl(url) {
 }
 
 export default function Contenido() {
+  const { t } = useTranslation()
   const [contenidos, setContenidos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -19,10 +21,11 @@ export default function Contenido() {
     api.get('/contenidos/')
       .then(r => setContenidos(r.data || []))
       .catch(e => {
-        const detail = e?.response?.data?.detail || e?.message || 'Error al cargar el contenido.'
-        setError(typeof detail === 'string' ? detail : 'Error al cargar el contenido.')
+        const detail = e?.response?.data?.detail || e?.message || t('cliente.contenido.errorCargar')
+        setError(typeof detail === 'string' ? detail : t('cliente.contenido.errorCargar'))
       })
       .finally(() => setLoading(false))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const visibles = filtro === 'todos'
@@ -32,12 +35,12 @@ export default function Contenido() {
   return (
     <div style={{ padding: '2rem 2.5rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#0a0a4e' }}>Contenido</h1>
+        <h1 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#0a0a4e' }}>{t('cliente.contenido.titulo')}</h1>
         <div style={{ display: 'flex', gap: '6px' }}>
           {[
-            { v: 'todos', label: 'Todo' },
-            { v: 'imagen', label: 'Imágenes' },
-            { v: 'video', label: 'Videos' },
+            { v: 'todos', label: t('cliente.contenido.filtros.todos') },
+            { v: 'imagen', label: t('cliente.contenido.filtros.imagenes') },
+            { v: 'video', label: t('cliente.contenido.filtros.videos') },
           ].map(({ v, label }) => (
             <button key={v} onClick={() => setFiltro(v)} style={{
               padding: '8px 18px', borderRadius: '999px', border: 'none', cursor: 'pointer',
@@ -67,7 +70,7 @@ export default function Contenido() {
 
       {!loading && !error && visibles.length === 0 && (
         <div style={{ textAlign: 'center', padding: '4rem 0' }}>
-          <p style={{ color: '#9ca3af', fontSize: '14px' }}>No hay contenido disponible.</p>
+          <p style={{ color: '#9ca3af', fontSize: '14px' }}>{t('cliente.contenido.sinContenido')}</p>
         </div>
       )}
 

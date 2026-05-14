@@ -211,7 +211,7 @@ export default function AdminClientes() {
     e.preventDefault()
     setErrorCliente('')
     if (!formCliente.nombre || !formCliente.email || !formCliente.password) {
-      setErrorCliente('Todos los campos son requeridos.')
+      setErrorCliente(t('admin.clientes.modal.todosRequeridos'))
       return
     }
     setLoadingCliente(true)
@@ -221,7 +221,7 @@ export default function AdminClientes() {
       setFormCliente({ nombre: '', email: '', password: '' })
       await fetchClientes()
     } catch (err) {
-      setErrorCliente(err?.response?.data?.detail || 'Error al crear el cliente.')
+      setErrorCliente(err?.response?.data?.detail || t('admin.clientes.modal.errorCrear'))
     } finally {
       setLoadingCliente(false)
     }
@@ -231,7 +231,7 @@ export default function AdminClientes() {
     e.preventDefault()
     setErrorProyecto('')
     if (!formProyecto.nombre) {
-      setErrorProyecto('El nombre del proyecto es requerido.')
+      setErrorProyecto(t('admin.clientes.modal.nombreProyectoRequerido'))
       return
     }
     setLoadingProyecto(true)
@@ -248,7 +248,7 @@ export default function AdminClientes() {
       setFormProyecto({ nombre: '', descripcion: '', fecha_inicio: '', fecha_fin: '' })
       setClienteSeleccionado(null)
     } catch (err) {
-      setErrorProyecto(err?.response?.data?.detail || 'Error al crear el proyecto.')
+      setErrorProyecto(err?.response?.data?.detail || t('admin.clientes.modal.errorCrearProyecto'))
     } finally {
       setLoadingProyecto(false)
     }
@@ -313,13 +313,13 @@ export default function AdminClientes() {
           <form onSubmit={handleCrearCliente}>
             <Field label={t('admin.clientes.modal.nombre')} value={formCliente.nombre}
               onChange={(v) => setFormCliente((f) => ({ ...f, nombre: v }))}
-              placeholder="Ej: Juan Pérez" required />
+              placeholder={t('admin.clientes.modal.placeholderNombre')} required />
             <Field label={t('admin.clientes.modal.email')} type="email" value={formCliente.email}
               onChange={(v) => setFormCliente((f) => ({ ...f, email: v }))}
-              placeholder="juan@empresa.com" required />
+              placeholder={t('admin.clientes.modal.placeholderEmail')} required />
             <Field label={t('admin.clientes.modal.password')} type="password" value={formCliente.password}
               onChange={(v) => setFormCliente((f) => ({ ...f, password: v }))}
-              placeholder="Mínimo 8 caracteres" required />
+              placeholder={t('admin.clientes.modal.placeholderPassword')} required />
             {errorCliente && (
               <p style={{ color: '#EF4444', fontSize: '0.8rem', marginBottom: '1rem' }}>{errorCliente}</p>
             )}
@@ -345,21 +345,21 @@ export default function AdminClientes() {
       {/* Modal: Nuevo proyecto */}
       {showNuevoProyecto && clienteSeleccionado && (
         <Modal
-          title={`Nuevo proyecto para ${clienteSeleccionado.nombre}`}
+          title={t('admin.clientes.modal.nuevoProyectoPara', { nombre: clienteSeleccionado.nombre })}
           onClose={() => { setShowNuevoProyecto(false); setErrorProyecto('') }}
         >
           <form onSubmit={handleCrearProyecto}>
-            <Field label="Nombre del proyecto" value={formProyecto.nombre}
+            <Field label={t('admin.clientes.modal.nombreProyecto')} value={formProyecto.nombre}
               onChange={(v) => setFormProyecto((f) => ({ ...f, nombre: v }))}
-              placeholder="Ej: Digitalización Pyme 2025" required />
+              placeholder={t('admin.clientes.modal.placeholderProyecto')} required />
             <div style={{ marginBottom: '1rem' }}>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
-                Descripción
+                {t('admin.clientes.modal.descripcionProyecto')}
               </label>
               <textarea
                 value={formProyecto.descripcion}
                 onChange={(e) => setFormProyecto((f) => ({ ...f, descripcion: e.target.value }))}
-                placeholder="Descripción del proyecto (opcional)"
+                placeholder={t('admin.clientes.modal.descripcionPlaceholder')}
                 rows={3}
                 style={{
                   width: '100%', padding: '0.6rem 0.875rem',
@@ -373,9 +373,9 @@ export default function AdminClientes() {
               />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-              <Field label="Fecha inicio" type="date" value={formProyecto.fecha_inicio}
+              <Field label={t('admin.clientes.modal.fechaInicio')} type="date" value={formProyecto.fecha_inicio}
                 onChange={(v) => setFormProyecto((f) => ({ ...f, fecha_inicio: v }))} />
-              <Field label="Fecha fin" type="date" value={formProyecto.fecha_fin}
+              <Field label={t('admin.clientes.modal.fechaFin')} type="date" value={formProyecto.fecha_fin}
                 onChange={(v) => setFormProyecto((f) => ({ ...f, fecha_fin: v }))} />
             </div>
             {errorProyecto && (
@@ -386,7 +386,7 @@ export default function AdminClientes() {
                 style={{ padding: '0.6rem 1.25rem', background: 'none', border: '1px solid #E5E7EB', borderRadius: '8px', cursor: 'pointer', fontSize: '0.875rem', color: '#374151' }}>
                 {t('buttons.cancelar')}
               </button>
-              <PrimaryBtn type="submit" loading={loadingProyecto}>Crear proyecto</PrimaryBtn>
+              <PrimaryBtn type="submit" loading={loadingProyecto}>{t('admin.clientes.modal.crearProyecto')}</PrimaryBtn>
             </div>
           </form>
         </Modal>

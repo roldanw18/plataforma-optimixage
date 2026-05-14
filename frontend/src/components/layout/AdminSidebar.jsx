@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   Users,
   BarChart2,
@@ -14,19 +15,20 @@ import {
 import { useAuth } from '../../context/AuthContext'
 import LanguageSwitcher from '../common/LanguageSwitcher'
 
-const navItems = [
-  { icon: Users, label: 'Clientes', path: '/admin/clientes' },
-  { icon: BarChart2, label: 'Proceso', path: '/admin/proceso' },
-  { icon: FolderOpen,    label: 'Documentos',    path: '/admin/documentos' },
-  { icon: MessageCircle, label: 'Mensajes',       path: '/admin/mensajes' },
-  { icon: Bell,          label: 'Notificaciones', path: '/admin/notificaciones' },
-  { icon: Play, label: 'Contenido', path: '/admin/contenido' },
-  { icon: Users2, label: 'Equipo', path: '/admin/equipo' },
-  { icon: Settings, label: 'Configuración', path: '/admin/configuracion' },
+const NAV_ITEMS = [
+  { icon: Users,         key: 'clientes',       path: '/admin/clientes' },
+  { icon: BarChart2,     key: 'proceso',        path: '/admin/proceso' },
+  { icon: FolderOpen,    key: 'documentos',     path: '/admin/documentos' },
+  { icon: MessageCircle, key: 'mensajes',       path: '/admin/mensajes' },
+  { icon: Bell,          key: 'notificaciones', path: '/admin/notificaciones' },
+  { icon: Play,          key: 'contenido',      path: '/admin/contenido' },
+  { icon: Users2,        key: 'equipo',         path: '/admin/equipo' },
+  { icon: Settings,      key: 'configuracion',  path: '/admin/configuracion' },
 ]
 
 export default function AdminSidebar() {
   const { logout } = useAuth()
+  const { t } = useTranslation()
 
   return (
     <aside
@@ -48,7 +50,7 @@ export default function AdminSidebar() {
 
       {/* Nav */}
       <nav className="flex flex-col flex-1" style={{ padding: '0.25rem 0.75rem', gap: '2px' }}>
-        {navItems.map((item) => {
+        {NAV_ITEMS.map((item) => {
           const Icon = item.icon
           return (
             <NavLink
@@ -66,7 +68,7 @@ export default function AdminSidebar() {
               })}
             >
               <Icon size={18} />
-              <span>{item.label}</span>
+              <span>{t(`nav.${item.key}`)}</span>
             </NavLink>
           )
         })}
@@ -85,7 +87,7 @@ export default function AdminSidebar() {
           style={{ padding: '0.75rem 1rem' }}
         >
           <LogOut size={18} />
-          <span>Cerrar sesión</span>
+          <span>{t('nav.logout')}</span>
         </button>
       </div>
 
@@ -97,7 +99,7 @@ export default function AdminSidebar() {
         >
           <Info size={14} className="text-gray-400 flex-shrink-0" style={{ marginTop: '2px' }} />
           <p style={{ fontSize: '0.75rem', color: '#9CA3AF', lineHeight: '1.4' }}>
-            Lorem ipsum dolor sit amet consectetur.
+            {t('nav.footer_info')}
           </p>
         </div>
       </div>

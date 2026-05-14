@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { User, Lock, Save, CheckCircle, AlertCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import api from '../../services/api'
 import AvatarUploader from '../../components/common/AvatarUploader'
 
@@ -60,6 +61,7 @@ const inputStyle = {
 }
 
 export default function Configuracion() {
+  const { t } = useTranslation()
   const [perfil, setPerfil] = useState({ nombre: '', email: '', telefono: '', avatar_url: '' })
   const [pwd, setPwd] = useState({ actual: '', nuevo: '', confirmar: '' })
   const [perfilMsg, setPerfilMsg] = useState(null)
@@ -87,9 +89,9 @@ export default function Configuracion() {
         nombre: perfil.nombre,
         telefono: perfil.telefono,
       })
-      setPerfilMsg('Perfil actualizado correctamente.')
+      setPerfilMsg(t('cliente.configuracion.perfilExito'))
     } catch (err) {
-      setPerfilErr(err.response?.data?.detail || 'Error al guardar el perfil.')
+      setPerfilErr(err.response?.data?.detail || t('cliente.configuracion.perfilError'))
     } finally {
       setSaving(false)
     }
@@ -99,11 +101,11 @@ export default function Configuracion() {
     e.preventDefault()
     setPwdErr(null); setPwdMsg(null)
     if (pwd.nuevo !== pwd.confirmar) {
-      setPwdErr('Las contraseñas nuevas no coinciden.')
+      setPwdErr(t('cliente.configuracion.passwordNoCoincide'))
       return
     }
     if (pwd.nuevo.length < 6) {
-      setPwdErr('La nueva contraseña debe tener al menos 6 caracteres.')
+      setPwdErr(t('cliente.configuracion.passwordMinChars'))
       return
     }
     setSaving(true)
@@ -112,10 +114,10 @@ export default function Configuracion() {
         password_actual: pwd.actual,
         password_nuevo: pwd.nuevo,
       })
-      setPwdMsg('Contraseña cambiada correctamente.')
+      setPwdMsg(t('cliente.configuracion.passwordExito'))
       setPwd({ actual: '', nuevo: '', confirmar: '' })
     } catch (err) {
-      setPwdErr(err.response?.data?.detail || 'Error al cambiar la contraseña.')
+      setPwdErr(err.response?.data?.detail || t('cliente.configuracion.passwordError'))
     } finally {
       setSaving(false)
     }
@@ -124,40 +126,40 @@ export default function Configuracion() {
   return (
     <div style={{ padding: '2rem', maxWidth: '560px' }}>
       <h1 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#0a0a4e', marginBottom: '24px' }}>
-        Configuración de perfil
+        {t('cliente.configuracion.titulo')}
       </h1>
 
       {/* Perfil */}
-      <Section title="Información personal" icon={User}>
+      <Section title={t('cliente.configuracion.infoPersonal')} icon={User}>
         <Alert type="success" message={perfilMsg} />
         <Alert type="error" message={perfilErr} />
         <form onSubmit={guardarPerfil}>
-          <Field label="Nombre completo">
+          <Field label={t('cliente.configuracion.nombreCompleto')}>
             <input
               style={inputStyle}
               value={perfil.nombre}
               onChange={e => setPerfil(p => ({ ...p, nombre: e.target.value }))}
-              placeholder="Tu nombre"
+              placeholder={t('cliente.configuracion.tuNombre')}
             />
           </Field>
-          <Field label="Correo electrónico">
+          <Field label={t('cliente.configuracion.email')}>
             <input style={{ ...inputStyle, background: '#f9fafb', color: '#9ca3af' }}
               value={perfil.email} disabled />
           </Field>
-          <Field label="Teléfono">
+          <Field label={t('cliente.configuracion.telefono')}>
             <input
               style={inputStyle}
               value={perfil.telefono}
               onChange={e => setPerfil(p => ({ ...p, telefono: e.target.value }))}
-              placeholder="+57 300 000 0000"
+              placeholder={t('cliente.configuracion.telefonoPlaceholder')}
             />
           </Field>
-          <Field label="Avatar">
+          <Field label={t('cliente.configuracion.avatar')}>
             <AvatarUploader
               value={perfil.avatar_url}
               onChange={(url) => {
                 setPerfil(p => ({ ...p, avatar_url: url }))
-                setPerfilMsg('Avatar actualizado correctamente.')
+                setPerfilMsg(t('cliente.configuracion.avatarActualizado'))
               }}
             />
           </Field>
@@ -167,38 +169,38 @@ export default function Configuracion() {
             borderRadius: '8px', padding: '10px 20px', fontSize: '13px',
             fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
           }}>
-            <Save size={15} /> {saving ? 'Guardando...' : 'Guardar cambios'}
+            <Save size={15} /> {saving ? t('cliente.configuracion.guardando') : t('cliente.configuracion.guardarCambios')}
           </button>
         </form>
       </Section>
 
       {/* Contraseña */}
-      <Section title="Cambiar contraseña" icon={Lock}>
+      <Section title={t('cliente.configuracion.cambiarPassword')} icon={Lock}>
         <Alert type="success" message={pwdMsg} />
         <Alert type="error" message={pwdErr} />
         <form onSubmit={cambiarPassword}>
-          <Field label="Contraseña actual">
+          <Field label={t('cliente.configuracion.passwordActual')}>
             <input
               type="password" style={inputStyle}
               value={pwd.actual}
               onChange={e => setPwd(p => ({ ...p, actual: e.target.value }))}
-              placeholder="••••••••"
+              placeholder={t('cliente.configuracion.passwordPlaceholder')}
             />
           </Field>
-          <Field label="Nueva contraseña">
+          <Field label={t('cliente.configuracion.passwordNueva')}>
             <input
               type="password" style={inputStyle}
               value={pwd.nuevo}
               onChange={e => setPwd(p => ({ ...p, nuevo: e.target.value }))}
-              placeholder="Mínimo 6 caracteres"
+              placeholder={t('cliente.configuracion.passwordPlaceholderNueva')}
             />
           </Field>
-          <Field label="Confirmar nueva contraseña">
+          <Field label={t('cliente.configuracion.passwordConfirmar')}>
             <input
               type="password" style={inputStyle}
               value={pwd.confirmar}
               onChange={e => setPwd(p => ({ ...p, confirmar: e.target.value }))}
-              placeholder="Repetir contraseña"
+              placeholder={t('cliente.configuracion.passwordPlaceholderRepetir')}
             />
           </Field>
           <button type="submit" disabled={saving} style={{
@@ -207,7 +209,7 @@ export default function Configuracion() {
             borderRadius: '8px', padding: '10px 20px', fontSize: '13px',
             fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
           }}>
-            <Lock size={15} /> {saving ? 'Cambiando...' : 'Cambiar contraseña'}
+            <Lock size={15} /> {saving ? t('cliente.configuracion.cambiando') : t('cliente.configuracion.cambiarPassword')}
           </button>
         </form>
       </Section>

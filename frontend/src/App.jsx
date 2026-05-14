@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { AuthProvider } from './context/AuthContext'
 import ErrorBoundary from './components/ErrorBoundary'
 import MainLayout from './components/layout/MainLayout'
@@ -17,6 +18,15 @@ import AdminContenido from './pages/admin/Contenido'
 import AdminDocumentos from './pages/admin/Documentos'
 import AdminMensajes from './pages/admin/Mensajes'
 import AdminConfiguracion from './pages/admin/Configuracion'
+
+function EquipoPlaceholder() {
+  const { t } = useTranslation()
+  return (
+    <div className="p-8">
+      <h1 className="text-2xl font-bold text-[#0a0a4e]">{t('admin.equipo.proximamente')}</h1>
+    </div>
+  )
+}
 
 function App() {
   return (
@@ -46,7 +56,7 @@ function App() {
               <Route path="mensajes"       element={<AdminMensajes />} />
               <Route path="notificaciones" element={<AdminNotificaciones />} />
               <Route path="contenido"      element={<AdminContenido />} />
-              <Route path="equipo"         element={<div className="p-8"><h1 className="text-2xl font-bold text-[#0a0a4e]">Equipo — Próximamente</h1></div>} />
+              <Route path="equipo"         element={<EquipoPlaceholder />} />
               <Route path="configuracion"  element={<AdminConfiguracion />} />
             </Route>
 

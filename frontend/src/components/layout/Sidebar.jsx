@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   Home, FileText, BarChart2, Play,
   MessageCircle, Settings, LogOut, Info,
@@ -8,17 +9,18 @@ import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
 import LanguageSwitcher from '../common/LanguageSwitcher'
 
-const navItems = [
-  { icon: Home,          label: 'Inicio',         path: '/inicio' },
-  { icon: FileText,      label: 'Documentos',      path: '/documentos' },
-  { icon: BarChart2,     label: 'Proceso',         path: '/proceso' },
-  { icon: Play,          label: 'Contenido',       path: '/contenido' },
-  { icon: MessageCircle, label: 'Contacto',        path: '/contacto' },
-  { icon: Settings,      label: 'Configuración',   path: '/configuracion' },
+const NAV_ITEMS = [
+  { icon: Home,          key: 'inicio',        path: '/inicio' },
+  { icon: FileText,      key: 'documentos',    path: '/documentos' },
+  { icon: BarChart2,     key: 'proceso',       path: '/proceso' },
+  { icon: Play,          key: 'contenido',     path: '/contenido' },
+  { icon: MessageCircle, key: 'contacto',      path: '/contacto' },
+  { icon: Settings,      key: 'configuracion', path: '/configuracion' },
 ]
 
 export default function Sidebar() {
   const { logout } = useAuth()
+  const { t } = useTranslation()
   const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
@@ -47,7 +49,7 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="flex flex-col flex-1" style={{ padding: '0.25rem 0.75rem', gap: '2px' }}>
-        {navItems.map((item) => {
+        {NAV_ITEMS.map((item) => {
           const Icon = item.icon
           const isContacto = item.path === '/contacto'
           return (
@@ -67,7 +69,7 @@ export default function Sidebar() {
               })}
             >
               <Icon size={18} />
-              <span>{item.label}</span>
+              <span>{t(`nav.${item.key}`)}</span>
               {isContacto && unreadCount > 0 && (
                 <span style={{
                   marginLeft: 'auto',
@@ -97,7 +99,7 @@ export default function Sidebar() {
           style={{ padding: '0.75rem 1rem' }}
         >
           <LogOut size={18} />
-          <span>Cerrar sesión</span>
+          <span>{t('nav.logout')}</span>
         </button>
       </div>
 
@@ -106,7 +108,7 @@ export default function Sidebar() {
         <div className="flex items-start gap-2 rounded-lg" style={{ padding: '0.75rem 1rem' }}>
           <Info size={14} className="text-gray-400 flex-shrink-0" style={{ marginTop: '2px' }} />
           <p style={{ fontSize: '0.75rem', color: '#9CA3AF', lineHeight: '1.4' }}>
-            Lorem ipsum dolor sit amet consectetur.
+            {t('nav.footer_info')}
           </p>
         </div>
       </div>

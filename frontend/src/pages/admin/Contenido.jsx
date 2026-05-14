@@ -33,7 +33,7 @@ function resolveUrl(url) {
   return `/api${url}`
 }
 
-function DestinatarioPicker({ proyectos, value, onChange }) {
+function DestinatarioPicker({ proyectos, value, onChange, t }) {
   // value = '' (global) o un cliente_id (UUID)
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -82,7 +82,7 @@ function DestinatarioPicker({ proyectos, value, onChange }) {
         <span style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden', flex: 1 }}>
           {value ? <User size={13} color="#d97706" /> : <Globe size={13} color="#16a34a" />}
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {seleccionada ? seleccionada.label : 'Todos los clientes (global)'}
+            {seleccionada ? seleccionada.label : t('common.todos_clientes_global')}
           </span>
         </span>
         <span style={{ color: '#9ca3af', fontSize: '10px', flexShrink: 0 }}>{open ? '▲' : '▼'}</span>
@@ -99,7 +99,7 @@ function DestinatarioPicker({ proyectos, value, onChange }) {
             display: 'flex', alignItems: 'center', gap: '6px', background: '#fafafa' }}>
             <Search size={13} color="#9ca3af" />
             <input autoFocus value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Buscar proyecto o cliente..."
+              placeholder={t('common.buscar_proyecto_cliente')}
               style={{ flex: 1, border: 'none', outline: 'none', fontSize: '12px',
                 background: 'transparent', color: '#374151' }} />
           </div>
@@ -113,12 +113,12 @@ function DestinatarioPicker({ proyectos, value, onChange }) {
               }}>
               <Globe size={13} color="#16a34a" />
               <span style={{ fontWeight: !value ? '700' : '500', color: '#0a0a4e' }}>
-                Todos los clientes (global)
+                {t('common.todos_clientes_global')}
               </span>
             </button>
             {filtradas.length === 0 && (
               <p style={{ padding: '12px', fontSize: '12px', color: '#9ca3af', textAlign: 'center' }}>
-                Sin resultados.
+                {t('common.sin_resultados')}
               </p>
             )}
             {filtradas.map((o, i) => (
@@ -187,7 +187,7 @@ function PreviewModal({ contenido, onClose }) {
   )
 }
 
-function EditModal({ contenido, onClose, onSave }) {
+function EditModal({ contenido, onClose, onSave, t }) {
   const [titulo, setTitulo] = useState(contenido.titulo)
   const [descripcion, setDescripcion] = useState(contenido.descripcion || '')
   const [saving, setSaving] = useState(false)
@@ -203,7 +203,7 @@ function EditModal({ contenido, onClose, onSave }) {
       })
       onSave(data)
     } catch (e) {
-      setErr(e.response?.data?.detail || 'Error al guardar.')
+      setErr(e.response?.data?.detail || t('admin.contenido.errorGuardar'))
     } finally {
       setSaving(false)
     }
@@ -218,28 +218,28 @@ function EditModal({ contenido, onClose, onSave }) {
         background: 'white', borderRadius: '12px', maxWidth: '480px', width: '100%', padding: '24px',
       }}>
         <h2 style={{ fontSize: '16px', fontWeight: '700', color: '#0a0a4e', marginBottom: '16px' }}>
-          Editar contenido
+          {t('admin.contenido.editarContenido')}
         </h2>
         <Alert type="error" message={err} onClose={() => setErr(null)} />
         <form onSubmit={handleSave}>
           <div style={{ marginBottom: '12px' }}>
-            <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '5px' }}>Título</label>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '5px' }}>{t('admin.contenido.titulo_label')}</label>
             <input value={titulo} onChange={e => setTitulo(e.target.value)} required
               style={{ width: '100%', padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '13px', outline: 'none', background: '#f9fafb' }} />
           </div>
           <div style={{ marginBottom: '16px' }}>
-            <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '5px' }}>Descripción</label>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '5px' }}>{t('admin.contenido.descripcionItem')}</label>
             <textarea value={descripcion} onChange={e => setDescripcion(e.target.value)}
               style={{ width: '100%', padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '13px', outline: 'none', background: '#f9fafb', minHeight: '70px', resize: 'vertical' }} />
           </div>
           <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
             <button type="button" onClick={onClose}
               style={{ padding: '8px 16px', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '13px', cursor: 'pointer' }}>
-              Cancelar
+              {t('admin.contenido.cancelar')}
             </button>
             <button type="submit" disabled={saving}
               style={{ padding: '8px 16px', background: '#0099cc', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
-              {saving ? 'Guardando...' : 'Guardar'}
+              {saving ? t('admin.contenido.guardando') : t('admin.contenido.guardar')}
             </button>
           </div>
         </form>
@@ -293,8 +293,8 @@ export default function AdminContenido() {
 
   async function handleUpload(e) {
     e.preventDefault()
-    if (!archivo) { setErr('Selecciona un archivo.'); return }
-    if (!titulo.trim()) { setErr('El título es obligatorio.'); return }
+    if (!archivo) { setErr(t('admin.contenido.errorSinArchivo')); return }
+    if (!titulo.trim()) { setErr(t('admin.contenido.errorSinTitulo')); return }
     setErr(null); setMsg(null); setUploading(true)
 
     const form = new FormData()
@@ -309,24 +309,24 @@ export default function AdminContenido() {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       setContenidos(prev => [data, ...prev])
-      setMsg(`Contenido "${data.titulo}" subido correctamente.`)
+      setMsg(t('admin.contenido.exito', { titulo: data.titulo }))
       setTitulo(''); setDescripcion(''); setClienteId(''); setArchivo(null)
       if (fileRef.current) fileRef.current.value = ''
     } catch (e) {
-      setErr(e.response?.data?.detail || 'Error al subir el contenido.')
+      setErr(e.response?.data?.detail || t('admin.contenido.errorSubir'))
     } finally {
       setUploading(false)
     }
   }
 
   async function eliminar(c) {
-    if (!window.confirm(`¿Eliminar "${c.titulo}"?`)) return
+    if (!window.confirm(t('admin.contenido.confirmarEliminar', { titulo: c.titulo }))) return
     setDeleting(c.id)
     try {
       await api.delete(`/contenidos/${c.id}`)
       setContenidos(prev => prev.filter(x => x.id !== c.id))
     } catch {
-      alert('No se pudo eliminar.')
+      alert(t('admin.contenido.errorEliminar'))
     } finally {
       setDeleting(null)
     }
@@ -338,7 +338,7 @@ export default function AdminContenido() {
         {t('admin.contenido.titulo')}
       </h1>
       <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '24px' }}>
-        Manage images and videos to display to clients.
+        {t('admin.contenido.descripcion')}
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: '24px', alignItems: 'start' }}>
@@ -350,7 +350,7 @@ export default function AdminContenido() {
         }}>
           <h2 style={{ fontSize: '14px', fontWeight: '700', color: '#0a0a4e', marginBottom: '16px',
             display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Upload size={16} color="#0099cc" /> Nuevo contenido
+            <Upload size={16} color="#0099cc" /> {t('admin.contenido.nuevoContenido')}
           </h2>
 
           <Alert type="success" message={msg} onClose={() => setMsg(null)} />
@@ -360,12 +360,12 @@ export default function AdminContenido() {
             {/* Tipo */}
             <div style={{ marginBottom: '12px' }}>
               <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }}>
-                Tipo de contenido
+                {t('admin.contenido.tipoContenido')}
               </label>
               <div style={{ display: 'flex', gap: '8px' }}>
                 {[
-                  { v: 'imagen', label: 'Imagen', Icon: ImageIcon },
-                  { v: 'video',  label: 'Video',  Icon: VideoIcon },
+                  { v: 'imagen', label: t('admin.contenido.imagen'), Icon: ImageIcon },
+                  { v: 'video',  label: t('admin.contenido.video'),  Icon: VideoIcon },
                 ].map(({ v, label, Icon }) => (
                   <button key={v} type="button" onClick={() => { setTipo(v); setArchivo(null); if (fileRef.current) fileRef.current.value = '' }}
                     style={{
@@ -385,7 +385,7 @@ export default function AdminContenido() {
             {/* Archivo */}
             <div style={{ marginBottom: '12px' }}>
               <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '5px' }}>
-                Archivo <span style={{ color: '#ef4444' }}>*</span>
+                {t('admin.contenido.archivo')} <span style={{ color: '#ef4444' }}>*</span>
               </label>
               <div onClick={() => fileRef.current?.click()}
                 style={{
@@ -404,9 +404,9 @@ export default function AdminContenido() {
                 ) : (
                   <>
                     <Upload size={20} color="#9ca3af" style={{ margin: '0 auto 6px' }} />
-                    <p style={{ fontSize: '12px', color: '#9ca3af' }}>Clic para seleccionar archivo</p>
+                    <p style={{ fontSize: '12px', color: '#9ca3af' }}>{t('admin.contenido.clickSeleccionar')}</p>
                     <p style={{ fontSize: '10px', color: '#d1d5db', marginTop: '2px' }}>
-                      {tipo === 'imagen' ? 'PNG, JPG, GIF, WEBP · máx 10 MB' : 'MP4, WEBM, OGG, MOV · máx 200 MB'}
+                      {tipo === 'imagen' ? t('admin.contenido.imagenFormats') : t('admin.contenido.videoFormats')}
                     </p>
                   </>
                 )}
@@ -415,27 +415,27 @@ export default function AdminContenido() {
 
             <div style={{ marginBottom: '12px' }}>
               <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '5px' }}>
-                Título <span style={{ color: '#ef4444' }}>*</span>
+                {t('admin.contenido.titulo_label')} <span style={{ color: '#ef4444' }}>*</span>
               </label>
-              <input value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="Nombre del contenido"
+              <input value={titulo} onChange={e => setTitulo(e.target.value)} placeholder={t('admin.contenido.placeholderNombre')}
                 style={{ width: '100%', padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '13px', outline: 'none', background: '#f9fafb' }} />
             </div>
 
             <div style={{ marginBottom: '12px' }}>
               <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '5px' }}>
-                Descripción
+                {t('admin.contenido.descripcionItem')}
               </label>
-              <textarea value={descripcion} onChange={e => setDescripcion(e.target.value)} placeholder="Descripción opcional"
+              <textarea value={descripcion} onChange={e => setDescripcion(e.target.value)} placeholder={t('admin.contenido.placeholderDescripcion')}
                 style={{ width: '100%', padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '13px', outline: 'none', background: '#f9fafb', minHeight: '60px', resize: 'vertical' }} />
             </div>
 
             <div style={{ marginBottom: '16px' }}>
               <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '5px' }}>
-                Destinatario
+                {t('admin.contenido.destinatario')}
               </label>
-              <DestinatarioPicker proyectos={proyectos} value={clienteId} onChange={setClienteId} />
+              <DestinatarioPicker proyectos={proyectos} value={clienteId} onChange={setClienteId} t={t} />
               <p style={{ fontSize: '10px', color: '#9ca3af', marginTop: '3px' }}>
-                Global: visible para todos · Personal: solo para el cliente seleccionado
+                {t('admin.contenido.destinatarioInfo')}
               </p>
             </div>
 
@@ -446,7 +446,7 @@ export default function AdminContenido() {
                 cursor: uploading ? 'not-allowed' : 'pointer', opacity: uploading ? 0.7 : 1,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
               }}>
-              <Upload size={15} /> {uploading ? 'Subiendo...' : 'Subir contenido'}
+              <Upload size={15} /> {uploading ? t('admin.contenido.subiendo') : t('admin.contenido.subirContenido')}
             </button>
           </form>
         </div>
@@ -454,7 +454,7 @@ export default function AdminContenido() {
         {/* GRID */}
         <div>
           <h2 style={{ fontSize: '14px', fontWeight: '700', color: '#0a0a4e', marginBottom: '12px' }}>
-            Contenido publicado
+            {t('admin.contenido.publicado')}
             {!loading && <span style={{ fontWeight: '400', color: '#9ca3af', marginLeft: '6px' }}>({contenidos.length})</span>}
           </h2>
 
@@ -467,7 +467,7 @@ export default function AdminContenido() {
           {!loading && contenidos.length === 0 && (
             <div style={{ textAlign: 'center', padding: '40px', background: 'white',
               borderRadius: '12px', border: '1px dashed #d1d5db' }}>
-              <p style={{ color: '#9ca3af', fontSize: '13px' }}>Aún no hay contenido publicado.</p>
+              <p style={{ color: '#9ca3af', fontSize: '13px' }}>{t('admin.contenido.sinContenido')}</p>
             </div>
           )}
 
@@ -523,12 +523,12 @@ export default function AdminContenido() {
                     {c.cliente_id ? (
                       <span style={{ fontSize: '9px', fontWeight: '700', background: '#fef3c7', color: '#d97706',
                         borderRadius: '999px', padding: '2px 7px', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                        {proyectos.find(p => p.cliente?.id === c.cliente_id)?.cliente?.nombre || 'Personal'}
+                        {proyectos.find(p => p.cliente?.id === c.cliente_id)?.cliente?.nombre || t('admin.contenido.etiquetaPersonal')}
                       </span>
                     ) : (
                       <span style={{ fontSize: '9px', fontWeight: '700', background: '#d1fae5', color: '#065f46',
                         borderRadius: '999px', padding: '2px 7px', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                        Global
+                        {t('admin.contenido.etiquetaGlobal')}
                       </span>
                     )}
                   </div>
@@ -540,19 +540,19 @@ export default function AdminContenido() {
 
                   {/* Acciones */}
                   <div style={{ display: 'flex', gap: '6px', marginTop: '10px' }}>
-                    <button onClick={() => setPreviewing(c)} title="Previsualizar" style={{
+                    <button onClick={() => setPreviewing(c)} title={t('admin.contenido.previsualizar')} style={{
                       flex: 1, padding: '6px', background: '#eff6ff', border: '1px solid #bfdbfe',
                       borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
                       <Eye size={13} color="#2563eb" />
                     </button>
-                    <button onClick={() => setEditing(c)} title="Editar" style={{
+                    <button onClick={() => setEditing(c)} title={t('admin.contenido.editar')} style={{
                       flex: 1, padding: '6px', background: '#fef3c7', border: '1px solid #fde68a',
                       borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
                       <Edit3 size={13} color="#d97706" />
                     </button>
-                    <button onClick={() => eliminar(c)} disabled={deleting === c.id} title="Eliminar" style={{
+                    <button onClick={() => eliminar(c)} disabled={deleting === c.id} title={t('admin.contenido.eliminar')} style={{
                       flex: 1, padding: '6px', background: '#fef2f2', border: '1px solid #fecaca',
                       borderRadius: '6px', cursor: deleting === c.id ? 'not-allowed' : 'pointer',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: deleting === c.id ? 0.5 : 1,
@@ -569,7 +569,7 @@ export default function AdminContenido() {
 
       {previewing && <PreviewModal contenido={previewing} onClose={() => setPreviewing(null)} />}
       {editing && (
-        <EditModal contenido={editing} onClose={() => setEditing(null)}
+        <EditModal contenido={editing} onClose={() => setEditing(null)} t={t}
           onSave={(updated) => {
             setContenidos(prev => prev.map(x => x.id === updated.id ? updated : x))
             setEditing(null)

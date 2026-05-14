@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react'
-import { User, Search, Clipboard, Users, CheckCircle, Clock, MoreHorizontal, Calendar, Video } from 'lucide-react'
+import { User, Search, Clipboard, Users, CheckCircle, MoreHorizontal, Calendar, Video } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import api from '../../services/api'
 
-const ESTADO_REUNION = {
-  pendiente:  { label: 'Pendiente',  color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
-  confirmada: { label: 'Confirmada', color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' },
-  cancelada:  { label: 'Cancelada',  color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
-  completada: { label: 'Completada', color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe' },
+const ESTADO_REUNION_STYLES = {
+  pendiente:  { color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
+  confirmada: { color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' },
+  cancelada:  { color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
+  completada: { color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe' },
 }
 
-function fmtDateTime(iso) {
+function fmtDateTime(iso, lng) {
   if (!iso) return ''
-  return new Date(iso).toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return new Date(iso).toLocaleString(lng === 'en' ? 'en-US' : 'es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
 const ETAPA_ICONS = {
@@ -22,7 +23,7 @@ const ETAPA_ICONS = {
   entrega: CheckCircle,
 }
 
-function ReunionesSection({ reuniones }) {
+function ReunionesSection({ reuniones, t, lng }) {
   const ahora = new Date()
   const ordenadas = [...reuniones].sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
   const futuras = ordenadas.filter(r => new Date(r.fecha) >= ahora)
@@ -36,10 +37,10 @@ function ReunionesSection({ reuniones }) {
       }}>
         <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '0.75rem',
           display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Calendar size={16} color="#0099cc" /> Reuniones
+          <Calendar size={16} color="#0099cc" /> {t('cliente.proceso.reuniones')}
         </h3>
         <p style={{ fontSize: '13px', color: '#9ca3af', textAlign: 'center', padding: '12px' }}>
-          No tienes reuniones programadas todavía.
+          {t('cliente.proceso.sinReuniones')}
         </p>
       </div>
     )
@@ -52,7 +53,7 @@ function ReunionesSection({ reuniones }) {
     }}>
       <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '12px',
         display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <Calendar size={16} color="#0099cc" /> Reuniones
+        <Calendar size={16} color="#0099cc" /> {t('cliente.proceso.reuniones')}
         <span style={{ fontWeight: '400', color: '#9ca3af', fontSize: '12px' }}>({reuniones.length})</span>
       </h3>
 
@@ -60,10 +61,10 @@ function ReunionesSection({ reuniones }) {
         <>
           <p style={{ fontSize: '11px', fontWeight: '700', color: '#6b7280',
             textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-            Próximas
+            {t('cliente.proceso.proximas')}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
-            {futuras.map(r => <ReunionItem key={r.id} reunion={r} />)}
+            {futuras.map(r => <ReunionItem key={r.id} reunion={r} t={t} lng={lng} />)}
           </div>
         </>
       )}
@@ -72,10 +73,10 @@ function ReunionesSection({ reuniones }) {
         <>
           <p style={{ fontSize: '11px', fontWeight: '700', color: '#6b7280',
             textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-            Anteriores
+            {t('cliente.proceso.anteriores')}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {pasadas.slice(0, 5).map(r => <ReunionItem key={r.id} reunion={r} pasada />)}
+            {pasadas.slice(0, 5).map(r => <ReunionItem key={r.id} reunion={r} pasada t={t} lng={lng} />)}
           </div>
         </>
       )}
@@ -83,8 +84,9 @@ function ReunionesSection({ reuniones }) {
   )
 }
 
-function ReunionItem({ reunion, pasada }) {
-  const cfg = ESTADO_REUNION[reunion.estado] || ESTADO_REUNION.pendiente
+function ReunionItem({ reunion, pasada, t, lng }) {
+  const cfg = ESTADO_REUNION_STYLES[reunion.estado] || ESTADO_REUNION_STYLES.pendiente
+  const estadoLabel = t(`cliente.proceso.estadoReunion.${reunion.estado}`, { defaultValue: reunion.estado })
   return (
     <div style={{
       display: 'flex', alignItems: 'flex-start', gap: '12px',
@@ -102,7 +104,7 @@ function ReunionItem({ reunion, pasada }) {
         </p>
         <p style={{ fontSize: '9px', fontWeight: '700', color: '#6b7280',
           textTransform: 'uppercase', marginTop: '2px' }}>
-          {new Date(reunion.fecha).toLocaleString('es-ES', { month: 'short' })}
+          {new Date(reunion.fecha).toLocaleString(lng === 'en' ? 'en-US' : 'es-ES', { month: 'short' })}
         </p>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -112,11 +114,11 @@ function ReunionItem({ reunion, pasada }) {
             fontSize: '9px', fontWeight: '700', padding: '1px 7px', borderRadius: '999px',
             background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`,
             textTransform: 'uppercase', letterSpacing: '0.05em',
-          }}>{cfg.label}</span>
+          }}>{estadoLabel}</span>
         </div>
         <p style={{ fontSize: '11px', color: '#6b7280' }}>
-          {fmtDateTime(reunion.fecha)}
-          {reunion.duracion_minutos && ` · ${reunion.duracion_minutos} min`}
+          {fmtDateTime(reunion.fecha, lng)}
+          {reunion.duracion_minutos && ` · ${reunion.duracion_minutos} ${t('cliente.inicio.minutos')}`}
         </p>
         {reunion.descripcion && (
           <p style={{ fontSize: '11px', color: '#9ca3af', lineHeight: '1.4', marginTop: '4px' }}>
@@ -127,7 +129,7 @@ function ReunionItem({ reunion, pasada }) {
           <a href={reunion.enlace} target="_blank" rel="noopener noreferrer"
             style={{ fontSize: '11px', color: '#0099cc', fontWeight: '700',
               display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
-            <Video size={11} /> Unirse a la reunión →
+            <Video size={11} /> {t('cliente.proceso.unirseReunion')}
           </a>
         )}
       </div>
@@ -136,6 +138,8 @@ function ReunionItem({ reunion, pasada }) {
 }
 
 export default function Proceso() {
+  const { t, i18n } = useTranslation()
+  const lng = i18n.language?.split('-')[0] || 'es'
   const [proceso, setProceso] = useState(null)
   const [reuniones, setReuniones] = useState([])
   const [loading, setLoading] = useState(true)
@@ -169,7 +173,7 @@ export default function Proceso() {
     return (
       <div style={{ padding: '2rem' }}>
         <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1.5rem' }}>
-          Proceso
+          {t('cliente.proceso.titulo')}
         </h1>
         <div
           style={{
@@ -185,11 +189,10 @@ export default function Proceso() {
 
   const etapas = proceso?.etapas || []
   const progreso = proceso?.progreso || 20
-  const etapaLabel = proceso?.etapa_label || 'Primer contacto'
 
   return (
     <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0a0a4e' }}>Proceso</h1>
+      <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0a0a4e' }}>{t('cliente.proceso.titulo')}</h1>
 
       {/* Main process card */}
       <div
@@ -204,10 +207,10 @@ export default function Proceso() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
           <div>
             <h2 style={{ fontSize: '1rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '4px' }}>
-              Proceso
+              {t('cliente.proceso.titulo')}
             </h2>
             <p style={{ color: '#6B7280', fontSize: '0.875rem' }}>
-              Tu empresa está en la 2da etapa de digitalización.
+              {t('cliente.proceso.subtitulo')}
             </p>
           </div>
           <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}>
@@ -301,7 +304,7 @@ export default function Proceso() {
                         lineHeight: '1.3',
                       }}
                     >
-                      {etapa.label}
+                      {t(`cliente.etapas.${etapa.key}`, { defaultValue: etapa.label })}
                     </span>
 
                     {/* Icon */}
@@ -326,7 +329,7 @@ export default function Proceso() {
           }}
         >
           <p style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '1rem' }}>
-            Historial de cambios
+            {t('cliente.proceso.historialCambios')}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {proceso.historial.slice(0, 5).map((h) => (
@@ -343,10 +346,10 @@ export default function Proceso() {
                 />
                 <div>
                   <p style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151' }}>
-                    {h.etapa_label || h.etapa}
+                    {t(`cliente.etapas.${h.etapa}`, { defaultValue: h.etapa_label || h.etapa })}
                   </p>
                   <p style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>
-                    {new Date(h.fecha_inicio).toLocaleDateString('es-ES', {
+                    {new Date(h.fecha_inicio).toLocaleDateString(lng === 'en' ? 'en-US' : 'es-ES', {
                       day: 'numeric', month: 'long', year: 'numeric',
                     })}
                     {h.notas && ` — ${h.notas}`}
@@ -359,7 +362,7 @@ export default function Proceso() {
       )}
 
       {/* Reuniones — sección completa */}
-      <ReunionesSection reuniones={reuniones} proximaReunion={proximaReunion} />
+      <ReunionesSection reuniones={reuniones} t={t} lng={lng} />
 
       {/* Bottom cards */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
@@ -374,7 +377,7 @@ export default function Proceso() {
           }}
         >
           <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1rem' }}>
-            Próxima reunión
+            {t('cliente.proceso.proximaReunionTitulo')}
           </h3>
 
           {proximaReunion ? (
@@ -385,18 +388,18 @@ export default function Proceso() {
                 </p>
                 {proximaReunion.fecha && (
                   <p style={{ color: '#4B5563', fontSize: '0.875rem' }}>
-                    Hora:{' '}
+                    {t('cliente.proceso.hora')}{' '}
                     <strong>
-                      {new Date(proximaReunion.fecha).toLocaleTimeString('es-ES', {
+                      {new Date(proximaReunion.fecha).toLocaleTimeString(lng === 'en' ? 'en-US' : 'es-ES', {
                         hour: '2-digit', minute: '2-digit',
                       })}
                     </strong>
                   </p>
                 )}
                 <p style={{ color: '#0a0a4e', fontWeight: '700', marginTop: '1rem', fontSize: '0.875rem' }}>
-                  Recordar
+                  {t('cliente.proceso.recordar')}
                 </p>
-                <p style={{ color: '#9CA3AF', fontSize: '0.8rem' }}>Llegar 15 min antes.</p>
+                <p style={{ color: '#9CA3AF', fontSize: '0.8rem' }}>{t('cliente.proceso.llegarAntes')}</p>
               </div>
 
               <div style={{ textAlign: 'right' }}>
@@ -405,13 +408,13 @@ export default function Proceso() {
                 </span>
                 <p style={{ fontSize: '1.25rem', fontWeight: '300', color: '#0a0a4e' }}>
                   {new Date(proximaReunion.fecha)
-                    .toLocaleString('es-ES', { month: 'short' })
+                    .toLocaleString(lng === 'en' ? 'en-US' : 'es-ES', { month: 'short' })
                     .toUpperCase()}
                 </p>
               </div>
             </div>
           ) : (
-            <p style={{ fontSize: '0.875rem', color: '#9CA3AF' }}>Sin reuniones próximas.</p>
+            <p style={{ fontSize: '0.875rem', color: '#9CA3AF' }}>{t('cliente.proceso.sinProximaReunion')}</p>
           )}
         </div>
 
@@ -426,7 +429,7 @@ export default function Proceso() {
           }}
         >
           <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1rem' }}>
-            Cotización
+            {t('cliente.proceso.cotizacion')}
           </h3>
 
           {/* Bar chart visualization */}

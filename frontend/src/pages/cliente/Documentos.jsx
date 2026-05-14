@@ -1,5 +1,6 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { Download, FileText, FileSpreadsheet, Image, Archive, File } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import api from '../../services/api'
 
 const EXT_ICONS = {
@@ -36,32 +37,34 @@ function DocIcon({ url }) {
   )
 }
 
-function formatDate(iso) {
+function formatDate(iso, lng) {
   if (!iso) return ''
-  return new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString(lng === 'en' ? 'en-US' : 'es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-function EstadoBadge({ estado }) {
+function EstadoBadge({ estado, t }) {
   const colors = {
     publicado: { bg: '#f0fdf4', text: '#16a34a', border: '#bbf7d0' },
     borrador:  { bg: '#fffbeb', text: '#d97706', border: '#fde68a' },
   }
   const c = colors[estado] || colors.borrador
+  const label = t(`cliente.documentos.estados.${estado}`, { defaultValue: estado })
   return (
     <span style={{
       fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '999px',
       background: c.bg, color: c.text, border: `1px solid ${c.border}`,
     }}>
-      {estado}
+      {label}
     </span>
   )
 }
 
 export default function Documentos() {
+  const { t, i18n } = useTranslation()
+  const lng = i18n.language?.split('-')[0] || 'es'
   const [documentos, setDocumentos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [proyectoId, setProyectoId] = useState(null)
   const [downloading, setDownloading] = useState(null)
 
   useEffect(() => {
@@ -70,16 +73,16 @@ export default function Documentos() {
         const { data: proyectos } = await api.get('/proyectos/mis-proyectos')
         if (!proyectos?.length) { setLoading(false); return }
         const pid = proyectos[0].id
-        setProyectoId(pid)
         const { data } = await api.get(`/documentos/proyecto/${pid}`)
         setDocumentos(data)
       } catch {
-        setError('No se pudieron cargar los documentos.')
+        setError(t('cliente.documentos.errorCargar'))
       } finally {
         setLoading(false)
       }
     }
     fetchData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function descargar(doc) {
@@ -97,7 +100,7 @@ export default function Documentos() {
       link.click()
       URL.revokeObjectURL(link.href)
     } catch {
-      alert('No se pudo descargar el documento.')
+      alert(t('cliente.documentos.errorDescargar'))
     } finally {
       setDownloading(null)
     }
@@ -106,7 +109,7 @@ export default function Documentos() {
   if (loading) {
     return (
       <div style={{ padding: '2rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1.5rem' }}>Documentos</h1>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1.5rem' }}>{t('cliente.documentos.titulo')}</h1>
         {[1, 2, 3].map(i => (
           <div key={i} style={{ background: '#f3f4f6', borderRadius: '12px', height: '80px', marginBottom: '12px' }} />
         ))}
@@ -114,13 +117,15 @@ export default function Documentos() {
     )
   }
 
+  const contadorKey = documentos.length === 1 ? 'cliente.documentos.contadorSingular' : 'cliente.documentos.contadorPlural'
+
   return (
     <div style={{ padding: '2rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0a0a4e' }}>Documentos</h1>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0a0a4e' }}>{t('cliente.documentos.titulo')}</h1>
           <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px' }}>
-            {documentos.length} documento{documentos.length !== 1 ? 's' : ''} disponible{documentos.length !== 1 ? 's' : ''}
+            {t(contadorKey, { count: documentos.length })}
           </p>
         </div>
       </div>
@@ -133,8 +138,8 @@ export default function Documentos() {
           borderRadius: '12px', border: '1px dashed #d1d5db',
         }}>
           <File size={40} color="#d1d5db" style={{ margin: '0 auto 12px' }} />
-          <p style={{ color: '#9ca3af', fontSize: '14px' }}>No hay documentos disponibles.</p>
-          <p style={{ color: '#d1d5db', fontSize: '12px', marginTop: '4px' }}>El administrador aún no ha cargado documentos.</p>
+          <p style={{ color: '#9ca3af', fontSize: '14px' }}>{t('cliente.documentos.sinDocumentos')}</p>
+          <p style={{ color: '#d1d5db', fontSize: '12px', marginTop: '4px' }}>{t('cliente.documentos.sinDocumentosDesc')}</p>
         </div>
       )}
 
@@ -151,20 +156,20 @@ export default function Documentos() {
                 <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0a0a4e' }}>
                   {doc.titulo}
                 </h3>
-                <EstadoBadge estado={doc.estado} />
+                <EstadoBadge estado={doc.estado} t={t} />
               </div>
               {doc.descripcion && (
                 <p style={{ color: '#9ca3af', fontSize: '12px', lineHeight: '1.5' }}>{doc.descripcion}</p>
               )}
               <p style={{ color: '#d1d5db', fontSize: '11px', marginTop: '4px' }}>
-                {formatDate(doc.fecha_creacion)}
+                {formatDate(doc.fecha_creacion, lng)}
                 {doc.tipo && doc.tipo !== 'otro' && ` · ${doc.tipo}`}
               </p>
             </div>
             <button
               onClick={() => descargar(doc)}
               disabled={downloading === doc.id}
-              title="Descargar"
+              title={t('cliente.documentos.descargar')}
               style={{
                 display: 'flex', alignItems: 'center', gap: '6px',
                 background: downloading === doc.id ? '#f3f4f6' : '#eff6ff',
@@ -175,7 +180,7 @@ export default function Documentos() {
               }}
             >
               <Download size={14} />
-              {downloading === doc.id ? 'Descargando...' : 'Descargar'}
+              {downloading === doc.id ? t('cliente.documentos.descargando') : t('cliente.documentos.descargar')}
             </button>
           </div>
         ))}
