@@ -1,6 +1,10 @@
+import { useTranslation } from 'react-i18next'
+
 export default function DocumentList({ documentos }) {
+  const { t } = useTranslation('client')
+
   if (!documentos.length)
-    return <p className="text-gray-400 text-sm">No hay documentos en este proyecto.</p>
+    return <p className="text-gray-400 text-sm">{t('documentos.no_documents')}</p>
 
   return (
     <ul className="space-y-2">
@@ -20,7 +24,7 @@ export default function DocumentList({ documentos }) {
               rel="noopener noreferrer"
               className="text-blue-600 text-sm hover:underline"
             >
-              Ver
+              {t('documentos.download')}
             </a>
           </div>
         </li>

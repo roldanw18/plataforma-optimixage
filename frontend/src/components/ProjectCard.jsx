@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 export default function ProjectCard({ proyecto }) {
+  const { t } = useTranslation('common')
   const navigate = useNavigate()
 
   return (
@@ -11,7 +13,7 @@ export default function ProjectCard({ proyecto }) {
       <h3 className="text-lg font-semibold text-gray-800">{proyecto.nombre}</h3>
       <p className="text-sm text-gray-400 mt-1">ID: {proyecto.id.slice(0, 8)}…</p>
       <span className="inline-block mt-3 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-        Ver detalle →
+        {t('card.view_detail')} →
       </span>
     </div>
   )

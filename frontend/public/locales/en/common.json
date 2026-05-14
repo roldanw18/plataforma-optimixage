@@ -1,0 +1,103 @@
+{
+  "nav": {
+    "clientes": "Clients",
+    "proceso": "Process",
+    "documentos": "Documents",
+    "mensajes": "Messages",
+    "notificaciones": "Notifications",
+    "contenido": "Content",
+    "equipo": "Team",
+    "configuracion": "Settings",
+    "logout": "Sign Out",
+    "inicio": "Home",
+    "contacto": "Contact"
+  },
+  "navbar": {
+    "platform": "Project Platform",
+    "admin_panel": "Admin Panel"
+  },
+  "card": {
+    "view_detail": "View Detail"
+  },
+  "adminpage": {
+    "title": "Administration Panel",
+    "create_project": "Create Project",
+    "project_name": "Project Name",
+    "assign_clients": "Assign Clients to Projects",
+    "no_client": "No Client",
+    "project_created": "Project \"{{nombre}}\" created.",
+    "project_error": "Error creating project.",
+    "client_assigned": "Client assigned successfully.",
+    "client_error": "Error assigning client."
+  },
+  "common": {
+    "guardar": "Save",
+    "cancelar": "Cancel",
+    "crear": "Create",
+    "eliminar": "Delete",
+    "editar": "Edit",
+    "aceptar": "Accept",
+    "rechazar": "Reject",
+    "descargar": "Download",
+    "subir": "Upload",
+    "buscar": "Search",
+    "filtrar": "Filter",
+    "ordenar": "Sort",
+    "mas": "More",
+    "menos": "Less",
+    "cargar": "Load",
+    "cerrando": "Closing...",
+    "guardando": "Saving...",
+    "cargando": "Loading...",
+    "subiendo": "Uploading...",
+    "eliminando": "Deleting...",
+    "actualizando": "Updating...",
+    "copia_exitosa": "Copied to clipboard",
+    "back": "Back",
+    "next": "Next",
+    "prev": "Previous",
+    "si": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "idioma": "Language",
+    "select_language": "Select Language",
+    "spanish": "Español",
+    "english": "English",
+    "options": "Options"
+  },
+  "dashboard": {
+    "title": "Project Summary",
+    "subtitle": "Welcome to the main panel of Optimixage.",
+    "recent_documents": "Recent Documents",
+    "upcoming_meetings": "Upcoming Meetings",
+    "current_process": "Current Process",
+    "view_details": "View Details",
+    "modified_days": "Modified {{days}} days ago",
+    "stages": {
+      "analysis": "Analysis",
+      "development": "Development",
+      "testing": "Testing",
+      "delivery": "Delivery"
+    }
+  },
+  "pagination": {
+    "showing": "Showing {{from}} to {{to}} of {{total}}",
+    "page": "Page {{page}} of {{pages}}",
+    "first": "First",
+    "last": "Last",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "empty_states": {
+    "no_data": "No data available",
+    "no_results": "No results found",
+    "no_items": "No items",
+    "try_again": "Try again",
+    "back_to": "Back to {{page}}"
+  },
+  "loading": {
+    "loading": "Loading...",
+    "wait": "Please wait",
+    "please_wait": "Please wait a moment"
+  }
+}

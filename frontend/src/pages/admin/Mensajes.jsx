@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Send, MessageCircle, Circle } from 'lucide-react'
 import api from '../../services/api'
 import { useAuth } from '../../context/AuthContext'
@@ -15,6 +16,7 @@ function formatTime(iso) {
 
 export default function AdminMensajes() {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const [proyectos, setProyectos]         = useState([])
   const [proyectoSel, setProyectoSel]     = useState(null)
   const [mensajes, setMensajes]           = useState([])
@@ -87,10 +89,10 @@ export default function AdminMensajes() {
         <MessageCircle size={22} color="#0099cc" />
         <div>
           <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0a0a4e', lineHeight: 1 }}>
-            Mensajes
+            {t('admin.mensajes.titulo')}
           </h1>
           <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px' }}>
-            Comunicación directa con clientes
+            {t('admin.mensajes.descripcion')}
           </p>
         </div>
       </div>
@@ -109,12 +111,12 @@ export default function AdminMensajes() {
           <div style={{ padding: '14px 16px', borderBottom: '1px solid #f3f4f6' }}>
             <p style={{ fontSize: '11px', fontWeight: '700', color: '#9ca3af',
               textTransform: 'uppercase', letterSpacing: '.5px' }}>
-              Proyectos
+              {t('admin.mensajes.proyectos')}
             </p>
           </div>
           <div style={{ overflowY: 'auto', flex: 1 }}>
             {proyectos.length === 0 && (
-              <p style={{ padding: '16px', fontSize: '13px', color: '#9ca3af' }}>Sin proyectos.</p>
+              <p style={{ padding: '16px', fontSize: '13px', color: '#9ca3af' }}>{t('admin.mensajes.sinProyectos')}</p>
             )}
             {proyectos.map(p => {
               const activo  = proyectoSel?.id === p.id
@@ -196,7 +198,7 @@ export default function AdminMensajes() {
                   )}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <Circle size={7} color="#22c55e" fill="#22c55e" />
-                    <span style={{ fontSize: '11px', color: '#6b7280' }}>Activo</span>
+                    <span style={{ fontSize: '11px', color: '#6b7280' }}>{t('admin.mensajes.activo')}</span>
                   </div>
                 </div>
               </div>
@@ -211,21 +213,21 @@ export default function AdminMensajes() {
             {!proyectoSel && (
               <div style={{ textAlign: 'center', marginTop: '3rem' }}>
                 <MessageCircle size={40} color="#e5e7eb" style={{ margin: '0 auto 12px' }} />
-                <p style={{ color: '#9ca3af', fontSize: '14px' }}>Selecciona un proyecto para ver los mensajes.</p>
+                <p style={{ color: '#9ca3af', fontSize: '14px' }}>{t('admin.mensajes.seleccionar')}</p>
               </div>
             )}
 
             {proyectoSel && loadingMsgs && (
               <p style={{ color: '#9ca3af', fontSize: '13px', textAlign: 'center', marginTop: '2rem' }}>
-                Cargando mensajes...
+                {t('admin.mensajes.cargando')}
               </p>
             )}
 
             {proyectoSel && !loadingMsgs && mensajes.length === 0 && (
               <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-                <p style={{ color: '#9ca3af', fontSize: '14px', fontWeight: '600' }}>Sin mensajes aún.</p>
+                <p style={{ color: '#9ca3af', fontSize: '14px', fontWeight: '600' }}>{t('admin.mensajes.sinMensajes')}</p>
                 <p style={{ color: '#d1d5db', fontSize: '12px', marginTop: '4px' }}>
-                  El cliente no ha enviado mensajes en este proyecto.
+                  {t('admin.mensajes.sinMensajesDesc')}
                 </p>
               </div>
             )}
@@ -255,7 +257,7 @@ export default function AdminMensajes() {
                         {showMeta && (
                           <p style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280',
                             marginBottom: '3px', paddingLeft: '4px' }}>
-                            {msg.remitente_nombre || 'Cliente'}
+                            {msg.remitente_nombre || t('admin.mensajes.cliente')}
                           </p>
                         )}
                         <div style={{
@@ -302,7 +304,7 @@ export default function AdminMensajes() {
                 <input
                   type="text" value={texto}
                   onChange={e => setTexto(e.target.value)}
-                  placeholder="Responder al cliente..."
+                  placeholder={t('admin.mensajes.responder')}
                   disabled={sending}
                   style={{
                     flex: 1, background: 'transparent', border: 'none',

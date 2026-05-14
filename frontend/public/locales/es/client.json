@@ -1,0 +1,94 @@
+{
+  "sidebar": {
+    "dashboard": "Panel",
+    "projects": "Proyectos",
+    "documents": "Documentos",
+    "messages": "Mensajes",
+    "content": "Contenido",
+    "contact": "Contacto",
+    "settings": "Configuración",
+    "logout": "Cerrar sesión"
+  },
+  "common": {
+    "back_to_dashboard": "Volver al dashboard"
+  },
+  "inicio": {
+    "title": "Mis Proyectos",
+    "welcome": "Hola {{name}}, bienvenido",
+    "content_title": "Contenido destacado",
+    "no_content": "No hay contenido disponible en este momento",
+    "no_projects": "No tienes proyectos asignados aún."
+  },
+  "documentos": {
+    "title": "Documentos",
+    "subtitle": "Gestiona y consulta los archivos del proyecto.",
+    "upload_title": "Subir Documento",
+    "no_documents": "No hay documentos disponibles",
+    "uploaded_on": "Subido {{date}}",
+    "download": "Descargar",
+    "type": "Tipo"
+  },
+  "proceso": {
+    "title": "Mi Proceso",
+    "subtitle": "Etapas de tu proyecto",
+    "current_stage": "Etapa actual",
+    "next_stage": "Próxima etapa",
+    "no_projects": "No hay proyectos en progreso",
+    "stages": {
+      "primer_contacto": "Primer contacto",
+      "diagnostico": "Diagnóstico",
+      "capacitacion": "Capacitación",
+      "desarrollo": "Desarrollo",
+      "entrega": "Entrega"
+    }
+  },
+  "contenido": {
+    "title": "Contenido",
+    "subtitle": "Materiales y recursos",
+    "filters": {
+      "all": "Todo",
+      "images": "Imágenes",
+      "videos": "Vídeos"
+    },
+    "no_content": "No hay contenido disponible",
+    "view": "Ver",
+    "download": "Descargar"
+  },
+  "mensajes": {
+    "title": "Mensajes",
+    "subtitle": "Comunícate con nosotros",
+    "message_placeholder": "Escribe tu mensaje aquí...",
+    "send": "Enviar",
+    "no_messages": "Sin mensajes aún",
+    "sent": "Enviado",
+    "sending": "Enviando...",
+    "you": "Tú",
+    "team": "Equipo"
+  },
+  "contacto": {
+    "title": "Contacto",
+    "subtitle": "Ponte en contacto con nosotros",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "message": "Mensaje",
+    "send": "Enviar",
+    "sending": "Enviando...",
+    "success": "Mensaje enviado correctamente",
+    "error": "Error al enviar el mensaje"
+  },
+  "configuracion": {
+    "title": "Mi Configuración",
+    "subtitle": "Gestiona tu perfil",
+    "personal_info": "Información personal",
+    "full_name": "Nombre completo",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "avatar": "Avatar",
+    "save": "Guardar cambios",
+    "saving": "Guardando...",
+    "success": "Cambios guardados correctamente",
+    "error": "Error al guardar los cambios",
+    "password": "Cambiar contraseña",
+    "change_password": "Cambiar contraseña"
+  }
+}

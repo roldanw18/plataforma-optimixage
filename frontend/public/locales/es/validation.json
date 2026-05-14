@@ -1,0 +1,23 @@
+{
+  "required": "Este campo es requerido",
+  "email_invalid": "Email inválido",
+  "email_required": "El email es requerido",
+  "password_required": "La contraseña es requerida",
+  "password_min": "Mínimo {{count}} caracteres",
+  "password_weak": "La contraseña es muy débil",
+  "passwords_not_match": "Las contraseñas no coinciden",
+  "name_required": "El nombre es requerido",
+  "name_min": "Mínimo {{count}} caracteres",
+  "name_max": "Máximo {{count}} caracteres",
+  "phone_invalid": "Teléfono inválido",
+  "file_required": "Debes seleccionar un archivo",
+  "file_too_large": "El archivo es demasiado grande (máx {{size}})",
+  "file_invalid_type": "Tipo de archivo no permitido",
+  "title_required": "El título es requerido",
+  "title_min": "Mínimo {{count}} caracteres",
+  "url_invalid": "URL inválida",
+  "date_invalid": "Fecha inválida",
+  "number_invalid": "Número inválido",
+  "confirm_required": "Debe confirmar esta acción",
+  "terms_required": "Debes aceptar los términos y condiciones"
+}

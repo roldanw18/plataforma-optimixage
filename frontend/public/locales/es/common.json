@@ -1,0 +1,103 @@
+{
+  "nav": {
+    "clientes": "Clientes",
+    "proceso": "Proceso",
+    "documentos": "Documentos",
+    "mensajes": "Mensajes",
+    "notificaciones": "Notificaciones",
+    "contenido": "Contenido",
+    "equipo": "Equipo",
+    "configuracion": "Configuración",
+    "logout": "Cerrar sesión",
+    "inicio": "Inicio",
+    "contacto": "Contacto"
+  },
+  "navbar": {
+    "platform": "Plataforma de Proyectos",
+    "admin_panel": "Panel Admin"
+  },
+  "card": {
+    "view_detail": "Ver detalle"
+  },
+  "adminpage": {
+    "title": "Panel de Administración",
+    "create_project": "Crear Proyecto",
+    "project_name": "Nombre del proyecto",
+    "assign_clients": "Asignar Clientes a Proyectos",
+    "no_client": "Sin cliente",
+    "project_created": "Proyecto \"{{nombre}}\" creado.",
+    "project_error": "Error al crear el proyecto.",
+    "client_assigned": "Cliente asignado correctamente.",
+    "client_error": "Error al asignar cliente."
+  },
+  "common": {
+    "guardar": "Guardar",
+    "cancelar": "Cancelar",
+    "crear": "Crear",
+    "eliminar": "Eliminar",
+    "editar": "Editar",
+    "aceptar": "Aceptar",
+    "rechazar": "Rechazar",
+    "descargar": "Descargar",
+    "subir": "Subir",
+    "buscar": "Buscar",
+    "filtrar": "Filtrar",
+    "ordenar": "Ordenar",
+    "mas": "Más",
+    "menos": "Menos",
+    "cargar": "Cargar",
+    "cerrando": "Cerrando...",
+    "guardando": "Guardando...",
+    "cargando": "Cargando...",
+    "subiendo": "Subiendo...",
+    "eliminando": "Eliminando...",
+    "actualizando": "Actualizando...",
+    "copia_exitosa": "Copiado al portapapeles",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "prev": "Anterior",
+    "si": "Sí",
+    "no": "No",
+    "ok": "OK",
+    "idioma": "Idioma",
+    "select_language": "Seleccionar idioma",
+    "spanish": "Español",
+    "english": "English",
+    "options": "Opciones"
+  },
+  "dashboard": {
+    "title": "Resumen del Proyecto",
+    "subtitle": "Bienvenido al panel principal de Optimixage.",
+    "recent_documents": "Últimos Documentos",
+    "upcoming_meetings": "Reuniones Próximas",
+    "current_process": "Proceso Actual",
+    "view_details": "Ver detalles",
+    "modified_days": "Modificado hace {{days}} días",
+    "stages": {
+      "analysis": "Análisis",
+      "development": "Desarrollo",
+      "testing": "Pruebas",
+      "delivery": "Entrega"
+    }
+  },
+  "pagination": {
+    "showing": "Mostrando {{from}} a {{to}} de {{total}}",
+    "page": "Página {{page}} de {{pages}}",
+    "first": "Primero",
+    "last": "Último",
+    "previous": "Anterior",
+    "next": "Siguiente"
+  },
+  "empty_states": {
+    "no_data": "No hay datos disponibles",
+    "no_results": "Sin resultados",
+    "no_items": "Sin elementos",
+    "try_again": "Intenta de nuevo",
+    "back_to": "Volver a {{page}}"
+  },
+  "loading": {
+    "loading": "Cargando...",
+    "wait": "Por favor espera",
+    "please_wait": "Por favor espera un momento"
+  }
+}

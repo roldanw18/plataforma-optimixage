@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Upload, Trash2, Download, X, FileText, CheckCircle, AlertCircle } from 'lucide-react'
 import api from '../../services/api'
 
@@ -32,6 +33,7 @@ function formatDate(iso) {
 }
 
 export default function AdminDocumentos() {
+  const { t } = useTranslation()
   const [proyectos, setProyectos] = useState([])
   const [proyectoId, setProyectoId] = useState('')
   const [documentos, setDocumentos] = useState([])
@@ -80,8 +82,8 @@ export default function AdminDocumentos() {
 
   async function handleUpload(e) {
     e.preventDefault()
-    if (!archivo) { setErr('Selecciona un archivo.'); return }
-    if (!titulo.trim()) { setErr('El título es obligatorio.'); return }
+    if (!archivo) { setErr(t('admin.documentos.errorSinArchivo')); return }
+    if (!titulo.trim()) { setErr(t('admin.documentos.errorSinTitulo')); return }
     setErr(null); setMsg(null); setUploading(true)
 
     const form = new FormData()
@@ -97,24 +99,24 @@ export default function AdminDocumentos() {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       setDocumentos(prev => [data, ...prev])
-      setMsg(`Documento "${data.titulo}" subido correctamente.`)
+      setMsg(t('admin.documentos.exito', { titulo: data.titulo }))
       setTitulo(''); setDescripcion(''); setArchivo(null)
       if (fileRef.current) fileRef.current.value = ''
     } catch (e) {
-      setErr(e.response?.data?.detail || 'Error al subir el documento.')
+      setErr(e.response?.data?.detail || t('admin.documentos.errorSubir'))
     } finally {
       setUploading(false)
     }
   }
 
   async function eliminar(doc) {
-    if (!window.confirm(`¿Eliminar "${doc.titulo}"?`)) return
+    if (!window.confirm(t('admin.documentos.confirmarEliminar', { titulo: doc.titulo }))) return
     setDeleting(doc.id)
     try {
       await api.delete(`/documentos/${doc.id}`)
       setDocumentos(prev => prev.filter(d => d.id !== doc.id))
     } catch {
-      alert('No se pudo eliminar el documento.')
+      alert(t('admin.documentos.errorEliminar'))
     } finally {
       setDeleting(null)
     }
@@ -132,7 +134,7 @@ export default function AdminDocumentos() {
       link.click()
       URL.revokeObjectURL(link.href)
     } catch {
-      alert('No se pudo descargar el documento.')
+      alert(t('admin.documentos.errorDescargar'))
     }
   }
 
@@ -145,16 +147,16 @@ export default function AdminDocumentos() {
   return (
     <div style={{ padding: '2rem' }}>
       <h1 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#0a0a4e', marginBottom: '6px' }}>
-        Gestión de Documentos
+        {t('admin.documentos.titulo')}
       </h1>
       <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '24px' }}>
-        Sube y gestiona los documentos de cada proyecto.
+        {t('admin.documentos.descripcion')}
       </p>
 
       {/* Selector de proyecto */}
       <div style={{ marginBottom: '24px' }}>
         <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }}>
-          Proyecto
+          {t('admin.documentos.proyecto')}
         </label>
         <select value={proyectoId} onChange={e => setProyectoId(e.target.value)} style={{ ...selectSt, maxWidth: '420px' }}>
           {proyectos.map(p => (
@@ -166,7 +168,7 @@ export default function AdminDocumentos() {
           if (!p?.cliente) return null
           return (
             <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '6px' }}>
-              Propietario:{' '}
+              {t('admin.documentos.propietario')}{' '}
               <span style={{ color: '#374151', fontWeight: '600' }}>{p.cliente.nombre}</span>
               {p.cliente.email && <span> · {p.cliente.email}</span>}
             </p>
@@ -183,7 +185,7 @@ export default function AdminDocumentos() {
         }}>
           <h2 style={{ fontSize: '14px', fontWeight: '700', color: '#0a0a4e', marginBottom: '16px',
             display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Upload size={16} color="#0099cc" /> Subir documento
+            <Upload size={16} color="#0099cc" /> {t('admin.documentos.subir')}
           </h2>
 
           <Alert type="success" message={msg} onClose={() => setMsg(null)} />
@@ -192,7 +194,7 @@ export default function AdminDocumentos() {
           <form onSubmit={handleUpload}>
             <div style={{ marginBottom: '12px' }}>
               <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '5px' }}>
-                Archivo <span style={{ color: '#ef4444' }}>*</span>
+                {t('admin.documentos.archivo')} <span style={{ color: '#ef4444' }}>*</span>
               </label>
               <div
                 onClick={() => fileRef.current?.click()}
@@ -214,8 +216,8 @@ export default function AdminDocumentos() {
                 ) : (
                   <>
                     <Upload size={20} color="#9ca3af" style={{ margin: '0 auto 6px' }} />
-                    <p style={{ fontSize: '12px', color: '#9ca3af' }}>Clic para seleccionar archivo</p>
-                    <p style={{ fontSize: '10px', color: '#d1d5db', marginTop: '2px' }}>PDF, DOC, XLS, IMG, ZIP · máx 10 MB</p>
+                    <p style={{ fontSize: '12px', color: '#9ca3af' }}>Click to select file</p>
+                    <p style={{ fontSize: '10px', color: '#d1d5db', marginTop: '2px' }}>PDF, DOC, XLS, IMG, ZIP · max 10 MB</p>
                   </>
                 )}
               </div>
@@ -223,32 +225,32 @@ export default function AdminDocumentos() {
 
             <div style={{ marginBottom: '12px' }}>
               <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '5px' }}>
-                Título <span style={{ color: '#ef4444' }}>*</span>
+                {t('admin.documentos.titulo_label')} <span style={{ color: '#ef4444' }}>*</span>
               </label>
               <input style={inputSt} value={titulo}
-                onChange={e => setTitulo(e.target.value)} placeholder="Nombre del documento" />
+                onChange={e => setTitulo(e.target.value)} placeholder="Document name" />
             </div>
 
             <div style={{ marginBottom: '12px' }}>
               <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '5px' }}>
-                Descripción
+                {t('admin.documentos.descripcionDoc')}
               </label>
               <textarea style={{ ...inputSt, resize: 'vertical', minHeight: '60px' }}
                 value={descripcion} onChange={e => setDescripcion(e.target.value)}
-                placeholder="Descripción opcional" />
+                placeholder="Optional description" />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '5px' }}>Tipo</label>
+                <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '5px' }}>{t('admin.documentos.tipo')}</label>
                 <select style={selectSt} value={tipo} onChange={e => setTipo(e.target.value)}>
-                  {TIPOS.map(t => <option key={t} value={t}>{t}</option>)}
+                  {TIPOS.map(t => <option key={t} value={t}>{t('admin.documentos.tipos.' + t)}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '5px' }}>Estado</label>
+                <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '5px' }}>{t('admin.documentos.estado')}</label>
                 <select style={selectSt} value={estado} onChange={e => setEstado(e.target.value)}>
-                  {ESTADOS.map(s => <option key={s} value={s}>{s}</option>)}
+                  {ESTADOS.map(s => <option key={s} value={s}>{t('admin.documentos.estados.' + s)}</option>)}
                 </select>
               </div>
             </div>
@@ -259,7 +261,7 @@ export default function AdminDocumentos() {
               cursor: uploading ? 'not-allowed' : 'pointer', opacity: uploading ? 0.7 : 1,
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
             }}>
-              <Upload size={15} /> {uploading ? 'Subiendo...' : 'Subir documento'}
+              <Upload size={15} /> {uploading ? t('admin.documentos.subiendo') : t('admin.documentos.subir')}
             </button>
           </form>
         </div>
@@ -267,7 +269,7 @@ export default function AdminDocumentos() {
         {/* LISTA DE DOCUMENTOS */}
         <div>
           <h2 style={{ fontSize: '14px', fontWeight: '700', color: '#0a0a4e', marginBottom: '12px' }}>
-            Documentos del proyecto
+            {t('admin.documentos.documentosDelProyecto')}
             {!loadingDocs && <span style={{ fontWeight: '400', color: '#9ca3af', marginLeft: '6px' }}>({documentos.length})</span>}
           </h2>
 
@@ -280,7 +282,7 @@ export default function AdminDocumentos() {
           {!loadingDocs && documentos.length === 0 && (
             <div style={{ textAlign: 'center', padding: '40px', background: 'white',
               borderRadius: '12px', border: '1px dashed #d1d5db' }}>
-              <p style={{ color: '#9ca3af', fontSize: '13px' }}>No hay documentos en este proyecto.</p>
+              <p style={{ color: '#9ca3af', fontSize: '13px' }}>{t('admin.documentos.noHay')}</p>
             </div>
           )}
 
@@ -303,13 +305,13 @@ export default function AdminDocumentos() {
                   </p>
                 </div>
                 <div style={{ display: 'flex', gap: '6px' }}>
-                  <button onClick={() => descargar(doc)} title="Descargar" style={{
+                  <button onClick={() => descargar(doc)} title={t('admin.documentos.descargar')} style={{
                     background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '7px',
                     padding: '7px', cursor: 'pointer', display: 'flex', alignItems: 'center',
                   }}>
                     <Download size={14} color="#2563eb" />
                   </button>
-                  <button onClick={() => eliminar(doc)} disabled={deleting === doc.id} title="Eliminar" style={{
+                  <button onClick={() => eliminar(doc)} disabled={deleting === doc.id} title={t('admin.documentos.eliminar')} style={{
                     background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '7px',
                     padding: '7px', cursor: deleting === doc.id ? 'not-allowed' : 'pointer',
                     display: 'flex', alignItems: 'center', opacity: deleting === doc.id ? 0.5 : 1,

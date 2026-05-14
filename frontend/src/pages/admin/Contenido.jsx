@@ -3,6 +3,7 @@ import {
   Play, Image as ImageIcon, Upload, Trash2, Edit3, X,
   CheckCircle, AlertCircle, Eye, Video as VideoIcon, Search, Globe, User,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import api from '../../services/api'
 
 function Alert({ type, message, onClose }) {
@@ -248,6 +249,7 @@ function EditModal({ contenido, onClose, onSave }) {
 }
 
 export default function AdminContenido() {
+  const { t } = useTranslation()
   const [contenidos, setContenidos] = useState([])
   const [loading, setLoading] = useState(true)
   const [proyectos, setProyectos] = useState([])
@@ -333,10 +335,10 @@ export default function AdminContenido() {
   return (
     <div style={{ padding: '2rem' }}>
       <h1 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#0a0a4e', marginBottom: '6px' }}>
-        Contenido
+        {t('admin.contenido.titulo')}
       </h1>
       <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '24px' }}>
-        Gestiona imágenes y videos que se mostrarán a los clientes en su pantalla de inicio.
+        Manage images and videos to display to clients.
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: '24px', alignItems: 'start' }}>

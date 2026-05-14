@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AlignJustify, Bell, CheckCheck } from 'lucide-react'
 import api from '../../services/api'
 
@@ -22,6 +23,7 @@ function AvatarIcon({ nombre, avatarUrl }) {
 }
 
 export default function AdminNotificaciones() {
+  const { t } = useTranslation()
   const [notificaciones, setNotificaciones] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -32,7 +34,7 @@ export default function AdminNotificaciones() {
       const { data } = await api.get('/notificaciones/')
       setNotificaciones(data)
     } catch {
-      setError('No se pudieron cargar las notificaciones.')
+      setError(t('errors.noSePudieron'))
     } finally {
       setLoading(false)
     }
@@ -69,7 +71,7 @@ export default function AdminNotificaciones() {
     return (
       <div style={{ padding: '2rem' }}>
         <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '1.5rem' }}>
-          Notificaciones
+          {t('admin.notificaciones.titulo')}
         </h1>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {[1, 2, 3].map((i) => (
@@ -85,14 +87,14 @@ export default function AdminNotificaciones() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0a0a4e' }}>Notificaciones</h1>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0a0a4e' }}>{t('admin.notificaciones.titulo')}</h1>
           {noLeidas > 0 && (
             <span style={{
               backgroundColor: '#0099cc', color: 'white',
               fontSize: '0.7rem', fontWeight: '700',
               borderRadius: '9999px', padding: '2px 8px',
             }}>
-              {noLeidas} nueva{noLeidas !== 1 ? 's' : ''}
+              {noLeidas}
             </span>
           )}
         </div>
@@ -111,7 +113,7 @@ export default function AdminNotificaciones() {
             onMouseLeave={(e) => !markingAll && (e.currentTarget.style.backgroundColor = 'white')}
           >
             <CheckCheck size={14} />
-            {markingAll ? 'Marcando…' : 'Marcar todas como leídas'}
+            Mark all as read
           </button>
         )}
       </div>
@@ -121,7 +123,7 @@ export default function AdminNotificaciones() {
       {notificaciones.length === 0 && !error && (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 0', gap: '0.75rem' }}>
           <Bell size={40} color="#E5E7EB" />
-          <p style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>No hay notificaciones.</p>
+          <p style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>No notifications.</p>
         </div>
       )}
 

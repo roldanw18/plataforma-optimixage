@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 
 export default function Login() {
+  const { t } = useTranslation('auth')
   const { login } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -24,7 +26,7 @@ export default function Login() {
         navigate('/inicio')
       }
     } catch (err) {
-      setError('Credenciales incorrectas. Intenta de nuevo.')
+      setError(t('login.invalid_credentials'))
     } finally {
       setLoading(false)
     }
@@ -61,10 +63,10 @@ export default function Login() {
               className="font-bold mb-2"
               style={{ fontSize: '1.875rem', color: '#1a1a4e' }}
             >
-              Bienvenido
+              {t('login.title')}
             </h2>
             <p style={{ color: '#6B7280', fontSize: '0.875rem' }}>
-              Inicia sesión para continuar
+              {t('login.subtitle')}
             </p>
           </div>
 
@@ -72,7 +74,7 @@ export default function Login() {
           <form onSubmit={(e) => handleSubmit(e, false)} className="flex flex-col gap-4">
             <input
               type="text"
-              placeholder="Usuario"
+              placeholder={t('login.email_label')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -90,7 +92,7 @@ export default function Login() {
             />
             <input
               type="password"
-              placeholder="Contraseña"
+              placeholder={t('login.password_label')}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -116,7 +118,7 @@ export default function Login() {
             {/* Forgot password */}
             <div style={{ textAlign: 'center', padding: '0.5rem 0' }}>
               <a href="#" style={{ color: '#6B7280', fontSize: '0.875rem' }}>
-                ¿Olvidaste tu contraseña?
+                {t('login.forgot_password')}
               </a>
             </div>
 
@@ -140,7 +142,7 @@ export default function Login() {
                 onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#007aa3')}
                 onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = '#0099cc')}
               >
-                {loading ? 'Cargando...' : 'Iniciar sesión'}
+                {loading ? t('login.loading') : t('login.login_button')}
               </button>
               <button
                 type="button"
@@ -161,7 +163,7 @@ export default function Login() {
                 onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#007aa3')}
                 onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = '#0099cc')}
               >
-                Administrador
+                {t('login.admin_button')}
               </button>
             </div>
           </form>
