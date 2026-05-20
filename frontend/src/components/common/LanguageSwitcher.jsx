@@ -6,6 +6,7 @@ export default function LanguageSwitcher() {
   const languages = [
     { code: 'es', label: t('common.spanish'), flag: '🇪🇸' },
     { code: 'en', label: t('common.english'), flag: '🇺🇸' },
+    { code: 'pt', label: t('common.portuguese'), flag: '🇧🇷' },
   ]
 
   return (

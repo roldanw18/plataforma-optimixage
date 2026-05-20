@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { User, Search, Clipboard, Users, CheckCircle, MoreHorizontal, Calendar, Video } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import api from '../../services/api'
+import { intlLocale } from '../../utils/locale'
 
 const ESTADO_REUNION_STYLES = {
   pendiente:  { color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
@@ -12,7 +13,7 @@ const ESTADO_REUNION_STYLES = {
 
 function fmtDateTime(iso, lng) {
   if (!iso) return ''
-  return new Date(iso).toLocaleString(lng === 'en' ? 'en-US' : 'es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return new Date(iso).toLocaleString(intlLocale(lng), { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
 const ETAPA_ICONS = {
@@ -104,7 +105,7 @@ function ReunionItem({ reunion, pasada, t, lng }) {
         </p>
         <p style={{ fontSize: '9px', fontWeight: '700', color: '#6b7280',
           textTransform: 'uppercase', marginTop: '2px' }}>
-          {new Date(reunion.fecha).toLocaleString(lng === 'en' ? 'en-US' : 'es-ES', { month: 'short' })}
+          {new Date(reunion.fecha).toLocaleString(intlLocale(lng), { month: 'short' })}
         </p>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -349,7 +350,7 @@ export default function Proceso() {
                     {t(`cliente.etapas.${h.etapa}`, { defaultValue: h.etapa_label || h.etapa })}
                   </p>
                   <p style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>
-                    {new Date(h.fecha_inicio).toLocaleDateString(lng === 'en' ? 'en-US' : 'es-ES', {
+                    {new Date(h.fecha_inicio).toLocaleDateString(intlLocale(lng), {
                       day: 'numeric', month: 'long', year: 'numeric',
                     })}
                     {h.notas && ` — ${h.notas}`}
@@ -390,7 +391,7 @@ export default function Proceso() {
                   <p style={{ color: '#4B5563', fontSize: '0.875rem' }}>
                     {t('cliente.proceso.hora')}{' '}
                     <strong>
-                      {new Date(proximaReunion.fecha).toLocaleTimeString(lng === 'en' ? 'en-US' : 'es-ES', {
+                      {new Date(proximaReunion.fecha).toLocaleTimeString(intlLocale(lng), {
                         hour: '2-digit', minute: '2-digit',
                       })}
                     </strong>
@@ -408,7 +409,7 @@ export default function Proceso() {
                 </span>
                 <p style={{ fontSize: '1.25rem', fontWeight: '300', color: '#0a0a4e' }}>
                   {new Date(proximaReunion.fecha)
-                    .toLocaleString(lng === 'en' ? 'en-US' : 'es-ES', { month: 'short' })
+                    .toLocaleString(intlLocale(lng), { month: 'short' })
                     .toUpperCase()}
                 </p>
               </div>

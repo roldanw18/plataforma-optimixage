@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Calendar, Clock, Plus, Edit3, Trash2, X, AlertCircle, CheckCircle, Video } from 'lucide-react'
+import i18n from 'i18next'
 import api from '../../services/api'
 import Modal from '../common/Modal'
+import { intlLocale } from '../../utils/locale'
 
 const ESTADOS = [
   { value: 'pendiente',  label: 'Pendiente',  color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
@@ -17,7 +19,7 @@ function estadoConfig(estado) {
 function fmtDateTime(iso) {
   if (!iso) return ''
   const d = new Date(iso)
-  return d.toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return d.toLocaleString(intlLocale(i18n.language), { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
 function toLocalInputValue(iso) {

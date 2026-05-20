@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Download, FileText, FileSpreadsheet, Image, Archive, File } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import api from '../../services/api'
+import { intlLocale } from '../../utils/locale'
 
 const EXT_ICONS = {
   pdf: { icon: FileText, color: '#dc2626', label: 'PDF' },
@@ -39,7 +40,7 @@ function DocIcon({ url }) {
 
 function formatDate(iso, lng) {
   if (!iso) return ''
-  return new Date(iso).toLocaleDateString(lng === 'en' ? 'en-US' : 'es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString(intlLocale(lng), { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 function EstadoBadge({ estado, t }) {

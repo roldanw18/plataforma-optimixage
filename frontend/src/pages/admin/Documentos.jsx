@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Upload, Trash2, Download, X, FileText, CheckCircle, AlertCircle } from 'lucide-react'
 import api from '../../services/api'
+import { intlLocale } from '../../utils/locale'
 
 const TIPOS = ['contrato', 'propuesta', 'informe', 'diseño', 'otro']
 const ESTADOS = ['borrador', 'publicado']
@@ -27,13 +28,14 @@ function Alert({ type, message, onClose }) {
   )
 }
 
-function formatDate(iso) {
+function formatDate(iso, lng) {
   if (!iso) return ''
-  return new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString(intlLocale(lng), { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 export default function AdminDocumentos() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lng = i18n.language?.split('-')[0] || 'es'
   const [proyectos, setProyectos] = useState([])
   const [proyectoId, setProyectoId] = useState('')
   const [documentos, setDocumentos] = useState([])
@@ -297,7 +299,7 @@ export default function AdminDocumentos() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontSize: '13px', fontWeight: '700', color: '#0a0a4e' }}>{doc.titulo}</p>
                   <p style={{ fontSize: '11px', color: '#9ca3af' }}>
-                    {formatDate(doc.fecha_creacion)} · {doc.tipo} ·{' '}
+                    {formatDate(doc.fecha_creacion, lng)} · {doc.tipo} ·{' '}
                     <span style={{
                       color: doc.estado === 'publicado' ? '#16a34a' : '#d97706',
                       fontWeight: '600',

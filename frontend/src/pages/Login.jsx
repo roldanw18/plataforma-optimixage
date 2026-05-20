@@ -12,7 +12,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(e, forceAdmin = false) {
+  async function handleSubmit(e) {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -20,7 +20,7 @@ export default function Login() {
       await login(email, password)
       const stored = localStorage.getItem('user')
       const user = stored ? JSON.parse(stored) : null
-      if (forceAdmin || (user && user.rol && user.rol.nombre === 'Admin')) {
+      if (user && user.rol && user.rol.nombre === 'Admin') {
         navigate('/admin/clientes')
       } else {
         navigate('/inicio')
@@ -71,7 +71,7 @@ export default function Login() {
           </div>
 
           {/* Login form */}
-          <form onSubmit={(e) => handleSubmit(e, false)} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <input
               type="text"
               placeholder={t('login.email_label')}
@@ -123,7 +123,7 @@ export default function Login() {
             </div>
 
             {/* Buttons */}
-            <div className="flex justify-center gap-4" style={{ paddingTop: '0.5rem' }}>
+            <div className="flex justify-center" style={{ paddingTop: '0.5rem' }}>
               <button
                 type="submit"
                 disabled={loading}
@@ -143,27 +143,6 @@ export default function Login() {
                 onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = '#0099cc')}
               >
                 {loading ? t('login.loading') : t('login.login_button')}
-              </button>
-              <button
-                type="button"
-                disabled={loading}
-                onClick={(e) => handleSubmit(e, true)}
-                style={{
-                  padding: '0.5rem 2rem',
-                  backgroundColor: '#0099cc',
-                  color: 'white',
-                  borderRadius: '0.375rem',
-                  fontWeight: '500',
-                  border: 'none',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  opacity: loading ? 0.6 : 1,
-                  fontSize: '0.875rem',
-                  transition: 'background-color 0.2s',
-                }}
-                onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#007aa3')}
-                onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = '#0099cc')}
-              >
-                {t('login.admin_button')}
               </button>
             </div>
           </form>

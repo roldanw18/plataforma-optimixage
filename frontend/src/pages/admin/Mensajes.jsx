@@ -3,20 +3,23 @@ import { useTranslation } from 'react-i18next'
 import { Send, MessageCircle, Circle } from 'lucide-react'
 import api from '../../services/api'
 import { useAuth } from '../../context/AuthContext'
+import { intlLocale } from '../../utils/locale'
 
-function formatTime(iso) {
+function formatTime(iso, lng) {
   if (!iso) return ''
   const d = new Date(iso)
   const hoy = new Date()
+  const localeId = intlLocale(lng)
   if (d.toDateString() === hoy.toDateString())
-    return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
-  return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) + ' ' +
-    d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+    return d.toLocaleTimeString(localeId, { hour: '2-digit', minute: '2-digit' })
+  return d.toLocaleDateString(localeId, { day: '2-digit', month: 'short' }) + ' ' +
+    d.toLocaleTimeString(localeId, { hour: '2-digit', minute: '2-digit' })
 }
 
 export default function AdminMensajes() {
   const { user } = useAuth()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lng = i18n.language?.split('-')[0] || 'es'
   const [proyectos, setProyectos]         = useState([])
   const [proyectoSel, setProyectoSel]     = useState(null)
   const [mensajes, setMensajes]           = useState([])
@@ -266,7 +269,7 @@ export default function AdminMensajes() {
                         }}>
                           <p style={{ color: '#374151', fontSize: '14px', lineHeight: '1.4' }}>{msg.contenido}</p>
                           <p style={{ fontSize: '10px', color: '#9ca3af', marginTop: '4px', textAlign: 'right' }}>
-                            {formatTime(msg.fecha_envio)}
+                            {formatTime(msg.fecha_envio, lng)}
                           </p>
                         </div>
                       </div>
@@ -281,7 +284,7 @@ export default function AdminMensajes() {
                       }}>
                         <p style={{ color: 'white', fontSize: '14px', lineHeight: '1.4' }}>{msg.contenido}</p>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px', marginTop: '4px' }}>
-                          <p style={{ fontSize: '10px', color: '#93c5fd' }}>{formatTime(msg.fecha_envio)}</p>
+                          <p style={{ fontSize: '10px', color: '#93c5fd' }}>{formatTime(msg.fecha_envio, lng)}</p>
                           {msg.leido && <span style={{ fontSize: '10px', color: '#93c5fd' }}>✓✓</span>}
                         </div>
                       </div>

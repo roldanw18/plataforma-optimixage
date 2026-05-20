@@ -3,12 +3,13 @@ import { Calendar, CheckCircle, Clock, Circle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../../services/api'
+import { intlLocale } from '../../utils/locale'
 
 const ETAPA_KEYS = ['primer_contacto', 'diagnostico', 'capacitacion', 'desarrollo', 'entrega']
 
 function formatDate(iso, lng) {
   if (!iso) return ''
-  return new Date(iso).toLocaleDateString(lng === 'en' ? 'en-US' : 'es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString(intlLocale(lng), { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 function EtapaIcon({ estado }) {
@@ -205,7 +206,7 @@ export default function Inicio() {
                   {new Date(proximaReunion.fecha).getDate()}
                 </span>
                 <p style={{ fontSize: '1rem', fontWeight: '700', color: '#0a0a4e' }}>
-                  {new Date(proximaReunion.fecha).toLocaleString(lng === 'en' ? 'en-US' : 'es-ES', { month: 'short' }).toUpperCase()}
+                  {new Date(proximaReunion.fecha).toLocaleString(intlLocale(lng), { month: 'short' }).toUpperCase()}
                 </p>
               </div>
               <p style={{ fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>

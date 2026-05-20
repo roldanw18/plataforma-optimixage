@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AlignJustify, Bell, CheckCheck } from 'lucide-react'
 import api from '../../services/api'
+import { intlLocale } from '../../utils/locale'
 
 function resolveAvatar(url) {
   if (!url) return null
@@ -23,7 +24,8 @@ function AvatarIcon({ nombre, avatarUrl }) {
 }
 
 export default function AdminNotificaciones() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lng = i18n.language?.split('-')[0] || 'es'
   const [notificaciones, setNotificaciones] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -176,7 +178,7 @@ export default function AdminNotificaciones() {
                   </p>
                 )}
                 <p style={{ fontSize: '0.7rem', color: '#9CA3AF', marginTop: '4px' }}>
-                  {new Date(notif.created_at).toLocaleString('es-ES', {
+                  {new Date(notif.created_at).toLocaleString(intlLocale(lng), {
                     day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
                   })}
                 </p>

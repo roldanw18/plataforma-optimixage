@@ -3,8 +3,8 @@ import LanguageDetector from 'i18next-browser-languagedetector'
 import HttpBackend from 'i18next-http-backend'
 import { initReactI18next } from 'react-i18next'
 
-// Solo se soportan español e inglés
-const SUPPORTED_LNGS = ['es', 'en']
+// Idiomas soportados: español, inglés y portugués
+const SUPPORTED_LNGS = ['es', 'en', 'pt']
 
 // Namespaces disponibles. `common` contiene la mayor parte del catálogo
 // (admin, errors, buttons, dashboard, nav, etc.) y es el namespace por defecto.

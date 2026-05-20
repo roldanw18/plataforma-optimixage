@@ -3,12 +3,13 @@ import { Send, MessageCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import api from '../../services/api'
 import { useAuth } from '../../context/AuthContext'
+import { intlLocale } from '../../utils/locale'
 
 function formatTime(iso, lng) {
   if (!iso) return ''
   const d = new Date(iso)
   const hoy = new Date()
-  const localeId = lng === 'en' ? 'en-US' : 'es-ES'
+  const localeId = intlLocale(lng)
   const esHoy = d.toDateString() === hoy.toDateString()
   if (esHoy) return d.toLocaleTimeString(localeId, { hour: '2-digit', minute: '2-digit' })
   return d.toLocaleDateString(localeId, { day: '2-digit', month: 'short' }) + ' ' +
