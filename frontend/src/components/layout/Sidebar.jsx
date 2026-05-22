@@ -1,41 +1,47 @@
 import { useEffect, useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   Home, FileText, BarChart2, Play,
-  MessageCircle, Settings, LogOut, Info,
+  MessageCircle, Settings, LogOut, Info, Bell,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
 import LanguageSwitcher from '../common/LanguageSwitcher'
 
 const NAV_ITEMS = [
-  { icon: Home,          key: 'inicio',        path: '/inicio' },
-  { icon: FileText,      key: 'documentos',    path: '/documentos' },
-  { icon: BarChart2,     key: 'proceso',       path: '/proceso' },
-  { icon: Play,          key: 'contenido',     path: '/contenido' },
-  { icon: MessageCircle, key: 'contacto',      path: '/contacto' },
-  { icon: Settings,      key: 'configuracion', path: '/configuracion' },
+  { icon: Home,          key: 'inicio',          path: '/inicio' },
+  { icon: FileText,      key: 'documentos',      path: '/documentos' },
+  { icon: BarChart2,     key: 'proceso',         path: '/proceso' },
+  { icon: Play,          key: 'contenido',       path: '/contenido' },
+  { icon: MessageCircle, key: 'contacto',        path: '/contacto' },
+  { icon: Bell,          key: 'notificaciones',  path: '/notificaciones' },
+  { icon: Settings,      key: 'configuracion',   path: '/configuracion' },
 ]
+
+const NOTIF_POLL_MS = 30000
 
 export default function Sidebar() {
   const { logout } = useAuth()
   const { t } = useTranslation()
+  const location = useLocation()
   const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
-    async function fetchUnread() {
+    let cancelled = false
+    async function refresh() {
       try {
-        const { data } = await api.get('/notificaciones/')
-        setUnreadCount(data.filter((n) => !n.leida).length)
+        const { data } = await api.get('/notificaciones/count')
+        if (!cancelled) setUnreadCount(data?.no_leidas ?? 0)
       } catch {
         // silently handle
       }
     }
-    fetchUnread()
-    const interval = setInterval(fetchUnread, 30000)
-    return () => clearInterval(interval)
-  }, [])
+    refresh()
+    const id = setInterval(refresh, NOTIF_POLL_MS)
+    return () => { cancelled = true; clearInterval(id) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname])
 
   return (
     <aside
@@ -51,7 +57,7 @@ export default function Sidebar() {
       <nav className="flex flex-col flex-1" style={{ padding: '0.25rem 0.75rem', gap: '2px' }}>
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon
-          const isContacto = item.path === '/contacto'
+          const showBadge = item.key === 'notificaciones' && unreadCount > 0
           return (
             <NavLink
               key={item.path}
@@ -65,21 +71,26 @@ export default function Sidebar() {
                 padding: '0.75rem 1rem',
                 marginBottom: '2px',
                 backgroundColor: isActive ? '#0099cc' : undefined,
-                position: 'relative',
               })}
             >
-              <Icon size={18} />
-              <span>{t(`nav.${item.key}`)}</span>
-              {isContacto && unreadCount > 0 && (
-                <span style={{
-                  marginLeft: 'auto',
-                  backgroundColor: '#EF4444', color: 'white',
-                  fontSize: '0.65rem', fontWeight: '700',
-                  borderRadius: '9999px', padding: '1px 6px',
-                  minWidth: '18px', textAlign: 'center',
-                }}>
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
+              {({ isActive }) => (
+                <>
+                  <Icon size={18} />
+                  <span style={{ flex: 1 }}>{t(`nav.${item.key}`)}</span>
+                  {showBadge && (
+                    <span style={{
+                      minWidth: '20px', height: '20px', padding: '0 6px',
+                      borderRadius: '9999px',
+                      backgroundColor: isActive ? 'white' : '#EF4444',
+                      color: isActive ? '#0099cc' : 'white',
+                      fontSize: '0.7rem', fontWeight: 700,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      lineHeight: 1,
+                    }}>
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </>
               )}
             </NavLink>
           )

@@ -11,6 +11,7 @@ import Proceso from './pages/cliente/Proceso'
 import Contenido from './pages/cliente/Contenido'
 import Contacto from './pages/cliente/Contacto'
 import ConfiguracionCliente from './pages/cliente/Configuracion'
+import ClienteNotificaciones from './pages/cliente/Notificaciones'
 import AdminClientes from './pages/admin/Clientes'
 import AdminProceso from './pages/admin/Proceso'
 import AdminNotificaciones from './pages/admin/Notificaciones'
@@ -43,8 +44,9 @@ function App() {
               <Route path="documentos"    element={<Documentos />} />
               <Route path="proceso"       element={<Proceso />} />
               <Route path="contenido"     element={<Contenido />} />
-              <Route path="contacto"      element={<Contacto />} />
-              <Route path="configuracion" element={<ConfiguracionCliente />} />
+              <Route path="contacto"        element={<Contacto />} />
+              <Route path="notificaciones" element={<ClienteNotificaciones />} />
+              <Route path="configuracion"  element={<ConfiguracionCliente />} />
             </Route>
 
             {/* Admin routes */}

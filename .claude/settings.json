@@ -14,7 +14,8 @@
       "mcp__claude_ai_Supabase__list_tables",
       "mcp__claude_ai_Supabase__list_migrations",
       "mcp__claude_ai_Supabase__get_logs",
-      "mcp__claude_ai_Supabase__execute_sql"
+      "mcp__claude_ai_Supabase__execute_sql",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:8000/docs\" -Method GET 2>&1)"
     ]
   }
 }

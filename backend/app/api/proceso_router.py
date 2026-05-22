@@ -16,6 +16,7 @@ from app.schemas.proceso_schema import (
     ETAPAS,
     ETAPA_LABELS,
 )
+from app.services.notificaciones_service import crear_para_admins
 from app.utils.audit import registrar_evento
 
 router = APIRouter(prefix="/proceso", tags=["Proceso"])
@@ -124,8 +125,8 @@ def cambiar_etapa(
     )
 
     # Notificación automática al cliente del proyecto
+    etapa_label = ETAPA_LABELS.get(data.etapa, data.etapa)
     if proyecto.cliente_id:
-        etapa_label = ETAPA_LABELS.get(data.etapa, data.etapa)
         notificacion = Notificacion(
             usuario_id=proyecto.cliente_id,
             tipo="proyecto_actualizado",
@@ -141,6 +142,17 @@ def cambiar_etapa(
 
     db.commit()
     db.refresh(proyecto)
+
+    # Notificación a todos los administradores (registro del cambio en el panel admin)
+    etapa_anterior_label = ETAPA_LABELS.get(etapa_anterior, etapa_anterior or "—")
+    crear_para_admins(
+        db,
+        tipo="etapa_cambiada",
+        titulo=f"Etapa actualizada: {proyecto.nombre}",
+        contenido=f"{current_user.nombre} cambió la etapa de '{proyecto.nombre}' de {etapa_anterior_label} a {etapa_label}.",
+        referencia_id=proyecto.id,
+        referencia_tipo="proyecto",
+    )
 
     historial = (
         db.query(EtapaHistorial)

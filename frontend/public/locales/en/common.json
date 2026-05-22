@@ -225,7 +225,28 @@
       "subtitulo": "Manage system notifications",
       "marcarTodas": "Mark all as read",
       "marcando": "Marking…",
-      "sinNotificaciones": "No notifications."
+      "sinNotificaciones": "No notifications.",
+      "eliminar": "Delete",
+      "confirmarEliminar": "Delete this notification?",
+      "nuevoAnuncio": "New announcement",
+      "sinLeer": "unread",
+      "noLeida": "Unread",
+      "broadcast": {
+        "titulo": "Send announcement",
+        "subtitulo": "Send a notification to one, several or all users.",
+        "labelTitulo": "Title",
+        "placeholderTitulo": "E.g.: Scheduled maintenance",
+        "labelContenido": "Message",
+        "placeholderContenido": "Announcement details…",
+        "destino": "Recipients",
+        "todos": "All users",
+        "seleccionados": "Specific users",
+        "enviar": "Send",
+        "enviando": "Sending…",
+        "cancelar": "Cancel",
+        "exito": "Announcement sent to {{count}} user(s)",
+        "error": "Could not send the announcement"
+      }
     },
     "contenido": {
       "titulo": "Content",
@@ -408,6 +429,20 @@
       "escribeMensaje": "Write a message...",
       "nombrePorDefecto": "Optimixage",
       "etiquetaAdmin": "Admin"
+    },
+    "notificaciones": {
+      "titulo": "Notifications",
+      "marcarTodas": "Mark all as read",
+      "marcando": "Marking…",
+      "sinNotificaciones": "You have no notifications.",
+      "eliminar": "Delete",
+      "confirmarEliminar": "Delete this notification?",
+      "tipos": {
+        "mensaje": "Message",
+        "documento": "Document",
+        "tarea": "Task",
+        "anuncio": "Announcement"
+      }
     },
     "configuracion": {
       "titulo": "Profile settings",

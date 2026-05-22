@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.schemas.usuario_schema import UsuarioCreate
 from app.services.auth_service import crear_usuario, autenticar_usuario, crear_token
+from app.services.notificaciones_service import crear_para_admins
 from app.core.database import get_db
 from app.core.dependencies import require_role
 from app.models.usuario import Usuario
@@ -15,7 +16,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 def register(
     user: UsuarioCreate,
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_role("Admin")),
+    admin: Usuario = Depends(require_role("Admin")),
 ):
     """
     Crea un nuevo usuario con rol Cliente.
@@ -26,6 +27,16 @@ def register(
         raise HTTPException(status_code=409, detail="Ya existe un usuario con ese correo.")
 
     usuario = crear_usuario(db, user.nombre, user.email, user.password)
+
+    crear_para_admins(
+        db,
+        tipo="cliente_creado",
+        titulo=f"Nuevo cliente: {usuario.nombre}",
+        contenido=f"{admin.nombre} registró a {usuario.nombre} ({usuario.email}).",
+        referencia_id=usuario.id,
+        referencia_tipo="usuario",
+    )
+
     return {"message": "Usuario creado", "id": str(usuario.id)}
 
 

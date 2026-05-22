@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   Users,
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import LanguageSwitcher from '../common/LanguageSwitcher'
+import api from '../../services/api'
 
 const NAV_ITEMS = [
   { icon: Users,         key: 'clientes',       path: '/admin/clientes' },
@@ -26,9 +28,30 @@ const NAV_ITEMS = [
   { icon: Settings,      key: 'configuracion',  path: '/admin/configuracion' },
 ]
 
+const NOTIF_POLL_MS = 30000
+
 export default function AdminSidebar() {
   const { logout } = useAuth()
   const { t } = useTranslation()
+  const location = useLocation()
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    let cancelled = false
+    async function refresh() {
+      try {
+        const { data } = await api.get('/notificaciones/count')
+        if (!cancelled) setUnreadCount(data?.no_leidas ?? 0)
+      } catch {
+        // si falla, mantenemos el valor previo en silencio
+      }
+    }
+    refresh()
+    const id = setInterval(refresh, NOTIF_POLL_MS)
+    return () => { cancelled = true; clearInterval(id) }
+  // se refresca también cuando el usuario navega (p. ej. acaba de marcar leídas)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname])
 
   return (
     <aside
@@ -52,6 +75,7 @@ export default function AdminSidebar() {
       <nav className="flex flex-col flex-1" style={{ padding: '0.25rem 0.75rem', gap: '2px' }}>
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon
+          const showBadge = item.key === 'notificaciones' && unreadCount > 0
           return (
             <NavLink
               key={item.path}
@@ -67,8 +91,32 @@ export default function AdminSidebar() {
                 backgroundColor: isActive ? '#0099cc' : undefined,
               })}
             >
-              <Icon size={18} />
-              <span>{t(`nav.${item.key}`)}</span>
+              {({ isActive }) => (
+                <>
+                  <Icon size={18} />
+                  <span style={{ flex: 1 }}>{t(`nav.${item.key}`)}</span>
+                  {showBadge && (
+                    <span
+                      style={{
+                        minWidth: '20px',
+                        height: '20px',
+                        padding: '0 6px',
+                        borderRadius: '9999px',
+                        backgroundColor: isActive ? 'white' : '#EF4444',
+                        color: isActive ? '#0099cc' : 'white',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        lineHeight: 1,
+                      }}
+                    >
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </>
+              )}
             </NavLink>
           )
         })}

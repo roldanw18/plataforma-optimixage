@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AlignJustify, Bell, CheckCheck } from 'lucide-react'
+import { Bell, CheckCheck, Send, Trash2, Users } from 'lucide-react'
 import api from '../../services/api'
 import { intlLocale } from '../../utils/locale'
+import BroadcastModal from './BroadcastModal'
 
 function resolveAvatar(url) {
   if (!url) return null
@@ -15,12 +16,27 @@ function AvatarIcon({ nombre, avatarUrl }) {
   if (src) {
     return (
       <img src={src} alt={nombre}
-        style={{ width: '52px', height: '52px', borderRadius: '9999px', objectFit: 'cover', flexShrink: 0 }} />
+        style={{ width: '40px', height: '40px', borderRadius: '9999px', objectFit: 'cover', flexShrink: 0 }} />
     )
   }
+  const initials = (nombre || '?').slice(0, 1).toUpperCase()
   return (
-    <div style={{ width: '52px', height: '52px', borderRadius: '9999px', backgroundColor: '#E5E7EB', flexShrink: 0 }} />
+    <div style={{
+      width: '40px', height: '40px', borderRadius: '9999px',
+      backgroundColor: '#E5E7EB', flexShrink: 0,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: '0.85rem', fontWeight: 700, color: '#6B7280',
+    }}>
+      {initials}
+    </div>
   )
+}
+
+const TIPO_COLORS = {
+  mensaje_nuevo:    { bg: '#dbeafe', color: '#1d4ed8' },
+  documento_subido: { bg: '#dcfce7', color: '#15803d' },
+  tarea_asignada:   { bg: '#fef9c3', color: '#a16207' },
+  anuncio:          { bg: '#ede9fe', color: '#7c3aed' },
 }
 
 export default function AdminNotificaciones() {
@@ -30,10 +46,12 @@ export default function AdminNotificaciones() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [markingAll, setMarkingAll] = useState(false)
+  const [showBroadcast, setShowBroadcast] = useState(false)
+  const [toast, setToast] = useState('')
 
   async function fetchNotificaciones() {
     try {
-      const { data } = await api.get('/notificaciones/')
+      const { data } = await api.get('/notificaciones/todas')
       setNotificaciones(data)
     } catch {
       setError(t('errors.noSePudieron'))
@@ -43,6 +61,12 @@ export default function AdminNotificaciones() {
   }
 
   useEffect(() => { fetchNotificaciones() }, [])
+
+  useEffect(() => {
+    if (!toast) return
+    const id = setTimeout(() => setToast(''), 3500)
+    return () => clearTimeout(id)
+  }, [toast])
 
   async function handleMarcarLeida(id) {
     try {
@@ -65,6 +89,22 @@ export default function AdminNotificaciones() {
     } finally {
       setMarkingAll(false)
     }
+  }
+
+  async function handleEliminar(id, e) {
+    e.stopPropagation()
+    if (!window.confirm(t('admin.notificaciones.confirmarEliminar'))) return
+    try {
+      await api.delete(`/notificaciones/${id}`)
+      setNotificaciones((prev) => prev.filter((n) => n.id !== id))
+    } catch {
+      // silently handle
+    }
+  }
+
+  function handleBroadcastSent(count) {
+    setToast(t('admin.notificaciones.broadcast.exito', { count }))
+    fetchNotificaciones()
   }
 
   const noLeidas = notificaciones.filter((n) => !n.leida).length
@@ -90,34 +130,63 @@ export default function AdminNotificaciones() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0a0a4e' }}>{t('admin.notificaciones.titulo')}</h1>
+          {notificaciones.length > 0 && (
+            <span style={{
+              backgroundColor: '#f3f4f6', color: '#6B7280',
+              fontSize: '0.7rem', fontWeight: 700,
+              borderRadius: '9999px', padding: '2px 8px',
+              display: 'flex', alignItems: 'center', gap: '4px',
+            }}>
+              <Users size={10} />
+              {notificaciones.length}
+            </span>
+          )}
           {noLeidas > 0 && (
             <span style={{
-              backgroundColor: '#0099cc', color: 'white',
-              fontSize: '0.7rem', fontWeight: '700',
+              backgroundColor: '#EF4444', color: 'white',
+              fontSize: '0.7rem', fontWeight: 700,
               borderRadius: '9999px', padding: '2px 8px',
             }}>
-              {noLeidas}
+              {noLeidas} {t('admin.notificaciones.sinLeer')}
             </span>
           )}
         </div>
-        {noLeidas > 0 && (
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {noLeidas > 0 && (
+            <button
+              onClick={handleMarcarTodas}
+              disabled={markingAll}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                padding: '0.45rem 1rem', backgroundColor: 'white',
+                border: '1px solid #E5E7EB', borderRadius: '8px',
+                fontSize: '0.8rem', color: '#374151',
+                cursor: markingAll ? 'not-allowed' : 'pointer',
+                opacity: markingAll ? 0.6 : 1, transition: 'background-color 0.2s',
+              }}
+              onMouseEnter={(e) => !markingAll && (e.currentTarget.style.backgroundColor = '#F3F4F6')}
+              onMouseLeave={(e) => !markingAll && (e.currentTarget.style.backgroundColor = 'white')}
+            >
+              <CheckCheck size={14} />
+              {markingAll ? t('admin.notificaciones.marcando') : t('admin.notificaciones.marcarTodas')}
+            </button>
+          )}
           <button
-            onClick={handleMarcarTodas}
-            disabled={markingAll}
+            onClick={() => setShowBroadcast(true)}
             style={{
               display: 'flex', alignItems: 'center', gap: '6px',
-              padding: '0.45rem 1rem', backgroundColor: 'white',
-              border: '1px solid #E5E7EB', borderRadius: '8px',
-              fontSize: '0.8rem', color: '#374151', cursor: markingAll ? 'not-allowed' : 'pointer',
-              opacity: markingAll ? 0.6 : 1, transition: 'background-color 0.2s',
+              padding: '0.45rem 1rem', backgroundColor: '#0099cc',
+              border: 'none', borderRadius: '8px',
+              fontSize: '0.8rem', color: 'white', fontWeight: 600, cursor: 'pointer',
+              transition: 'background-color 0.2s',
             }}
-            onMouseEnter={(e) => !markingAll && (e.currentTarget.style.backgroundColor = '#F3F4F6')}
-            onMouseLeave={(e) => !markingAll && (e.currentTarget.style.backgroundColor = 'white')}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#0086b3')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#0099cc')}
           >
-            <CheckCheck size={14} />
-            {markingAll ? t('admin.notificaciones.marcando') : t('admin.notificaciones.marcarTodas')}
+            <Send size={14} />
+            {t('admin.notificaciones.nuevoAnuncio')}
           </button>
-        )}
+        </div>
       </div>
 
       {error && <p style={{ color: '#EF4444', fontSize: '0.875rem', marginBottom: '1rem' }}>{error}</p>}
@@ -132,6 +201,7 @@ export default function AdminNotificaciones() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {notificaciones.map((notif) => {
           const isUnread = !notif.leida
+          const tipoStyle = TIPO_COLORS[notif.tipo] ?? { bg: '#f3f4f6', color: '#374151' }
           return (
             <div
               key={notif.id}
@@ -141,14 +211,13 @@ export default function AdminNotificaciones() {
                 border: isUnread ? '1px solid #b3e6f5' : '1px solid #f3f4f6',
                 backgroundColor: isUnread ? '#e0f5fb' : 'white',
                 display: 'flex', alignItems: 'center', gap: '1rem',
-                padding: '1rem 1.25rem',
+                padding: '0.85rem 1.25rem',
                 boxShadow: isUnread ? 'none' : '0 1px 3px rgba(0,0,0,0.04)',
                 cursor: isUnread ? 'pointer' : 'default',
                 transition: 'background-color 0.2s',
                 position: 'relative',
               }}
             >
-              {/* Punto de no leído */}
               {isUnread && (
                 <div style={{
                   position: 'absolute', top: '50%', left: '-6px',
@@ -158,42 +227,97 @@ export default function AdminNotificaciones() {
                   border: '2px solid white',
                 }} />
               )}
-
               <AvatarIcon
-                nombre={notif.usuario?.nombre || notif.titulo}
+                nombre={notif.usuario?.nombre}
                 avatarUrl={notif.usuario?.avatar_url}
               />
 
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: '0.875rem', fontWeight: '700', color: '#0a0a4e', marginBottom: '4px' }}>
-                  {notif.titulo}
-                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px', flexWrap: 'wrap' }}>
+                  <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0a0a4e' }}>
+                    {notif.titulo}
+                  </p>
+                  <span style={{
+                    fontSize: '0.65rem', fontWeight: 700, borderRadius: '9999px',
+                    padding: '2px 7px', backgroundColor: tipoStyle.bg, color: tipoStyle.color,
+                  }}>
+                    {notif.tipo.replace('_', ' ')}
+                  </span>
+                  {isUnread && (
+                    <span style={{
+                      fontSize: '0.65rem', fontWeight: 700, borderRadius: '9999px',
+                      padding: '2px 7px', backgroundColor: '#fef9c3', color: '#a16207',
+                    }}>
+                      {t('admin.notificaciones.noLeida')}
+                    </span>
+                  )}
+                </div>
                 {notif.contenido && (
                   <p style={{
-                    fontSize: '0.8rem', color: '#6B7280', lineHeight: '1.5',
-                    display: '-webkit-box', WebkitLineClamp: 2,
+                    fontSize: '0.78rem', color: '#6B7280', lineHeight: '1.4',
+                    display: '-webkit-box', WebkitLineClamp: 1,
                     WebkitBoxOrient: 'vertical', overflow: 'hidden',
                   }}>
                     {notif.contenido}
                   </p>
                 )}
-                <p style={{ fontSize: '0.7rem', color: '#9CA3AF', marginTop: '4px' }}>
-                  {new Date(notif.created_at).toLocaleString(intlLocale(lng), {
-                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
-                  })}
-                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
+                  {notif.usuario?.nombre && (
+                    <span style={{ fontSize: '0.7rem', color: '#9CA3AF' }}>
+                      → {notif.usuario.nombre}
+                    </span>
+                  )}
+                  <span style={{ fontSize: '0.7rem', color: '#D1D5DB' }}>·</span>
+                  <span style={{ fontSize: '0.7rem', color: '#9CA3AF' }}>
+                    {new Date(notif.created_at).toLocaleString(intlLocale(lng), {
+                      day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+                    })}
+                  </span>
+                </div>
               </div>
 
               <button
-                onClick={(e) => e.stopPropagation()}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', flexShrink: 0, alignSelf: 'flex-start', marginTop: '2px', padding: '2px' }}
+                onClick={(e) => handleEliminar(notif.id, e)}
+                title={t('admin.notificaciones.eliminar')}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: '#9CA3AF', flexShrink: 0, padding: '6px',
+                  borderRadius: '6px', transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#EF4444'
+                  e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.08)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#9CA3AF'
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }}
               >
-                <AlignJustify size={14} />
+                <Trash2 size={16} />
               </button>
             </div>
           )
         })}
       </div>
+
+      <BroadcastModal
+        open={showBroadcast}
+        onClose={() => setShowBroadcast(false)}
+        onSent={handleBroadcastSent}
+      />
+
+      {toast && (
+        <div style={{
+          position: 'fixed', bottom: '24px', right: '24px',
+          backgroundColor: '#10B981', color: 'white',
+          padding: '0.75rem 1.25rem', borderRadius: '10px',
+          fontSize: '0.85rem', fontWeight: 600,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          zIndex: 999,
+        }}>
+          {toast}
+        </div>
+      )}
     </div>
   )
 }

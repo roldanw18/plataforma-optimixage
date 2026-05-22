@@ -9,6 +9,7 @@ from app.core.dependencies import get_current_user, require_role
 from app.schemas.proyecto_schema import ProyectoCreate, ProyectoUpdate, ProyectoResponse, AsignarClienteRequest
 from app.models.proyecto import Proyecto
 from app.models.usuario import Usuario
+from app.services.notificaciones_service import crear_para_admins, crear_notificacion
 
 router = APIRouter(tags=["Proyectos"])
 
@@ -48,6 +49,27 @@ def crear_proyecto(
     db.add(proyecto)
     db.commit()
     db.refresh(proyecto)
+
+    crear_para_admins(
+        db,
+        tipo="proyecto_creado",
+        titulo=f"Nuevo proyecto: {proyecto.nombre}",
+        contenido=f"{current_user.nombre} creó el proyecto '{proyecto.nombre}'.",
+        referencia_id=proyecto.id,
+        referencia_tipo="proyecto",
+    )
+
+    if proyecto.cliente_id:
+        crear_notificacion(
+            db,
+            usuario_id=proyecto.cliente_id,
+            tipo="proyecto_creado",
+            titulo=f"Nuevo proyecto: {proyecto.nombre}",
+            contenido=f"Se ha creado un proyecto a tu nombre: '{proyecto.nombre}'.",
+            referencia_id=proyecto.id,
+            referencia_tipo="proyecto",
+        )
+
     return proyecto
 
 

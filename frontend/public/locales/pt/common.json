@@ -225,7 +225,28 @@
       "subtitulo": "Gerencie as notificações do sistema",
       "marcarTodas": "Marcar todas como lidas",
       "marcando": "Marcando…",
-      "sinNotificaciones": "Não há notificações."
+      "sinNotificaciones": "Não há notificações.",
+      "eliminar": "Excluir",
+      "confirmarEliminar": "Excluir esta notificação?",
+      "nuevoAnuncio": "Novo anúncio",
+      "sinLeer": "não lidas",
+      "noLeida": "Não lida",
+      "broadcast": {
+        "titulo": "Enviar anúncio",
+        "subtitulo": "Envie uma notificação para um, vários ou todos os usuários.",
+        "labelTitulo": "Título",
+        "placeholderTitulo": "Ex.: Manutenção programada",
+        "labelContenido": "Mensagem",
+        "placeholderContenido": "Detalhes do anúncio…",
+        "destino": "Destinatários",
+        "todos": "Todos os usuários",
+        "seleccionados": "Usuários específicos",
+        "enviar": "Enviar",
+        "enviando": "Enviando…",
+        "cancelar": "Cancelar",
+        "exito": "Anúncio enviado para {{count}} usuário(s)",
+        "error": "Não foi possível enviar o anúncio"
+      }
     },
     "contenido": {
       "titulo": "Conteúdo",
@@ -408,6 +429,20 @@
       "escribeMensaje": "Escreva uma mensagem...",
       "nombrePorDefecto": "Optimixage",
       "etiquetaAdmin": "Admin"
+    },
+    "notificaciones": {
+      "titulo": "Notificações",
+      "marcarTodas": "Marcar todas como lidas",
+      "marcando": "Marcando…",
+      "sinNotificaciones": "Você não tem notificações.",
+      "eliminar": "Excluir",
+      "confirmarEliminar": "Excluir esta notificação?",
+      "tipos": {
+        "mensaje": "Mensagem",
+        "documento": "Documento",
+        "tarea": "Tarefa",
+        "anuncio": "Anúncio"
+      }
     },
     "configuracion": {
       "titulo": "Configurações de perfil",
