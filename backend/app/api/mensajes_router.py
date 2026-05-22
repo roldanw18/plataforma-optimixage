@@ -6,7 +6,12 @@ from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.models.usuario import Usuario
 from app.schemas.mensaje_schema import MensajeCreate, MensajeResponse
-from app.services.mensaje_service import enviar_mensaje, obtener_mensajes_proyecto, marcar_leidos
+from app.services.mensaje_service import (
+    enviar_mensaje,
+    obtener_mensajes_proyecto,
+    marcar_leidos,
+    resumen_por_proyecto,
+)
 
 router = APIRouter(prefix="/mensajes", tags=["Mensajes"])
 
@@ -29,6 +34,14 @@ def listar_mensajes(
     current_user: Usuario = Depends(get_current_user),
 ):
     return obtener_mensajes_proyecto(db, proyecto_id)
+
+
+@router.get("/resumen")
+def resumen(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    return resumen_por_proyecto(db, current_user)
 
 
 @router.patch("/proyecto/{proyecto_id}/leer")

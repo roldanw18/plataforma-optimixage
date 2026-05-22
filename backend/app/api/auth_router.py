@@ -35,6 +35,13 @@ def register(
         contenido=f"{admin.nombre} registró a {usuario.nombre} ({usuario.email}).",
         referencia_id=usuario.id,
         referencia_tipo="usuario",
+        titulo_key="notif.cliente_creado.titulo",
+        contenido_key="notif.cliente_creado.contenido",
+        params={
+            "nombre": usuario.nombre,
+            "email": usuario.email,
+            "admin": admin.nombre,
+        },
     )
 
     return {"message": "Usuario creado", "id": str(usuario.id)}

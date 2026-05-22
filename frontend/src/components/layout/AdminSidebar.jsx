@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import LanguageSwitcher from '../common/LanguageSwitcher'
+import Logo from '../common/Logo'
 import api from '../../services/api'
 
 const NAV_ITEMS = [
@@ -63,12 +64,8 @@ export default function AdminSidebar() {
       }}
     >
       {/* Logo */}
-      <div style={{ padding: '1.5rem 1.25rem 1rem' }}>
-        <img
-          src="/logo3.png"
-          alt="Optimixage"
-          style={{ width: '140px', height: 'auto' }}
-        />
+      <div style={{ padding: '2.5rem 1.25rem 5.5rem' }}>
+        <Logo />
       </div>
 
       {/* Nav */}

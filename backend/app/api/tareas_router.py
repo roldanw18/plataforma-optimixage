@@ -25,6 +25,9 @@ def _notificar_asignacion(db: Session, tarea: Tarea, asignador: Usuario):
         contenido=f"{asignador.nombre} te asignó una tarea",
         referencia_id=tarea.id,
         referencia_tipo="tarea",
+        titulo_key="notif.tarea_asignada.titulo",
+        contenido_key="notif.tarea_asignada.contenido",
+        params={"titulo": tarea.titulo, "asignador": asignador.nombre},
     )
 
 

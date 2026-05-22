@@ -1,6 +1,6 @@
 from uuid import UUID
 from datetime import datetime
-from typing import Optional, List, Literal
+from typing import Any, Optional, List, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -23,6 +23,9 @@ class NotificacionResponse(BaseModel):
     referencia_id: Optional[UUID]
     referencia_tipo: Optional[str]
     created_at: datetime
+    titulo_key: Optional[str] = None
+    contenido_key: Optional[str] = None
+    params: Optional[dict[str, Any]] = None
 
     model_config = ConfigDict(from_attributes=True)
 

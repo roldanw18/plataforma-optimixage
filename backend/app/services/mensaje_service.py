@@ -1,4 +1,5 @@
 from uuid import UUID
+from sqlalchemy import func, case
 from sqlalchemy.orm import Session
 from app.models.mensaje import Mensaje
 from app.models.usuario import Usuario
@@ -18,6 +19,7 @@ def _enrich(db: Session, mensaje: Mensaje) -> dict:
         "leido": mensaje.leido,
         "remitente_nombre": remitente.nombre if remitente else None,
         "remitente_rol": remitente.rol.nombre if remitente and remitente.rol else None,
+        "remitente_avatar": remitente.avatar_url if remitente else None,
     }
 
 
@@ -61,6 +63,9 @@ def enviar_mensaje(db: Session, contenido: str, proyecto_id: UUID, remitente_id:
             contenido=preview,
             referencia_id=proyecto_id,
             referencia_tipo="proyecto",
+            titulo_key="notif.mensaje_nuevo.titulo",
+            contenido_key="notif.mensaje_nuevo.contenido",
+            params={"remitente": nombre_remitente, "preview": preview},
         )
 
     return _enrich(db, mensaje)
@@ -74,6 +79,44 @@ def obtener_mensajes_proyecto(db: Session, proyecto_id: UUID) -> list[dict]:
         .all()
     )
     return [_enrich(db, m) for m in mensajes]
+
+
+def resumen_por_proyecto(db: Session, lector: Usuario) -> list[dict]:
+    """Por cada proyecto con mensajes, devuelve el último mensaje y no_leidos para el lector."""
+    es_admin = lector.rol and lector.rol.nombre == "Admin"
+    query = db.query(
+        Mensaje.proyecto_id.label("proyecto_id"),
+        func.max(Mensaje.fecha_envio).label("ultimo_mensaje"),
+        func.sum(
+            case(
+                (
+                    (Mensaje.leido == False) & (Mensaje.remitente_id != lector.id),
+                    1,
+                ),
+                else_=0,
+            )
+        ).label("no_leidos"),
+    )
+    if not es_admin:
+        proyectos_cliente = db.query(Proyecto.id).filter(Proyecto.cliente_id == lector.id)
+        proyectos_miembro = db.query(ProyectoMiembro.proyecto_id).filter(
+            ProyectoMiembro.usuario_id == lector.id
+        )
+        permitidos = {pid for (pid,) in proyectos_cliente.all()} | {
+            pid for (pid,) in proyectos_miembro.all()
+        }
+        if not permitidos:
+            return []
+        query = query.filter(Mensaje.proyecto_id.in_(permitidos))
+    rows = query.group_by(Mensaje.proyecto_id).all()
+    return [
+        {
+            "proyecto_id": r.proyecto_id,
+            "ultimo_mensaje": r.ultimo_mensaje,
+            "no_leidos": int(r.no_leidos or 0),
+        }
+        for r in rows
+    ]
 
 
 def marcar_leidos(db: Session, proyecto_id: UUID, lector_id: UUID) -> int:

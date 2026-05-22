@@ -1,4 +1,46 @@
 {
+  "notif": {
+    "cliente_creado": {
+      "titulo": "New client: {{nombre}}",
+      "contenido": "{{admin}} registered {{nombre}} ({{email}})."
+    },
+    "proyecto_creado": {
+      "titulo": "New project: {{proyecto}}",
+      "contenido_admin": "{{admin}} created the project '{{proyecto}}'.",
+      "contenido_cliente": "A project has been created for you: '{{proyecto}}'."
+    },
+    "etapa_cambiada": {
+      "titulo": "Stage updated: {{proyecto}}",
+      "contenido": "{{admin}} changed the stage of '{{proyecto}}' from {{anterior}} to {{nueva}}."
+    },
+    "proyecto_actualizado": {
+      "titulo": "Your project moved to: {{etapa}}",
+      "contenido": "The administrator updated the stage of '{{proyecto}}' to {{etapa}}.",
+      "contenido_con_notas": "{{notas}}"
+    },
+    "mensaje_nuevo": {
+      "titulo": "New message from {{remitente}}",
+      "contenido": "{{preview}}"
+    },
+    "documento_subido": {
+      "titulo": "New document: {{titulo}}",
+      "contenido": "{{autor}} uploaded a document to the project"
+    },
+    "tarea_asignada": {
+      "titulo": "New task assigned: {{titulo}}",
+      "contenido": "{{asignador}} assigned you a task"
+    },
+    "tipos": {
+      "mensaje_nuevo": "Message",
+      "documento_subido": "Document",
+      "tarea_asignada": "Task",
+      "anuncio": "Announcement",
+      "cliente_creado": "Client",
+      "proyecto_creado": "Project",
+      "etapa_cambiada": "Stage",
+      "proyecto_actualizado": "Project"
+    }
+  },
   "nav": {
     "inicio": "Home",
     "documentos": "Documents",
@@ -231,6 +273,8 @@
       "nuevoAnuncio": "New announcement",
       "sinLeer": "unread",
       "noLeida": "Unread",
+      "destinatarios_one": "→ {{count}} recipient",
+      "destinatarios_other": "→ {{count}} recipients",
       "broadcast": {
         "titulo": "Send announcement",
         "subtitulo": "Send a notification to one, several or all users.",

@@ -4,8 +4,12 @@ Service centralizado para crear y gestionar notificaciones.
 Diseñado para ser llamado desde cualquier otro service cuando ocurra un evento
 relevante. Las funciones nunca lanzan excepción: si la notificación falla, se
 registra en el logger pero NO rompe la transacción que la disparó.
+
+Para soportar i18n, cada notificación puede llevar `titulo_key`, `contenido_key`
+y `params` (JSON). El frontend traduce usando esas claves. `titulo`/`contenido`
+se mantienen como fallback (y para texto libre tipo broadcasts).
 """
-from typing import Iterable, Optional
+from typing import Any, Iterable, Optional
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -27,14 +31,11 @@ def crear_notificacion(
     contenido: Optional[str] = None,
     referencia_id: Optional[UUID] = None,
     referencia_tipo: Optional[str] = None,
+    titulo_key: Optional[str] = None,
+    contenido_key: Optional[str] = None,
+    params: Optional[dict[str, Any]] = None,
     commit: bool = True,
 ) -> Optional[Notificacion]:
-    """
-    Crea una notificación para un usuario. Si falla, no propaga la excepción
-    (loguea y devuelve None) para no romper el flujo del caller.
-
-    `commit=False` permite agrupar varias notificaciones en una sola transacción.
-    """
     try:
         notif = Notificacion(
             usuario_id=usuario_id,
@@ -43,6 +44,9 @@ def crear_notificacion(
             contenido=contenido,
             referencia_id=referencia_id,
             referencia_tipo=referencia_tipo,
+            titulo_key=titulo_key,
+            contenido_key=contenido_key,
+            params=params,
         )
         db.add(notif)
         if commit:
@@ -67,11 +71,10 @@ def crear_para_muchos(
     contenido: Optional[str] = None,
     referencia_id: Optional[UUID] = None,
     referencia_tipo: Optional[str] = None,
+    titulo_key: Optional[str] = None,
+    contenido_key: Optional[str] = None,
+    params: Optional[dict[str, Any]] = None,
 ) -> int:
-    """
-    Crea la misma notificación para una lista de usuarios en una sola transacción.
-    Devuelve el número de notificaciones efectivamente creadas.
-    """
     creadas = 0
     try:
         for uid in usuario_ids:
@@ -82,6 +85,9 @@ def crear_para_muchos(
                 contenido=contenido,
                 referencia_id=referencia_id,
                 referencia_tipo=referencia_tipo,
+                titulo_key=titulo_key,
+                contenido_key=contenido_key,
+                params=params,
             )
             db.add(notif)
             creadas += 1
@@ -102,13 +108,10 @@ def crear_para_admins(
     referencia_id: Optional[UUID] = None,
     referencia_tipo: Optional[str] = None,
     excluir_usuario_id: Optional[UUID] = None,
+    titulo_key: Optional[str] = None,
+    contenido_key: Optional[str] = None,
+    params: Optional[dict[str, Any]] = None,
 ) -> int:
-    """
-    Crea la misma notificación para todos los usuarios con rol Admin activos.
-    Útil para eventos del sistema que el admin debe conocer (nuevo cliente,
-    cambio de etapa, etc.). `excluir_usuario_id` opcionalmente evita notificar
-    al admin que disparó el evento.
-    """
     query = (
         db.query(Usuario.id)
         .join(Rol, Usuario.rol_id == Rol.id)
@@ -127,6 +130,9 @@ def crear_para_admins(
         contenido=contenido,
         referencia_id=referencia_id,
         referencia_tipo=referencia_tipo,
+        titulo_key=titulo_key,
+        contenido_key=contenido_key,
+        params=params,
     )
 
 
@@ -139,11 +145,10 @@ def crear_para_todos(
     referencia_id: Optional[UUID] = None,
     referencia_tipo: Optional[str] = None,
     excluir_usuario_id: Optional[UUID] = None,
+    titulo_key: Optional[str] = None,
+    contenido_key: Optional[str] = None,
+    params: Optional[dict[str, Any]] = None,
 ) -> int:
-    """
-    Crea la misma notificación para todos los usuarios activos del sistema.
-    `excluir_usuario_id` evita notificar al propio emisor del evento.
-    """
     query = db.query(Usuario.id).filter(Usuario.is_active.is_(True))
     if excluir_usuario_id is not None:
         query = query.filter(Usuario.id != excluir_usuario_id)
@@ -156,4 +161,7 @@ def crear_para_todos(
         contenido=contenido,
         referencia_id=referencia_id,
         referencia_tipo=referencia_tipo,
+        titulo_key=titulo_key,
+        contenido_key=contenido_key,
+        params=params,
     )

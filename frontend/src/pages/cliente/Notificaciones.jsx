@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Bell, CheckCheck, Trash2 } from 'lucide-react'
 import api from '../../services/api'
 import { intlLocale } from '../../utils/locale'
+import { notifTitulo, notifContenido } from '../../utils/notif'
 
 function resolveAvatar(url) {
   if (!url) return null
@@ -182,17 +183,17 @@ export default function ClienteNotificaciones() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
                   <p style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0a0a4e' }}>
-                    {notif.titulo}
+                    {notifTitulo(t, notif)}
                   </p>
                   <TipoTag tipo={notif.tipo} t={t} />
                 </div>
-                {notif.contenido && (
+                {(notif.contenido || notif.contenido_key) && (
                   <p style={{
                     fontSize: '0.8rem', color: '#6B7280', lineHeight: '1.5',
                     display: '-webkit-box', WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical', overflow: 'hidden',
                   }}>
-                    {notif.contenido}
+                    {notifContenido(t, notif)}
                   </p>
                 )}
                 <p style={{ fontSize: '0.7rem', color: '#9CA3AF', marginTop: '4px' }}>

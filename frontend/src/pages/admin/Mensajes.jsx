@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Send, MessageCircle, Circle } from 'lucide-react'
+import { Send, MessageCircle } from 'lucide-react'
 import api from '../../services/api'
 import { useAuth } from '../../context/AuthContext'
 import { intlLocale } from '../../utils/locale'
+import { resolveAvatarUrl } from '../../components/common/AvatarUploader'
 
 function formatTime(iso, lng) {
   if (!iso) return ''
@@ -27,8 +28,24 @@ export default function AdminMensajes() {
   const [sending, setSending]             = useState(false)
   const [loadingMsgs, setLoadingMsgs]     = useState(false)
   const [noLeidos, setNoLeidos]           = useState({})
-  const bottomRef = useRef(null)
-  const pollRef   = useRef(null)
+  const [ultimoMensaje, setUltimoMensaje] = useState({})
+  const bottomRef    = useRef(null)
+  const pollRef      = useRef(null)
+  const resumenRef   = useRef(null)
+
+  const cargarResumen = useCallback(async () => {
+    try {
+      const { data } = await api.get('/mensajes/resumen')
+      const ult = {}
+      const nl  = {}
+      for (const r of data) {
+        ult[r.proyecto_id] = r.ultimo_mensaje
+        nl[r.proyecto_id]  = r.no_leidos
+      }
+      setUltimoMensaje(ult)
+      setNoLeidos(nl)
+    } catch { /* silently */ }
+  }, [])
 
   // Cargar proyectos al inicio
   useEffect(() => {
@@ -38,6 +55,9 @@ export default function AdminMensajes() {
         setProyectos(data)
         if (data.length > 0) seleccionarProyecto(data[0])
       })
+    cargarResumen()
+    resumenRef.current = setInterval(cargarResumen, 5000)
+    return () => clearInterval(resumenRef.current)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -49,6 +69,11 @@ export default function AdminMensajes() {
       // contar no leídos de clientes
       const noLeido = data.filter(m => !m.leido && m.remitente_rol !== 'Admin').length
       setNoLeidos(prev => ({ ...prev, [pid]: noLeido }))
+      // actualizar timestamp del último mensaje
+      const last = data[data.length - 1]
+      if (last?.fecha_envio) {
+        setUltimoMensaje(prev => ({ ...prev, [pid]: last.fecha_envio }))
+      }
       // marcar como leídos
       if (noLeido > 0) api.patch(`/mensajes/proyecto/${pid}/leer`).catch(() => {})
     } catch { /* silently */ }
@@ -78,6 +103,7 @@ export default function AdminMensajes() {
         proyecto_id: proyectoSel.id,
       })
       setMensajes(prev => [...prev, data])
+      setUltimoMensaje(prev => ({ ...prev, [proyectoSel.id]: data.fecha_envio }))
       setTexto('')
     } catch { /* silently */ }
     finally { setSending(false) }
@@ -85,6 +111,14 @@ export default function AdminMensajes() {
 
   const isMe = (msg) => String(msg.remitente_id) === String(user?.id)
   const hayTexto = texto.trim().length > 0
+
+  const proyectosOrdenados = useMemo(() => {
+    return [...proyectos].sort((a, b) => {
+      const ta = ultimoMensaje[a.id] ? new Date(ultimoMensaje[a.id]).getTime() : 0
+      const tb = ultimoMensaje[b.id] ? new Date(ultimoMensaje[b.id]).getTime() : 0
+      return tb - ta
+    })
+  }, [proyectos, ultimoMensaje])
 
   return (
     <div style={{ padding: '2rem', height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -121,9 +155,11 @@ export default function AdminMensajes() {
             {proyectos.length === 0 && (
               <p style={{ padding: '16px', fontSize: '13px', color: '#9ca3af' }}>{t('admin.mensajes.sinProyectos')}</p>
             )}
-            {proyectos.map(p => {
+            {proyectosOrdenados.map(p => {
               const activo  = proyectoSel?.id === p.id
               const noLeido = noLeidos[p.id] || 0
+              const avatar  = p.cliente?.avatar_url
+              const inicial = (p.cliente?.nombre || p.nombre || '?')[0].toUpperCase()
               return (
                 <button key={p.id} onClick={() => seleccionarProyecto(p)} style={{
                   width: '100%', textAlign: 'left', border: 'none', cursor: 'pointer',
@@ -134,11 +170,21 @@ export default function AdminMensajes() {
                 }}>
                   <div style={{
                     width: '36px', height: '36px', borderRadius: '50%',
-                    background: activo ? '#0099cc' : '#e5e7eb',
+                    background: avatar ? 'transparent' : (activo ? '#0099cc' : '#e5e7eb'),
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: activo ? 'white' : '#6b7280', fontSize: '14px', fontWeight: '700', flexShrink: 0,
+                    color: activo ? 'white' : '#6b7280', fontSize: '14px', fontWeight: '700',
+                    flexShrink: 0, overflow: 'hidden', position: 'relative',
                   }}>
-                    {(p.nombre || '?')[0].toUpperCase()}
+                    <span style={{ position: 'absolute', inset: 0, display: 'flex',
+                      alignItems: 'center', justifyContent: 'center' }}>
+                      {inicial}
+                    </span>
+                    {avatar && (
+                      <img src={resolveAvatarUrl(avatar)} alt=""
+                        onError={(e) => { e.currentTarget.style.display = 'none' }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover',
+                          position: 'relative', zIndex: 1 }} />
+                    )}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{
@@ -179,31 +225,33 @@ export default function AdminMensajes() {
               display: 'flex', alignItems: 'center', gap: '10px',
             }}>
               <div style={{
-                width: '36px', height: '36px', borderRadius: '50%', background: '#0099cc',
+                width: '36px', height: '36px', borderRadius: '50%',
+                background: proyectoSel.cliente?.avatar_url ? 'transparent' : '#0099cc',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: 'white', fontSize: '14px', fontWeight: '700', flexShrink: 0,
+                color: 'white', fontSize: '14px', fontWeight: '700', flexShrink: 0, overflow: 'hidden',
+                position: 'relative',
               }}>
-                {(proyectoSel.nombre || '?')[0].toUpperCase()}
+                <span style={{ position: 'absolute', inset: 0, display: 'flex',
+                  alignItems: 'center', justifyContent: 'center' }}>
+                  {(proyectoSel.cliente?.nombre || proyectoSel.nombre || '?')[0].toUpperCase()}
+                </span>
+                {proyectoSel.cliente?.avatar_url && (
+                  <img src={resolveAvatarUrl(proyectoSel.cliente.avatar_url)} alt=""
+                    onError={(e) => { e.currentTarget.style.display = 'none' }}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover',
+                      position: 'relative', zIndex: 1 }} />
+                )}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: '14px', fontWeight: '700', color: '#0a0a4e',
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {proyectoSel.nombre}
                 </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                  {proyectoSel.cliente?.nombre && (
-                    <span style={{ fontSize: '11px', fontWeight: '600', color: '#0099cc' }}>
-                      {proyectoSel.cliente.nombre}
-                    </span>
-                  )}
-                  {proyectoSel.cliente?.nombre && (
-                    <span style={{ fontSize: '11px', color: '#d1d5db' }}>·</span>
-                  )}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Circle size={7} color="#22c55e" fill="#22c55e" />
-                    <span style={{ fontSize: '11px', color: '#6b7280' }}>{t('admin.mensajes.activo')}</span>
-                  </div>
-                </div>
+                {proyectoSel.cliente?.nombre && (
+                  <span style={{ fontSize: '11px', fontWeight: '600', color: '#0099cc' }}>
+                    {proyectoSel.cliente.nombre}
+                  </span>
+                )}
               </div>
             </div>
           )}
@@ -247,11 +295,19 @@ export default function AdminMensajes() {
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', maxWidth: '70%' }}>
                       {showMeta ? (
                         <div style={{
-                          width: '30px', height: '30px', borderRadius: '50%', background: '#e5e7eb',
+                          width: '30px', height: '30px', borderRadius: '50%',
+                          background: msg.remitente_avatar ? 'transparent' : '#e5e7eb',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '12px', fontWeight: '700', color: '#374151', flexShrink: 0,
+                          fontSize: '12px', fontWeight: '700', color: '#374151',
+                          flexShrink: 0, overflow: 'hidden',
                         }}>
-                          {(msg.remitente_nombre || '?')[0].toUpperCase()}
+                          {msg.remitente_avatar ? (
+                            <img src={resolveAvatarUrl(msg.remitente_avatar)} alt=""
+                              onError={(e) => { e.currentTarget.style.display = 'none' }}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ) : (
+                            (msg.remitente_nombre || '?')[0].toUpperCase()
+                          )}
                         </div>
                       ) : (
                         <div style={{ width: '30px', flexShrink: 0 }} />

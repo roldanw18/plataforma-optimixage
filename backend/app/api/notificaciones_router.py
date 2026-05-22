@@ -1,4 +1,4 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -139,8 +139,12 @@ def broadcast_admin(
 ):
     """
     Envía una notificación a uno, varios o todos los usuarios activos.
+    Todas las notificaciones del mismo broadcast comparten un `referencia_id`
+    para que el panel admin las muestre agrupadas como un único anuncio.
     Restringido a administradores.
     """
+    broadcast_ref = uuid4()
+
     if payload.usuario_ids:
         enviadas = crear_para_muchos(
             db,
@@ -148,6 +152,8 @@ def broadcast_admin(
             tipo=payload.tipo,
             titulo=payload.titulo,
             contenido=payload.contenido,
+            referencia_id=broadcast_ref,
+            referencia_tipo="broadcast",
         )
         destino = "seleccionados"
     else:
@@ -156,8 +162,24 @@ def broadcast_admin(
             tipo=payload.tipo,
             titulo=payload.titulo,
             contenido=payload.contenido,
+            referencia_id=broadcast_ref,
+            referencia_tipo="broadcast",
             excluir_usuario_id=admin.id,
         )
         destino = "todos"
 
     return {"enviadas": enviadas, "destino": destino}
+
+
+@router.delete("/grupo/{referencia_id}", status_code=204)
+def eliminar_grupo_broadcast(
+    referencia_id: UUID,
+    db: Session = Depends(get_db),
+    admin: Usuario = Depends(require_role("Admin")),
+):
+    """Elimina todas las notificaciones de un mismo broadcast. Solo admin."""
+    db.query(Notificacion).filter(
+        Notificacion.referencia_id == referencia_id,
+        Notificacion.referencia_tipo == "broadcast",
+    ).delete(synchronize_session=False)
+    db.commit()

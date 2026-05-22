@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
 import LanguageSwitcher from '../common/LanguageSwitcher'
+import Logo from '../common/Logo'
 
 const NAV_ITEMS = [
   { icon: Home,          key: 'inicio',          path: '/inicio' },
@@ -49,8 +50,8 @@ export default function Sidebar() {
       style={{ width: '220px', minWidth: '220px', borderRight: '1px solid #f3f4f6' }}
     >
       {/* Logo */}
-      <div style={{ padding: '1.5rem 1.25rem 1rem' }}>
-        <img src="/logo3.png" alt="Optimixage" style={{ width: '140px', height: 'auto' }} />
+      <div style={{ padding: '2.5rem 1.25rem 5.5rem' }}>
+        <Logo />
       </div>
 
       {/* Nav */}

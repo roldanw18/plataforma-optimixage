@@ -1,4 +1,46 @@
 {
+  "notif": {
+    "cliente_creado": {
+      "titulo": "Novo cliente: {{nombre}}",
+      "contenido": "{{admin}} registrou {{nombre}} ({{email}})."
+    },
+    "proyecto_creado": {
+      "titulo": "Novo projeto: {{proyecto}}",
+      "contenido_admin": "{{admin}} criou o projeto '{{proyecto}}'.",
+      "contenido_cliente": "Foi criado um projeto em seu nome: '{{proyecto}}'."
+    },
+    "etapa_cambiada": {
+      "titulo": "Etapa atualizada: {{proyecto}}",
+      "contenido": "{{admin}} mudou a etapa de '{{proyecto}}' de {{anterior}} para {{nueva}}."
+    },
+    "proyecto_actualizado": {
+      "titulo": "Seu projeto avançou para: {{etapa}}",
+      "contenido": "O administrador atualizou a etapa de '{{proyecto}}' para {{etapa}}.",
+      "contenido_con_notas": "{{notas}}"
+    },
+    "mensaje_nuevo": {
+      "titulo": "Nova mensagem de {{remitente}}",
+      "contenido": "{{preview}}"
+    },
+    "documento_subido": {
+      "titulo": "Novo documento: {{titulo}}",
+      "contenido": "{{autor}} enviou um documento ao projeto"
+    },
+    "tarea_asignada": {
+      "titulo": "Nova tarefa atribuída: {{titulo}}",
+      "contenido": "{{asignador}} atribuiu uma tarefa a você"
+    },
+    "tipos": {
+      "mensaje_nuevo": "Mensagem",
+      "documento_subido": "Documento",
+      "tarea_asignada": "Tarefa",
+      "anuncio": "Anúncio",
+      "cliente_creado": "Cliente",
+      "proyecto_creado": "Projeto",
+      "etapa_cambiada": "Etapa",
+      "proyecto_actualizado": "Projeto"
+    }
+  },
   "nav": {
     "inicio": "Início",
     "documentos": "Documentos",
@@ -231,6 +273,8 @@
       "nuevoAnuncio": "Novo anúncio",
       "sinLeer": "não lidas",
       "noLeida": "Não lida",
+      "destinatarios_one": "→ {{count}} destinatário",
+      "destinatarios_other": "→ {{count}} destinatários",
       "broadcast": {
         "titulo": "Enviar anúncio",
         "subtitulo": "Envie uma notificação para um, vários ou todos os usuários.",

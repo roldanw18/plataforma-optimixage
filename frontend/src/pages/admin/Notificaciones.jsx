@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bell, CheckCheck, Send, Trash2, Users } from 'lucide-react'
+import { Bell, CheckCheck, Megaphone, Send, Trash2, Users } from 'lucide-react'
 import api from '../../services/api'
 import { intlLocale } from '../../utils/locale'
+import { notifTitulo, notifContenido, notifTipoLabel } from '../../utils/notif'
 import BroadcastModal from './BroadcastModal'
 
 function resolveAvatar(url) {
@@ -102,6 +103,56 @@ export default function AdminNotificaciones() {
     }
   }
 
+  async function handleEliminarGrupo(refId, e) {
+    e.stopPropagation()
+    if (!window.confirm(t('admin.notificaciones.confirmarEliminar'))) return
+    try {
+      await api.delete(`/notificaciones/grupo/${refId}`)
+      setNotificaciones((prev) => prev.filter(
+        (n) => !(n.referencia_tipo === 'broadcast' && n.referencia_id === refId)
+      ))
+    } catch {
+      // silently handle
+    }
+  }
+
+  async function handleMarcarLeidaGrupo(refId) {
+    const ids = notificaciones
+      .filter((n) => n.referencia_tipo === 'broadcast' && n.referencia_id === refId && !n.leida)
+      .map((n) => n.id)
+    if (ids.length === 0) return
+    try {
+      await Promise.all(ids.map((id) => api.patch(`/notificaciones/${id}/leer`)))
+      setNotificaciones((prev) => prev.map((n) =>
+        n.referencia_tipo === 'broadcast' && n.referencia_id === refId ? { ...n, leida: true } : n
+      ))
+    } catch {
+      // silently handle
+    }
+  }
+
+  // Agrupar broadcasts: las notificaciones con el mismo referencia_id y
+  // referencia_tipo='broadcast' se muestran como una única tarjeta.
+  const items = useMemo(() => {
+    const grupos = new Map()
+    const resultado = []
+    for (const n of notificaciones) {
+      if (n.referencia_tipo === 'broadcast' && n.referencia_id) {
+        const key = n.referencia_id
+        if (!grupos.has(key)) {
+          const entry = { kind: 'group', referencia_id: key, items: [n] }
+          grupos.set(key, entry)
+          resultado.push(entry)
+        } else {
+          grupos.get(key).items.push(n)
+        }
+      } else {
+        resultado.push({ kind: 'single', notif: n })
+      }
+    }
+    return resultado
+  }, [notificaciones])
+
   function handleBroadcastSent(count) {
     setToast(t('admin.notificaciones.broadcast.exito', { count }))
     fetchNotificaciones()
@@ -199,7 +250,113 @@ export default function AdminNotificaciones() {
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        {notificaciones.map((notif) => {
+        {items.map((item) => {
+          if (item.kind === 'group') {
+            const first = item.items[0]
+            const count = item.items.length
+            const isUnread = item.items.some((n) => !n.leida)
+            const tipoStyle = TIPO_COLORS[first.tipo] ?? { bg: '#f3f4f6', color: '#374151' }
+            return (
+              <div
+                key={`g-${item.referencia_id}`}
+                onClick={() => isUnread && handleMarcarLeidaGrupo(item.referencia_id)}
+                style={{
+                  borderRadius: '12px',
+                  border: isUnread ? '1px solid #b3e6f5' : '1px solid #f3f4f6',
+                  backgroundColor: isUnread ? '#e0f5fb' : 'white',
+                  display: 'flex', alignItems: 'center', gap: '1rem',
+                  padding: '0.85rem 1.25rem',
+                  boxShadow: isUnread ? 'none' : '0 1px 3px rgba(0,0,0,0.04)',
+                  cursor: isUnread ? 'pointer' : 'default',
+                  transition: 'background-color 0.2s',
+                  position: 'relative',
+                }}
+              >
+                {isUnread && (
+                  <div style={{
+                    position: 'absolute', top: '50%', left: '-6px',
+                    transform: 'translateY(-50%)',
+                    width: '10px', height: '10px',
+                    borderRadius: '9999px', backgroundColor: '#0099cc',
+                    border: '2px solid white',
+                  }} />
+                )}
+                <div style={{
+                  width: '40px', height: '40px', borderRadius: '9999px',
+                  backgroundColor: '#ede9fe', flexShrink: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#7c3aed',
+                }}>
+                  <Megaphone size={18} />
+                </div>
+
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px', flexWrap: 'wrap' }}>
+                    <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0a0a4e' }}>
+                      {notifTitulo(t, first)}
+                    </p>
+                    <span style={{
+                      fontSize: '0.65rem', fontWeight: 700, borderRadius: '9999px',
+                      padding: '2px 7px', backgroundColor: tipoStyle.bg, color: tipoStyle.color,
+                    }}>
+                      {notifTipoLabel(t, first.tipo)}
+                    </span>
+                    {isUnread && (
+                      <span style={{
+                        fontSize: '0.65rem', fontWeight: 700, borderRadius: '9999px',
+                        padding: '2px 7px', backgroundColor: '#fef9c3', color: '#a16207',
+                      }}>
+                        {t('admin.notificaciones.noLeida')}
+                      </span>
+                    )}
+                  </div>
+                  {(first.contenido || first.contenido_key) && (
+                    <p style={{
+                      fontSize: '0.78rem', color: '#6B7280', lineHeight: '1.4',
+                      display: '-webkit-box', WebkitLineClamp: 1,
+                      WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                    }}>
+                      {notifContenido(t, first)}
+                    </p>
+                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
+                    <span style={{ fontSize: '0.7rem', color: '#9CA3AF', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      <Users size={10} />
+                      {t('admin.notificaciones.destinatarios', { count })}
+                    </span>
+                    <span style={{ fontSize: '0.7rem', color: '#D1D5DB' }}>·</span>
+                    <span style={{ fontSize: '0.7rem', color: '#9CA3AF' }}>
+                      {new Date(first.created_at).toLocaleString(intlLocale(lng), {
+                        day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+                      })}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={(e) => handleEliminarGrupo(item.referencia_id, e)}
+                  title={t('admin.notificaciones.eliminar')}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    color: '#9CA3AF', flexShrink: 0, padding: '6px',
+                    borderRadius: '6px', transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#EF4444'
+                    e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.08)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#9CA3AF'
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                  }}
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            )
+          }
+
+          const notif = item.notif
           const isUnread = !notif.leida
           const tipoStyle = TIPO_COLORS[notif.tipo] ?? { bg: '#f3f4f6', color: '#374151' }
           return (
@@ -235,13 +392,13 @@ export default function AdminNotificaciones() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px', flexWrap: 'wrap' }}>
                   <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0a0a4e' }}>
-                    {notif.titulo}
+                    {notifTitulo(t, notif)}
                   </p>
                   <span style={{
                     fontSize: '0.65rem', fontWeight: 700, borderRadius: '9999px',
                     padding: '2px 7px', backgroundColor: tipoStyle.bg, color: tipoStyle.color,
                   }}>
-                    {notif.tipo.replace('_', ' ')}
+                    {notifTipoLabel(t, notif.tipo)}
                   </span>
                   {isUnread && (
                     <span style={{
@@ -252,13 +409,13 @@ export default function AdminNotificaciones() {
                     </span>
                   )}
                 </div>
-                {notif.contenido && (
+                {(notif.contenido || notif.contenido_key) && (
                   <p style={{
                     fontSize: '0.78rem', color: '#6B7280', lineHeight: '1.4',
                     display: '-webkit-box', WebkitLineClamp: 1,
                     WebkitBoxOrient: 'vertical', overflow: 'hidden',
                   }}>
-                    {notif.contenido}
+                    {notifContenido(t, notif)}
                   </p>
                 )}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>

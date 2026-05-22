@@ -18,5 +18,6 @@ class MensajeResponse(BaseModel):
     leido: bool
     remitente_nombre: Optional[str] = None
     remitente_rol: Optional[str] = None
+    remitente_avatar: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)

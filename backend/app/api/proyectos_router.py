@@ -57,6 +57,9 @@ def crear_proyecto(
         contenido=f"{current_user.nombre} creó el proyecto '{proyecto.nombre}'.",
         referencia_id=proyecto.id,
         referencia_tipo="proyecto",
+        titulo_key="notif.proyecto_creado.titulo",
+        contenido_key="notif.proyecto_creado.contenido_admin",
+        params={"proyecto": proyecto.nombre, "admin": current_user.nombre},
     )
 
     if proyecto.cliente_id:
@@ -68,6 +71,9 @@ def crear_proyecto(
             contenido=f"Se ha creado un proyecto a tu nombre: '{proyecto.nombre}'.",
             referencia_id=proyecto.id,
             referencia_tipo="proyecto",
+            titulo_key="notif.proyecto_creado.titulo",
+            contenido_key="notif.proyecto_creado.contenido_cliente",
+            params={"proyecto": proyecto.nombre},
         )
 
     return proyecto

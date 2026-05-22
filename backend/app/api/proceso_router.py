@@ -126,6 +126,7 @@ def cambiar_etapa(
 
     # Notificación automática al cliente del proyecto
     etapa_label = ETAPA_LABELS.get(data.etapa, data.etapa)
+    etapa_anterior_label = ETAPA_LABELS.get(etapa_anterior, etapa_anterior or "—")
     if proyecto.cliente_id:
         notificacion = Notificacion(
             usuario_id=proyecto.cliente_id,
@@ -137,6 +138,17 @@ def cambiar_etapa(
             ),
             referencia_id=proyecto.id,
             referencia_tipo="proyecto",
+            titulo_key="notif.proyecto_actualizado.titulo",
+            contenido_key=(
+                "notif.proyecto_actualizado.contenido_con_notas" if data.notas
+                else "notif.proyecto_actualizado.contenido"
+            ),
+            params={
+                "etapa": etapa_label,
+                "etapa_key": data.etapa,
+                "proyecto": proyecto.nombre,
+                "notas": data.notas or "",
+            },
         )
         db.add(notificacion)
 
@@ -144,7 +156,6 @@ def cambiar_etapa(
     db.refresh(proyecto)
 
     # Notificación a todos los administradores (registro del cambio en el panel admin)
-    etapa_anterior_label = ETAPA_LABELS.get(etapa_anterior, etapa_anterior or "—")
     crear_para_admins(
         db,
         tipo="etapa_cambiada",
@@ -152,6 +163,16 @@ def cambiar_etapa(
         contenido=f"{current_user.nombre} cambió la etapa de '{proyecto.nombre}' de {etapa_anterior_label} a {etapa_label}.",
         referencia_id=proyecto.id,
         referencia_tipo="proyecto",
+        titulo_key="notif.etapa_cambiada.titulo",
+        contenido_key="notif.etapa_cambiada.contenido",
+        params={
+            "proyecto": proyecto.nombre,
+            "admin": current_user.nombre,
+            "anterior": etapa_anterior_label,
+            "anterior_key": etapa_anterior or "",
+            "nueva": etapa_label,
+            "nueva_key": data.etapa,
+        },
     )
 
     historial = (

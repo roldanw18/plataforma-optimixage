@@ -53,6 +53,9 @@ def crear_documento(db: Session, titulo: str, descripcion: str, url: str,
                 contenido=f"{nombre_autor} subió un documento al proyecto",
                 referencia_id=documento.id,
                 referencia_tipo="documento",
+                titulo_key="notif.documento_subido.titulo",
+                contenido_key="notif.documento_subido.contenido",
+                params={"titulo": titulo, "autor": nombre_autor},
             )
 
     return documento
