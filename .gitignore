@@ -205,3 +205,22 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+#others
+.claude/
+docs/Original
+
+# Frontend (Node/Vite)
+node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+.vite/
+
+# Backend - bases de datos locales y subidas
+*.sqlite
+*.sqlite3
+test.db
+optimixage.db
+backend/uploads/
+uploads/

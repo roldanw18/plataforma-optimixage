@@ -1,0 +1,130 @@
+{
+  "nav": {
+    "clientes": "Clients",
+    "proceso": "Process",
+    "documentos": "Documents",
+    "mensajes": "Messages",
+    "notificaciones": "Notifications",
+    "contenido": "Content",
+    "equipo": "Team",
+    "configuracion": "Settings",
+    "logout": "Sign out"
+  },
+  "admin": {
+    "clientes": {
+      "titulo": "Our clients",
+      "nuevoCliente": "New client",
+      "crearProyecto": "Create project",
+      "programarReunion": "Schedule meeting",
+      "noHay": "No clients registered.",
+      "modal": {
+        "titulo": "New client",
+        "nombre": "Full name",
+        "email": "Email address",
+        "password": "Initial password",
+        "crear": "Create client",
+        "cancelar": "Cancel"
+      }
+    },
+    "proceso": {
+      "titulo": "Process",
+      "cambiarEtapa": "Change stage",
+      "noHay": "No active projects. Create a project from the Clients section.",
+      "etapas": {
+        "primer_contacto": "First contact",
+        "diagnostico": "Diagnosis",
+        "capacitacion": "Training",
+        "desarrollo": "Development",
+        "entrega": "Delivery"
+      },
+      "modal": {
+        "etapaActual": "Current stage",
+        "nuevaEtapa": "New stage",
+        "notas": "Notes (optional)",
+        "confirmar": "Confirm change",
+        "guardando": "Saving…",
+        "cancelar": "Cancel"
+      }
+    },
+    "contenido": {
+      "titulo": "Content",
+      "filtros": {
+        "todo": "All",
+        "imagenes": "Images",
+        "videos": "Videos"
+      },
+      "noHay": "No content available."
+    },
+    "documentos": {
+      "titulo": "Document Management",
+      "descripcion": "Upload and manage documents for each project.",
+      "proyecto": "Project",
+      "propietario": "Owner:",
+      "subir": "Upload document",
+      "archivo": "File",
+      "titulo_label": "Title",
+      "descripcionDoc": "Description",
+      "tipo": "Type",
+      "estado": "Status",
+      "subiendo": "Uploading...",
+      "documentosDelProyecto": "Project documents",
+      "noHay": "No documents in this project.",
+      "descargar": "Download",
+      "eliminar": "Delete",
+      "confirmarEliminar": "Delete \"{titulo}\"?",
+      "errorEliminar": "Could not delete the document.",
+      "errorDescargar": "Could not download the document.",
+      "errorSinArchivo": "Select a file.",
+      "errorSinTitulo": "Title is required.",
+      "exito": "Document \"{titulo}\" uploaded successfully.",
+      "errorSubir": "Error uploading the document.",
+      "tipos": {
+        "contrato": "Contract",
+        "propuesta": "Proposal",
+        "informe": "Report",
+        "diseño": "Design",
+        "otro": "Other"
+      },
+      "estados": {
+        "borrador": "Draft",
+        "publicado": "Published"
+      }
+    },
+    "mensajes": {
+      "titulo": "Messages",
+      "descripcion": "Direct communication with clients",
+      "proyectos": "Projects",
+      "sinProyectos": "No projects.",
+      "seleccionar": "Select a project to view messages.",
+      "cargando": "Loading messages...",
+      "sinMensajes": "No messages yet.",
+      "sinMensajesDesc": "The client has not sent messages in this project.",
+      "responder": "Reply to client...",
+      "cliente": "Client",
+      "activo": "Active"
+    },
+    "notificaciones": {
+      "titulo": "Notifications",
+      "descripcion": "Manage system notifications",
+      "marcarTodas": "Mark all as read",
+      "noHay": "No notifications."
+    },
+    "configuracion": {
+      "titulo": "Settings",
+      "descripcion": "Application settings"
+    }
+  },
+  "errors": {
+    "noSePudieron": "Could not load",
+    "error": "Error",
+    "intenteLuego": "Try again later"
+  },
+  "buttons": {
+    "guardar": "Save",
+    "cancelar": "Cancel",
+    "crear": "Create",
+    "eliminar": "Delete",
+    "editar": "Edit"
+  },
+  "idioma": "Language"
+}

@@ -1,13 +1,15 @@
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from app.models.usuario import Usuario
 from app.models.rol import Rol
+from app.core.config import settings
 from app.core.security import hash_password, verify_password
+from app.utils.audit import registrar_evento
 from jose import jwt
-from datetime import datetime, timedelta
 
-SECRET_KEY = "supersecretkey"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.JWT_ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 
 def crear_usuario(db: Session, nombre: str, email: str, password: str):
@@ -25,6 +27,17 @@ def crear_usuario(db: Session, nombre: str, email: str, password: str):
     )
 
     db.add(usuario)
+    db.flush()  # obtener el id antes del commit
+
+    registrar_evento(
+        db,
+        accion="registro_usuario",
+        usuario_id=usuario.id,
+        tabla="usuarios",
+        registro_id=usuario.id,
+        detalle_nuevo={"nombre": nombre, "email": email, "rol": "Cliente"},
+    )
+
     db.commit()
     db.refresh(usuario)
 
@@ -49,7 +62,7 @@ def crear_token(usuario: Usuario):
     payload = {
         "sub": str(usuario.id),
         "email": usuario.email,
-        "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     }
 
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)

@@ -1,0 +1,94 @@
+{
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "documents": "Documents",
+    "messages": "Messages",
+    "content": "Content",
+    "contact": "Contact",
+    "settings": "Settings",
+    "logout": "Sign Out"
+  },
+  "common": {
+    "back_to_dashboard": "Back to Dashboard"
+  },
+  "inicio": {
+    "title": "My Projects",
+    "welcome": "Hi {{name}}, welcome",
+    "content_title": "Featured Content",
+    "no_content": "No content available at this time",
+    "no_projects": "You don't have any assigned projects yet."
+  },
+  "documentos": {
+    "title": "Documents",
+    "subtitle": "Manage and view project files.",
+    "upload_title": "Upload Document",
+    "no_documents": "No documents available",
+    "uploaded_on": "Uploaded {{date}}",
+    "download": "Download",
+    "type": "Type"
+  },
+  "proceso": {
+    "title": "My Process",
+    "subtitle": "Project stages",
+    "current_stage": "Current Stage",
+    "next_stage": "Next Stage",
+    "no_projects": "No projects in progress",
+    "stages": {
+      "primer_contacto": "First Contact",
+      "diagnostico": "Diagnosis",
+      "capacitacion": "Training",
+      "desarrollo": "Development",
+      "entrega": "Delivery"
+    }
+  },
+  "contenido": {
+    "title": "Content",
+    "subtitle": "Materials and Resources",
+    "filters": {
+      "all": "All",
+      "images": "Images",
+      "videos": "Videos"
+    },
+    "no_content": "No content available",
+    "view": "View",
+    "download": "Download"
+  },
+  "mensajes": {
+    "title": "Messages",
+    "subtitle": "Communicate with us",
+    "message_placeholder": "Write your message here...",
+    "send": "Send",
+    "no_messages": "No messages yet",
+    "sent": "Sent",
+    "sending": "Sending...",
+    "you": "You",
+    "team": "Team"
+  },
+  "contacto": {
+    "title": "Contact",
+    "subtitle": "Get in touch with us",
+    "email": "Email",
+    "phone": "Phone",
+    "message": "Message",
+    "send": "Send",
+    "sending": "Sending...",
+    "success": "Message sent successfully",
+    "error": "Error sending message"
+  },
+  "configuracion": {
+    "title": "My Settings",
+    "subtitle": "Manage your profile",
+    "personal_info": "Personal Information",
+    "full_name": "Full Name",
+    "email": "Email",
+    "phone": "Phone",
+    "avatar": "Avatar",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "success": "Changes saved successfully",
+    "error": "Error saving changes",
+    "password": "Change Password",
+    "change_password": "Change Password"
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "nav": {
+    "clientes": "Clientes",
+    "proceso": "Proceso",
+    "documentos": "Documentos",
+    "mensajes": "Mensajes",
+    "notificaciones": "Notificaciones",
+    "contenido": "Contenido",
+    "equipo": "Equipo",
+    "configuracion": "Configuración",
+    "logout": "Cerrar sesión"
+  },
+  "admin": {
+    "clientes": {
+      "titulo": "Nuestros clientes",
+      "nuevoCliente": "Nuevo cliente",
+      "crearProyecto": "Crear proyecto",
+      "programarReunion": "Programar reunión",
+      "noHay": "No hay clientes registrados.",
+      "modal": {
+        "titulo": "Nuevo cliente",
+        "nombre": "Nombre completo",
+        "email": "Correo electrónico",
+        "password": "Contraseña inicial",
+        "crear": "Crear cliente",
+        "cancelar": "Cancelar"
+      }
+    },
+    "proceso": {
+      "titulo": "Proceso",
+      "cambiarEtapa": "Cambiar etapa",
+      "noHay": "No hay proyectos activos. Creá un proyecto desde la sección Clientes.",
+      "etapas": {
+        "primer_contacto": "Primer contacto",
+        "diagnostico": "Diagnóstico",
+        "capacitacion": "Capacitación",
+        "desarrollo": "Desarrollo",
+        "entrega": "Entrega"
+      },
+      "modal": {
+        "etapaActual": "Etapa actual",
+        "nuevaEtapa": "Nueva etapa",
+        "notas": "Notas (opcional)",
+        "confirmar": "Confirmar cambio",
+        "guardando": "Guardando…",
+        "cancelar": "Cancelar"
+      }
+    },
+    "contenido": {
+      "titulo": "Contenido",
+      "filtros": {
+        "todo": "Todo",
+        "imagenes": "Imágenes",
+        "videos": "Videos"
+      },
+      "noHay": "No hay contenido disponible."
+    },
+    "documentos": {
+      "titulo": "Gestión de Documentos",
+      "descripcion": "Sube y gestiona los documentos de cada proyecto.",
+      "proyecto": "Proyecto",
+      "propietario": "Propietario:",
+      "subir": "Subir documento",
+      "archivo": "Archivo",
+      "titulo_label": "Título",
+      "descripcionDoc": "Descripción",
+      "tipo": "Tipo",
+      "estado": "Estado",
+      "subiendo": "Subiendo...",
+      "documentosDelProyecto": "Documentos del proyecto",
+      "noHay": "No hay documentos en este proyecto.",
+      "descargar": "Descargar",
+      "eliminar": "Eliminar",
+      "confirmarEliminar": "¿Eliminar \"{titulo}\"?",
+      "errorEliminar": "No se pudo eliminar el documento.",
+      "errorDescargar": "No se pudo descargar el documento.",
+      "errorSinArchivo": "Selecciona un archivo.",
+      "errorSinTitulo": "El título es obligatorio.",
+      "exito": "Documento \"{titulo}\" subido correctamente.",
+      "errorSubir": "Error al subir el documento.",
+      "tipos": {
+        "contrato": "Contrato",
+        "propuesta": "Propuesta",
+        "informe": "Informe",
+        "diseño": "Diseño",
+        "otro": "Otro"
+      },
+      "estados": {
+        "borrador": "Borrador",
+        "publicado": "Publicado"
+      }
+    },
+    "mensajes": {
+      "titulo": "Mensajes",
+      "descripcion": "Comunicación directa con clientes",
+      "proyectos": "Proyectos",
+      "sinProyectos": "Sin proyectos.",
+      "seleccionar": "Selecciona un proyecto para ver los mensajes.",
+      "cargando": "Cargando mensajes...",
+      "sinMensajes": "Sin mensajes aún.",
+      "sinMensajesDesc": "El cliente no ha enviado mensajes en este proyecto.",
+      "responder": "Responder al cliente...",
+      "cliente": "Cliente",
+      "activo": "Activo"
+    },
+    "notificaciones": {
+      "titulo": "Notificaciones",
+      "descripcion": "Gestiona las notificaciones del sistema",
+      "marcarTodas": "Marcar todas como leídas",
+      "noHay": "No hay notificaciones."
+    },
+    "configuracion": {
+      "titulo": "Configuración",
+      "descripcion": "Ajustes de la aplicación"
+    }
+  },
+  "errors": {
+    "noSePudieron": "No se pudieron cargar",
+    "error": "Error",
+    "intenteLuego": "Intente más tarde"
+  },
+  "buttons": {
+    "guardar": "Guardar",
+    "cancelar": "Cancelar",
+    "crear": "Crear",
+    "eliminar": "Eliminar",
+    "editar": "Editar"
+  },
+  "idioma": "Idioma"
+}

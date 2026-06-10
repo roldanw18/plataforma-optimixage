@@ -1,0 +1,63 @@
+services:
+  # ─────────────────────────────────────────────────────────────
+  # Backend FastAPI (Docker)
+  # URL: https://seguimiento-proyectos-api.onrender.com
+  # ─────────────────────────────────────────────────────────────
+  - type: web
+    name: seguimiento-proyectos-api
+    runtime: docker
+    plan: free
+    region: oregon
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: BOOTSTRAP_ADMIN_PASSWORD
+        sync: false
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
+      - key: ENVIRONMENT
+        value: production
+      - key: CORS_ORIGINS
+        value: https://seguimiento-proyectos.onrender.com
+      - key: BOOTSTRAP_ADMIN_EMAIL
+        value: admin@optimixage.local
+      - key: BOOTSTRAP_ADMIN_NOMBRE
+        value: Administrador
+
+  # ─────────────────────────────────────────────────────────────
+  # Frontend React (Static Site — nunca se duerme)
+  # URL: https://seguimiento-proyectos.onrender.com
+  # ─────────────────────────────────────────────────────────────
+  - type: web
+    name: seguimiento-proyectos
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install --include=dev && npm run build
+    staticPublishPath: ./dist
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NPM_CONFIG_PRODUCTION
+        value: "false"
+      - key: VITE_API_URL
+        value: https://seguimiento-proyectos-api.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
