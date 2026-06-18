@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, JSON
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from app.core.database import Base
@@ -24,6 +24,6 @@ class Notificacion(Base):
     # (broadcasts), se dejan en NULL y se usa `titulo`/`contenido` tal cual.
     titulo_key = Column(String, nullable=True)
     contenido_key = Column(String, nullable=True)
-    params = Column(JSONB, nullable=True)
+    params = Column(JSON().with_variant(JSONB, "postgresql"), nullable=True)
 
     usuario = relationship("Usuario", lazy="joined", foreign_keys=[usuario_id])
