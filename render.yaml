@@ -1,10 +1,15 @@
 services:
   # ─────────────────────────────────────────────────────────────
   # Backend FastAPI (Docker)
-  # URL: https://seguimiento-proyectos-api.onrender.com
+  # URL: https://optimixage-plataforma-api.onrender.com
+  #
+  # NOTA: si al hacer "Apply Blueprint" Render rechaza el nombre
+  # porque ya está tomado, cambia `name` (y las 2 referencias a la
+  # URL del frontend / backend más abajo) por algo único, por
+  # ejemplo "optimixage-app" o el nombre que prefieras.
   # ─────────────────────────────────────────────────────────────
   - type: web
-    name: seguimiento-proyectos-api
+    name: optimixage-plataforma-api
     runtime: docker
     plan: free
     region: oregon
@@ -26,7 +31,7 @@ services:
       - key: ENVIRONMENT
         value: production
       - key: CORS_ORIGINS
-        value: https://seguimiento-proyectos.onrender.com
+        value: https://optimixage-plataforma.onrender.com
       - key: BOOTSTRAP_ADMIN_EMAIL
         value: admin@optimixage.local
       - key: BOOTSTRAP_ADMIN_NOMBRE
@@ -34,10 +39,10 @@ services:
 
   # ─────────────────────────────────────────────────────────────
   # Frontend React (Static Site — nunca se duerme)
-  # URL: https://seguimiento-proyectos.onrender.com
+  # URL: https://optimixage-plataforma.onrender.com
   # ─────────────────────────────────────────────────────────────
   - type: web
-    name: seguimiento-proyectos
+    name: optimixage-plataforma
     runtime: static
     rootDir: frontend
     buildCommand: npm install --include=dev && npm run build
@@ -49,7 +54,7 @@ services:
       - key: NPM_CONFIG_PRODUCTION
         value: "false"
       - key: VITE_API_URL
-        value: https://seguimiento-proyectos-api.onrender.com
+        value: https://optimixage-plataforma-api.onrender.com
     routes:
       - type: rewrite
         source: /*

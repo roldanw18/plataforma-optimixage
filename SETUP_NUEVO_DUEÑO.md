@@ -199,6 +199,13 @@ El repositorio contiene un archivo `render.yaml` listo para usar:
 4. Pegue los valores de su `.env`.
 5. **Apply** → en 5-8 minutos tendrá 2 URLs públicas: una para la app y otra para el backend.
 
+> **Si Render rechaza el nombre** porque el subdominio ya está tomado por
+> otro usuario (`optimixage-plataforma.onrender.com` es first-come-first-served),
+> edite `render.yaml` antes del paso 2 y cambie las 3 referencias
+> (`name:` del backend, `name:` del frontend, y la `VITE_API_URL` /
+> `CORS_ORIGINS`) por un nombre único como `mi-empresa-app` o el que
+> prefiera. Render le dirá si está disponible al hacer **Apply**.
+
 Costo: free tier suficiente para demos. ~$7/mes si quiere que el backend no se duerma tras 15 min de inactividad.
 
 ### Opción B — VPS propio (Hetzner, DigitalOcean, AWS, etc.)
